@@ -2,14 +2,15 @@ import { PublicProfileRoutePage } from "@/app/PublicProfileRoutePage";
 import { storefrontMetadata } from "@/lib/commerce/storefront-metadata";
 import { resolvePublicProfile } from "@/lib/public-profile-route";
 import { normalizeRouteLocale, profilePath } from "@/lib/routes";
-import { cookies } from "next/headers";
+import { getServerLocale } from "@/lib/server-locale";
 import { notFound, permanentRedirect } from "next/navigation";
+
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 async function currentLocale() {
-  return normalizeRouteLocale((await cookies()).get("locale")?.value);
+  return await getServerLocale();
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

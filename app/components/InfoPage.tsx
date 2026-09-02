@@ -1,6 +1,7 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 
 import { useLanguage, type Locale } from "@/lib/i18n";
 
@@ -57,7 +58,7 @@ export default function InfoPage({ copy }: InfoPageProps) {
           </div>
           <div className="info-hero-visual" aria-label={visualLabel ?? title}>
             <span className="info-visual-badge">{kicker}</span>
-            <strong>Maskines</strong>
+            <strong><UiText text={"Maskines"} /></strong>
             <small>{visualLabel ?? lead}</small>
             {stats.length > 0 ? (
               <div className="info-stat-grid">

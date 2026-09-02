@@ -1,7 +1,8 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "@/app/components/LocalizedLink";
+import { usePathname, useRouter } from "@/lib/navigation";
 import { useEffect, useState } from "react";
 import { Bell, Car, Home, LockKeyhole, MessageCircle, Plus, Search, SlidersHorizontal, UserRound, Wrench } from "lucide-react";
 import {
@@ -405,7 +406,7 @@ export default function BottomNav() {
       /* ok */
     }
 
-    router.push("/");
+    router.push(document.querySelector("main[data-collection-search-href]")?.getAttribute("data-collection-search-href") || "/");
   };
 
   function markConversationNotificationRead(conversation: ConversationSummary) {
@@ -462,16 +463,15 @@ export default function BottomNav() {
           <span className="bottom-nav-label">{copy.home}</span>
         </Link>
 
-        <button
-          type="button"
-          className="bottom-nav-item bottom-nav-center-action"
-          onClick={goToLogin}
-          aria-label={copy.login}
-        >
-          <span className="bottom-nav-icon"><LockKeyhole size={24} /></span>
-          <span className="bottom-nav-label">{copy.login}</span>
-        </button>
+        <Link href={sellActionHref} className="bottom-nav-item bottom-nav-center-action" aria-label={copy.createListing}>
+          <span className="bottom-nav-icon"><Plus size={24} /></span>
+          <span className="bottom-nav-label">{copy.createListing}</span>
+        </Link>
 
+        <Link href={`${authHref}?mode=login`} className="bottom-nav-item" aria-label={copy.login}>
+          <span className="bottom-nav-icon"><LockKeyhole size={22} /></span>
+          <span className="bottom-nav-label">{copy.login}</span>
+        </Link>
         <button
           type="button"
           className="bottom-nav-item bottom-nav-search-action"
@@ -512,7 +512,7 @@ export default function BottomNav() {
 
         <Link href={sellActionHref} className={`bottom-nav-item bottom-nav-center-action${canonicalPathname.startsWith("/sell") ? " active" : ""}`} aria-label={copy.createListing}>
           <span className="bottom-nav-icon"><Plus size={24} /></span>
-          <span className="bottom-nav-label">{userId ? copy.createListing : copy.login}</span>
+          <span className="bottom-nav-label">{copy.createListing}</span>
         </Link>
 
         {userId ? (
@@ -576,7 +576,7 @@ export default function BottomNav() {
 
         <Link href={sellActionHref} className={`bottom-nav-item bottom-nav-solid${canonicalPathname.startsWith("/sell") ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Plus size={24} /></span>
-          <span className="bottom-nav-label">{userId ? copy.createListing : copy.login}</span>
+          <span className="bottom-nav-label">{copy.createListing}</span>
         </Link>
 
         {userId ? (
@@ -630,9 +630,7 @@ export default function BottomNav() {
                 className="bn-garage-close"
                 aria-label={copy.closeGarage}
                 onClick={() => setGarageOpen(false)}
-              >
-                X
-              </button>
+              ><UiText text={"X"} /></button>
             </div>
 
             {!userId ? (

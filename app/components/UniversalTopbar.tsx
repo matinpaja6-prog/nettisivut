@@ -1,10 +1,12 @@
 "use client";
+import UiText from "@/app/components/UiText";
+import CreateListingAction from "./CreateListingAction";
 
 import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, LockKeyhole, Mail, Menu, MessageCircle, PackageCheck, Search, Settings, Star, Store, UserRound, Users, X } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
+import Link from "@/app/components/LocalizedLink";
+import { usePathname } from "@/lib/navigation";
+import { useRouter } from "@/lib/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent as ReactFormEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { createPortal } from "react-dom";
 import type { User } from "@supabase/supabase-js";
@@ -33,6 +35,10 @@ import {
   type PurchaseReviewRequest,
   type SellerLevelStats,
 } from "@/lib/supabase";
+import { getLocalizedListingText } from "@/lib/listing-translations";
+import { listingMatchesQuery } from "@/lib/listing-query";
+import { marketplaceCopy } from "@/lib/marketplace-copy";
+import { getStaticTranslation } from "@/lib/ui-translations";
 import { formatPrice, type Listing } from "@/lib/listings";
 import { calculateSellerLevel } from "@/lib/seller-level";
 import { readCart } from "@/lib/commerce/cart";
@@ -309,7 +315,7 @@ const topbarText: Record<Locale, {
     orders: "Omat ostokset",
     orderNotifications: "Uudet tilaukset",
     newPaidOrder: "Uusi maksettu tilaus",
-    marketplaceSearch: "Hae tuotteita, varaosia, OEM-numerolla, ID:llä tai yritystä",
+    marketplaceSearch: "Hae osaa tai osanumeroa",
     filter: "Suodata",
     stores: "Yritykset",
     parts: "Varaosat",
@@ -360,7 +366,7 @@ const topbarText: Record<Locale, {
     orders: "My purchases",
     orderNotifications: "New orders",
     newPaidOrder: "New paid order",
-    marketplaceSearch: "Search products, parts or vehicles",
+    marketplaceSearch: "Search parts or part number",
     filter: "Filter",
     stores: "Stores",
     parts: "Parts",
@@ -411,7 +417,7 @@ const topbarText: Record<Locale, {
     orders: "Mina köp",
     orderNotifications: "Nya beställningar",
     newPaidOrder: "Ny betald beställning",
-    marketplaceSearch: "Sök produkter, reservdelar eller fordon",
+    marketplaceSearch: "Sök del eller artikelnummer",
     filter: "Filtrera",
     stores: "Butiker",
     parts: "Reservdelar",
@@ -462,7 +468,7 @@ const topbarText: Record<Locale, {
     orders: "Mine kjøp",
     orderNotifications: "Nye bestillinger",
     newPaidOrder: "Ny betalt bestilling",
-    marketplaceSearch: "Søk produkter, deler eller kjøretøy",
+    marketplaceSearch: "Søk del eller delenummer",
     filter: "Filtrer",
     stores: "Butikker",
     parts: "Reservedeler",
@@ -664,7 +670,7 @@ export default function UniversalTopbar() {
   const [marketplaceSearchOpen, setMarketplaceSearchOpen] = useState(false);
   const [marketplaceCatalog, setMarketplaceCatalog] = useState<Listing[]>([]);
   const [marketplaceCatalogLoading, setMarketplaceCatalogLoading] = useState(false);
-  const marketplaceCatalogRequestedRef = useRef(false);
+  const [marketplaceCatalogError, setMarketplaceCatalogError] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuOverlayRef = useRef<HTMLDivElement>(null);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
@@ -678,22 +684,24 @@ export default function UniversalTopbar() {
   }, [canonicalPathname]);
 
   useEffect(() => {
-    if (marketplaceQuery.trim().length < 2 || marketplaceCatalogRequestedRef.current) return;
-    marketplaceCatalogRequestedRef.current = true;
+    const query = marketplaceQuery.trim();
+    if (query.length < 2 || !marketplaceSearchOpen) { setMarketplaceCatalogLoading(false); return; }
+    const controller = new AbortController();
+    setMarketplaceCatalog([]);
+    setMarketplaceCatalogError(false);
     setMarketplaceCatalogLoading(true);
-    void getListings({ includeOptionalFields: true, enrichSellerProfiles: true })
-      .then(({ data, error }) => {
-        if (error) {
-          marketplaceCatalogRequestedRef.current = false;
-          return;
-        }
-        setMarketplaceCatalog((data ?? []).filter((listing) => !listing.is_sold && !listing.is_hidden));
-      })
-      .catch(() => {
-        marketplaceCatalogRequestedRef.current = false;
-      })
-      .finally(() => setMarketplaceCatalogLoading(false));
-  }, [marketplaceQuery]);
+    const timer = setTimeout(() => {
+      void getListings({ filters: { query }, limit: 24, includeOptionalFields: true, enrichSellerProfiles: true, signal: controller.signal })
+        .then(({data,error}) => {
+          if (controller.signal.aborted) return;
+          setMarketplaceCatalogError(Boolean(error));
+          if (!error) setMarketplaceCatalog((data || []).filter(listing => !listing.is_sold && !listing.is_hidden));
+        })
+        .catch(() => { if (!controller.signal.aborted) setMarketplaceCatalogError(true); })
+        .finally(() => { if (!controller.signal.aborted) setMarketplaceCatalogLoading(false); });
+    }, 300);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [marketplaceQuery, marketplaceSearchOpen]);
 
   const marketplaceSuggestions = useMemo(() => {
     const needle = normalizeMarketplaceSearch(marketplaceQuery);
@@ -703,43 +711,16 @@ export default function UniversalTopbar() {
       sellers: [] as Array<{ label: string; count: number }>,
       totalCount: 0
     };
-    const needleWords = needle.split(" ").filter(Boolean);
     const results = marketplaceCatalog
       .map((listing) => {
         const seller = listing.company_name?.trim() || listing.seller_name?.trim() || "";
         const listingNumber = String(listing.listing_number ?? "");
-        const searchable = normalizeMarketplaceSearch([
-          listing.id,
-          listingNumber,
-          listingNumber ? `id${listingNumber}` : "",
-          listingNumber ? `ilmoitus ${listingNumber}` : "",
-          listing.title,
-          listing.description,
-          listing.vehicle_type,
-          listing.vehicle_subtype,
-          listing.brand,
-          listing.model,
-          listing.year,
-          listing.engine_cc,
-          listing.engine_model,
-          listing.category,
-          listing.subcategory,
-          listing.part_number,
-          listing.part_model,
-          listing.condition,
-          listing.location,
-          seller
-        ].filter(Boolean).join(" "));
-        const searchableWords = searchable.split(" ").filter(Boolean);
-        const matches = searchable.includes(needle) || needleWords.every((word) =>
-          searchableWords.some((candidate) => candidate === word || candidate.startsWith(word) || (word.length >= 4 && candidate.includes(word)))
-        );
-        if (!matches) return null;
+        // Results are already filtered by the bounded database query, including glossary/OEM aliases.
 
-        const title = normalizeMarketplaceSearch(listing.title);
+        const title = normalizeMarketplaceSearch(getLocalizedListingText(listing, locale).title);
         const sellerText = normalizeMarketplaceSearch(seller);
         const identifier = normalizeMarketplaceSearch(`${listingNumber} id${listingNumber} ${listing.id}`);
-        let score = 0;
+        let score = listingMatchesQuery(listing, marketplaceQuery) ? 10 : 0;
         if (title === needle) score += 120;
         else if (title.startsWith(needle)) score += 90;
         else if (title.includes(needle)) score += 70;
@@ -769,7 +750,7 @@ export default function UniversalTopbar() {
       })).sort((a, b) => b.count - a.count).slice(0, 6),
       totalCount: results.length
     };
-  }, [marketplaceCatalog, marketplaceQuery]);
+  }, [marketplaceCatalog, marketplaceQuery, locale]);
 
   useEffect(() => {
     const syncCart = () => {
@@ -1361,25 +1342,6 @@ export default function UniversalTopbar() {
       ? `${authHref}?mode=login&next=${encodeURIComponent(searchAlertsPageHref)}`
       : searchAlertsPageHref;
 
-  useEffect(() => {
-    if (!authChecked) return;
-
-    [
-      garageHref,
-      searchAlertsHref,
-      aboutHref,
-      faqHref,
-      authHref
-    ].forEach((href) => router.prefetch(href));
-  }, [
-    aboutHref,
-    authChecked,
-    authHref,
-    faqHref,
-    garageHref,
-    router,
-    searchAlertsHref
-  ]);
 
   function toggleNotifications() {
     setProfileOpen(false);
@@ -1716,7 +1678,7 @@ export default function UniversalTopbar() {
     } catch {
       /* Session storage may be unavailable in restricted browser contexts. */
     }
-    router.push("/");
+    router.push(document.querySelector("main[data-collection-search-href]")?.getAttribute("data-collection-search-href") || "/");
   }
 
   function runMarketplaceSearch(value: string) {
@@ -1997,7 +1959,7 @@ export default function UniversalTopbar() {
               {isAdmin && (
                 <div className="universal-profile-menu-group universal-profile-menu-admin-group">
                   <Link href="/admin" className={`universal-profile-menu-link admin${isActiveRoute("/admin") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <Menu size={18} /><span>Admin</span><ChevronRight className="universal-profile-menu-chevron" size={17} />
+                    <Menu size={18} /><span><UiText text={"Admin"} /></span><ChevronRight className="universal-profile-menu-chevron" size={17} />
                   </Link>
                 </div>
               )}
@@ -2100,7 +2062,7 @@ export default function UniversalTopbar() {
             autoComplete="off"
             spellCheck={false}
           />
-          <button type="submit">
+          <button type="submit" aria-label={locale === "fi" ? "Hae" : t.searchLabel}>
             <Search size={17} aria-hidden="true" />
             <span>{locale === "fi" ? "Hae" : t.searchLabel}</span>
           </button>
@@ -2108,7 +2070,7 @@ export default function UniversalTopbar() {
             <section
               id="marketplace-header-suggestions"
               className="marketplace-header-suggestions"
-              aria-label={locale === "fi" ? "Hakuehdotukset" : "Search suggestions"}
+              aria-label={marketplaceCopy[locale].suggestions}
               onMouseDown={(event) => event.preventDefault()}
             >
               <div className="marketplace-header-suggestion-groups">
@@ -2120,27 +2082,27 @@ export default function UniversalTopbar() {
                   <Search size={16} aria-hidden="true" />
                   <span>
                     <strong>{marketplaceQuery.trim()}</strong>
-                    <small> – {locale === "fi" ? "Kaikki ilmoitukset" : "All listings"} ({marketplaceSuggestions.totalCount} {locale === "fi" ? (marketplaceSuggestions.totalCount === 1 ? "osuma" : "osumaa") : (marketplaceSuggestions.totalCount === 1 ? "match" : "matches")})</small>
+                    <small> – {{fi:"Näytä kaikki tulokset",en:"Show all results",sv:"Visa alla resultat",no:"Vis alle resultater"}[locale]}</small>
                   </span>
                 </button>
                 {marketplaceSuggestions.categories.length > 0 ? (
                   <div className="marketplace-header-suggestion-group">
-                    <strong>{locale === "fi" ? "Tuoteryhmistä" : "Categories"}</strong>
+                    <strong>{marketplaceCopy[locale].categories}</strong>
                     {marketplaceSuggestions.categories.map((category) => (
                       <button key={category.label} type="button" onClick={() => runMarketplaceSearch(`${marketplaceQuery.trim()} ${category.label}`)}>
                         <Search size={15} aria-hidden="true" />
-                        <span><b>{marketplaceQuery.trim()}</b><small> – {category.label} ({category.count} {locale === "fi" ? (category.count === 1 ? "osuma" : "osumaa") : (category.count === 1 ? "match" : "matches")})</small></span>
+                        <span><b>{marketplaceQuery.trim()}</b><small> – {getStaticTranslation(locale, category.label) ?? category.label} ({category.count})</small></span>
                       </button>
                     ))}
                   </div>
                 ) : null}
                 {marketplaceSuggestions.sellers.length > 0 ? (
                   <div className="marketplace-header-suggestion-group">
-                    <strong>{locale === "fi" ? "Yrityksistä ja myyjistä" : "Companies and sellers"}</strong>
+                    <strong>{marketplaceCopy[locale].sellers}</strong>
                     {marketplaceSuggestions.sellers.map((seller) => (
                       <button key={seller.label} type="button" onClick={() => runMarketplaceSearch(seller.label)}>
                         <Store size={15} aria-hidden="true" />
-                        <span><b>{marketplaceQuery.trim()}</b><small> – {seller.label} ({seller.count} {locale === "fi" ? (seller.count === 1 ? "osuma" : "osumaa") : (seller.count === 1 ? "match" : "matches")})</small></span>
+                        <span><b>{marketplaceQuery.trim()}</b><small> – {seller.label} ({seller.count})</small></span>
                       </button>
                     ))}
                   </div>
@@ -2148,8 +2110,8 @@ export default function UniversalTopbar() {
               </div>
               <div className="marketplace-header-suggestion-products">
                 {marketplaceCatalogLoading ? (
-                  <p>{locale === "fi" ? "Haetaan tuotteita…" : "Searching products…"}</p>
-                ) : marketplaceSuggestions.products.length > 0 ? marketplaceSuggestions.products.map((listing) => {
+                  <p role="status">{marketplaceCopy[locale].searching}</p>
+                ) : marketplaceCatalogError ? <p role="status">{marketplaceCopy[locale].searchError}</p> : marketplaceSuggestions.products.length > 0 ? marketplaceSuggestions.products.map((listing) => {
                   const seller = listing.company_name?.trim() || listing.seller_name?.trim();
                   const detail = [seller, listing.brand, listing.model, listing.part_number].filter(Boolean).join(" · ");
                   const imageUrl = listing.image_url || listing.image_urls?.find(Boolean) || "/maskines-brand-mark-clean-v4.png";
@@ -2162,14 +2124,14 @@ export default function UniversalTopbar() {
                     >
                       <Image src={imageUrl} alt="" width={58} height={58} unoptimized />
                       <span>
-                        <strong>{listing.title}</strong>
+                        <strong>{getLocalizedListingText(listing, locale).title}</strong>
                         {detail ? <small>{detail}</small> : null}
                       </span>
                       <b>{formatPrice(listing.price)}</b>
                     </Link>
                   );
                 }) : (
-                  <p>{locale === "fi" ? "Ei suoria ehdotuksia. Hae nähdäksesi kaikki osumat." : "No direct suggestions. Search to see all matches."}</p>
+                  <p>{marketplaceCopy[locale].noSuggestions}</p>
                 )}
               </div>
             </section>
@@ -2179,14 +2141,8 @@ export default function UniversalTopbar() {
       <nav className={`universal-topbar-actions${!userId ? " universal-topbar-actions-guest" : ""}`} aria-label={ui.quickActions}>
         {!isAuthPage && (!userId ? (
           <>
-            <CartHoverPreview quantity={cartQuantity} />
-            <Link
-              href={`${authHref}?mode=login`}
-              className="universal-mobile-login-button"
-              aria-label={t.login}
-            >
-              <LockKeyhole size={19} strokeWidth={2.3} aria-hidden="true" />
-            </Link>
+            <CreateListingAction />
+            {cartQuantity > 0 ? <CartHoverPreview quantity={cartQuantity} /> : null}
           </>
         ) : (
           <>
@@ -2218,7 +2174,7 @@ export default function UniversalTopbar() {
                 </small>
               </Link>
             ) : null}
-            <CartHoverPreview quantity={cartQuantity} />
+            {cartQuantity > 0 ? <CartHoverPreview quantity={cartQuantity} /> : null}
             <div className="universal-notification-wrap" ref={notificationMenuRef}>
               <button
                 type="button"
@@ -2454,14 +2410,7 @@ export default function UniversalTopbar() {
             </div>
           )}
         </div>
-        <Link id="maskines-create-listing-button" href="/sell" className="universal-create-button universal-create-button-desktop-only">
-          <span className="universal-create-plus" aria-hidden="true">
-            <svg viewBox="0 0 16 16" focusable="false">
-              <path d="M8 3v10M3 8h10" />
-            </svg>
-          </span>
-          <strong>{t.createListing}</strong>
-        </Link>
+        <CreateListingAction />
         <button
           type="button"
           className="universal-mobile-search-button"

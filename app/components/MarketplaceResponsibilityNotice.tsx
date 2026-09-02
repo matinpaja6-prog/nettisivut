@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 import { AlertTriangle, Store } from "lucide-react";
 
 import { useLanguage, type Locale } from "@/lib/i18n";
@@ -11,7 +11,7 @@ const noticeCopy: Record<Locale, Record<NoticeAudience, { title: string; body: s
   fi: {
     buyer: {
       title: "Kauppa tehdään myyjän kanssa",
-      body: "Maskines tarjoaa markkinapaikan ja maksamisen teknisen välityksen, mutta ei ole tuotteen myyjä tai kaupan osapuoli. Myyjä vastaa tuotteen tiedoista, kunnosta, toimituksesta, palautuksista, hyvityksistä ja muista kauppaan liittyvistä velvoitteista. Ongelmatilanteessa ota ensin yhteyttä myyjään.",
+      body: "Maskines tarjoaa markkinapaikan ja maksamisen teknisen välityksen. Kaupan sopimuskumppanisi on ilmoituksessa tai kassalla nimetty myyjä. Myyjä vastaa tuotteen tiedoista, kunnosta, toimituksesta, palautuksista, hyvityksistä ja muista kauppaan liittyvistä velvoitteista. Ongelmatilanteessa ota ensin yhteyttä myyjään.",
       legal: "Tämä ei rajoita pakottavaan lainsäädäntöön perustuvia oikeuksiasi eikä Maskinesin vastuuta omasta palvelustaan.",
       terms: "Lue käyttöehdot",
     },
@@ -25,7 +25,7 @@ const noticeCopy: Record<Locale, Record<NoticeAudience, { title: string; body: s
   en: {
     buyer: {
       title: "Your purchase is with the seller",
-      body: "Maskines provides the marketplace and technical payment facilitation, but is not the product seller or a party to the sale. The seller is responsible for product information, condition, delivery, returns, refunds and other obligations related to the sale. Contact the seller first if a problem occurs.",
+      body: "Maskines provides the marketplace and technical payment facilitation. Your contracting party is the seller identified in the listing or at checkout. The seller is responsible for product information, condition, delivery, returns, refunds and other obligations related to the sale. Contact the seller first if a problem occurs.",
       legal: "This does not limit your mandatory statutory rights or Maskines' liability for its own service.",
       terms: "Read the Terms of Use",
     },
@@ -39,7 +39,7 @@ const noticeCopy: Record<Locale, Record<NoticeAudience, { title: string; body: s
   sv: {
     buyer: {
       title: "Köpet görs med säljaren",
-      body: "Maskines tillhandahåller marknadsplatsen och den tekniska betalningsförmedlingen men är inte produktens säljare eller part i köpet. Säljaren ansvarar för produktuppgifter, skick, leverans, returer, återbetalningar och andra skyldigheter som gäller köpet. Kontakta först säljaren vid problem.",
+      body: "Maskines tillhandahåller marknadsplatsen och den tekniska betalningsförmedlingen. Din avtalspart är säljaren som anges i annonsen eller i kassan. Säljaren ansvarar för produktuppgifter, skick, leverans, returer, återbetalningar och andra skyldigheter som gäller köpet. Kontakta först säljaren vid problem.",
       legal: "Detta begränsar inte dina tvingande lagstadgade rättigheter eller Maskines ansvar för sin egen tjänst.",
       terms: "Läs användarvillkoren",
     },
@@ -53,7 +53,7 @@ const noticeCopy: Record<Locale, Record<NoticeAudience, { title: string; body: s
   no: {
     buyer: {
       title: "Kjøpet gjøres med selgeren",
-      body: "Maskines tilbyr markedsplassen og den tekniske betalingsformidlingen, men er ikke selger av produktet eller part i handelen. Selgeren er ansvarlig for produktopplysninger, tilstand, levering, returer, refusjoner og andre plikter knyttet til handelen. Kontakt selgeren først dersom det oppstår et problem.",
+      body: "Maskines tilbyr markedsplassen og den tekniske betalingsformidlingen. Din avtalepart er selgeren som er oppgitt i annonsen eller i kassen. Selgeren er ansvarlig for produktopplysninger, tilstand, levering, returer, refusjoner og andre plikter knyttet til handelen. Kontakt selgeren først dersom det oppstår et problem.",
       legal: "Dette begrenser ikke dine ufravikelige lovfestede rettigheter eller Maskines' ansvar for sin egen tjeneste.",
       terms: "Les brukervilkårene",
     },

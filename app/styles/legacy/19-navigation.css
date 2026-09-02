@@ -1,0 +1,600 @@
+
+@media (max-width: 760px) {
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    gap: 4px;
+  }
+  html body header.universal-app-topbar .universal-profile-menu-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-wrap {
+    min-width: 50px; width: 50px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    background: radial-gradient(34px 28px at 30% 50%, rgba(111, 181, 234, 0.2), transparent 74%), linear-gradient(180deg, rgba(8, 28, 48, 0.98), rgba(3, 13, 25, 0.99)); border: 1px solid rgba(255, 122, 26, 0.72); border-radius: 9px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 16px rgba(0, 3, 10, 0.26); display: grid; gap: 2px;
+    grid-template-columns: 29px 9px; height: 42px; justify-content: center; min-width: 50px; padding: 0 5px 0 4px; width: 50px;
+    z-index: 2;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar {
+    grid-column: 1; height: 29px; justify-self: center; width: 29px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar-lock, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar-lock {
+    bottom: -2px; height: 13px; right: -2px; width: 13px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar-lock svg, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar-lock svg {
+    height: 8px; width: 8px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button > svg, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button > svg {
+    grid-column: 2; height: 10px; justify-self: center; opacity: 0.92; width: 10px;
+  }
+}
+html body header.universal-app-topbar .universal-profile-menu-backdrop {
+  background: transparent; border: 0; bottom: 0; cursor: default; display: block; left: 0;
+  margin: 0; padding: 0; position: fixed; right: 0; top: 0; z-index: 2147482300;
+}
+@media (min-width: 761px) {
+  html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    border-radius: 8px; gap: 7px; height: 46px; min-height: 46px; min-width: 128px; padding: 0 10px 0 8px;
+    width: 128px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar {
+    height: 32px; width: 32px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar-lock, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar-lock {
+    bottom: -2px; height: 13px; right: -2px; width: 13px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar-lock svg, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar-lock svg {
+    height: 8px; width: 8px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button-copy, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy {
+    gap: 3px; min-width: 0; width: 58px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button-copy strong, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+    font-size: 12px; line-height: 1;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-xp-row, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-row {
+    gap: 4px; height: 8px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-xp-row small, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-row small {
+    font-size: 10px; line-height: 1;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-xp-track, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-track {
+    height: 4px; width: 42px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button > svg, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button > svg {
+    height: 12px; transform: rotate(0deg); transition: transform 140ms ease; width: 12px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button.is-open > svg, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button.is-open > svg {
+    transform: rotate(180deg);
+  }
+}
+@media (max-width: 760px) {
+  html body header.universal-app-topbar .universal-profile-menu-backdrop {
+    background: rgba(0, 7, 16, 0.54); top: var(--topbar-h, 64px);
+  }
+  html body header.universal-app-topbar .universal-profile-menu, html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu {
+    background: radial-gradient(460px 260px at 100% 0%, rgba(255, 122, 26, 0.11), transparent 72%), linear-gradient(180deg, rgba(6, 19, 33, 0.99), rgba(2, 12, 23, 0.99)); border: 1px solid rgba(255, 122, 26, 0.72); border-radius: 9px; box-shadow: 0 20px 46px rgba(0, 3, 12, 0.62), inset 0 1px 0 rgba(255, 255, 255, 0.07); left: 8px; max-height: calc(100dvh - var(--topbar-h, 64px) - 18px);
+    overflow-y: auto; padding: 14px; position: fixed; right: 8px; top: calc(var(--topbar-h, 64px) + 8px); width: auto;
+  }
+  html body header.universal-app-topbar .universal-profile-menu-link, html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-link {
+    min-height: 42px;
+  }
+}
+@media (min-width: 861px) {
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    align-items: center; appearance: none; -webkit-appearance: none; background: linear-gradient(180deg, rgba(13, 30, 48, 0.94), rgba(6, 19, 33, 0.94)); border: 1px solid rgba(35, 74, 105, 0.58); border-radius: 7px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 16px rgba(0, 3, 10, 0.16); color: rgba(242, 248, 255, 0.94); cursor: pointer; display: inline-flex; font: inherit; font-size: 12px;
+    font-weight: 950; gap: 6px; height: 38px; justify-content: center; letter-spacing: 0; line-height: 1;
+    min-height: 38px; padding: 0 12px; text-decoration: none; text-shadow: none; transform: none; transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+    white-space: nowrap;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button)::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button)::after, html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta::after {
+    content: none; display: none; opacity: 0;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):hover, html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):hover, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active, html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta:hover, html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta.is-active, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta:hover, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta.is-active {
+    background: linear-gradient(180deg, rgba(18, 42, 66, 0.98), rgba(8, 25, 43, 0.98)); border-color: rgba(255, 138, 28, 0.48); color: #ffffff; transform: none;
+  }
+}
+html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+  display: none;
+}
+html body header.universal-app-topbar .universal-page-back-button {
+  align-items: center; appearance: none; -webkit-appearance: none; background: transparent; border: 0; box-shadow: none;
+  color: #ff7a1a; cursor: pointer; display: inline-flex; flex: 0 0 48px; height: 48px; justify-content: center;
+  min-height: 48px; min-width: 48px; padding: 0; width: 48px;
+}
+html body header.universal-app-topbar .universal-page-back-button svg {
+  color: #ff7a1a; height: 28px; stroke-width: 3; width: 28px;
+}
+html body header.universal-app-topbar .universal-page-back-button .universal-page-back-icon {
+  color: #ff7a1a; display: block; height: 25px; overflow: visible; width: 25px;
+}
+html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button {
+  display: none;
+}
+@media (max-width: 760px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-navigation, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-primary-navigation {
+    align-items: center; display: flex; grid-column: 1; height: 64px; justify-content: flex-start; min-width: 56px;
+    width: 56px;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button {
+    display: inline-flex; height: 44px; min-height: 44px; min-width: 44px; width: 44px;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button svg {
+    height: 26px; width: 26px;
+  }
+}
+@media (min-width: 861px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-navigation, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-primary-navigation {
+    align-items: center; display: flex; gap: 0; grid-column: 1 / 3; height: 64px; justify-content: flex-start;
+    left: 0; max-width: 100vw; min-width: 0; overflow: visible; padding-left: 22px; position: absolute;
+    top: 0; transform: none; width: 100vw;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button {
+    background: transparent; border: 0; box-shadow: none; flex: 0 0 44px; height: 44px; min-height: 44px;
+    min-width: 44px; width: 44px;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button svg {
+    height: 24px; stroke-width: 3; width: 24px;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav {
+    display: flex; flex: 0 1 auto; gap: 14px; grid-column: auto; height: 64px; justify-content: flex-start;
+    left: calc(50% - 7px); margin: 0; max-width: min(650px, calc(100vw - 560px)); min-width: 0; overflow: visible; position: absolute;
+    right: auto; top: 0; transform: translateX(-50%); width: auto;
+  }
+}
+@media (min-width: 861px) {
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav {
+    align-items: center; display: flex; gap: clamp(24px, 2.6vw, 38px); height: 64px; justify-content: center; left: 50%;
+    margin: 0; max-width: min(720px, calc(100vw - 420px)); min-width: 0; overflow: visible; position: absolute; right: auto;
+    top: 0; transform: translateX(-50%); width: auto;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    align-items: center; appearance: none; -webkit-appearance: none; background: transparent; border: 0; border-radius: 0;
+    box-shadow: none; color: rgba(247, 251, 255, 0.94); cursor: pointer; display: inline-flex; font: inherit; font-size: 13px;
+    font-weight: 950; gap: 6px; height: 40px; justify-content: center; letter-spacing: 0; line-height: 1;
+    min-height: 40px; padding: 0; text-decoration: none; text-shadow: 0 1px 8px rgba(0, 4, 12, 0.44); transform: none; transition: color 140ms ease;
+    white-space: nowrap;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button)::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button)::after, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button)::after, html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta::after {
+    content: none; display: none;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):hover, html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):hover, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button):hover, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button).is-active {
+    background: transparent; border-color: transparent; color: #ffffff; transform: none;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button) svg, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) svg, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button) svg {
+    height: 12px; stroke-width: 2.6; transform: none; width: 12px;
+  }
+}
+@media (min-width: 861px) {
+  html body header.universal-app-topbar .universal-create-button, html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    border-radius: 8px; gap: 7px; height: 38px; min-height: 38px; min-width: 128px; padding: 0 14px;
+  }
+  html body header.universal-app-topbar .universal-create-button strong, html body header.universal-app-topbar.universal-home-topbar .universal-create-button strong {
+    font-size: 13px; line-height: 1;
+  }
+  html body header.universal-app-topbar .universal-create-button svg, html body header.universal-app-topbar.universal-home-topbar .universal-create-button svg {
+    height: 15px; width: 15px;
+  }
+}
+html body header.universal-app-topbar .universal-profile-menu-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-wrap {
+  display: inline-flex; overflow: visible; pointer-events: auto; position: relative; visibility: visible; z-index: 2147482600;
+}
+html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+  cursor: pointer;
+}
+html body header.universal-app-topbar .universal-profile-menu, html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu {
+  z-index: 2147482700;
+}
+@media (max-width: 760px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button, html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button {
+    align-items: center; background: transparent; border: 0; box-shadow: none; color: #ff7a1a; display: inline-flex;
+    height: 44px; justify-content: center; min-height: 44px; min-width: 44px; overflow: hidden; padding: 0;
+    width: 44px;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button::before, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button::after, html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button::before, html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button::after {
+    content: none; display: none;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button .universal-page-back-icon, html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button .universal-page-back-icon {
+    color: #ff7a1a; display: block; flex: 0 0 22px; height: 22px; margin: 0; overflow: visible;
+    transform: none; width: 22px;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button .universal-page-back-icon path, html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button .universal-page-back-icon path {
+    stroke: currentColor; stroke-width: 2.6;
+  }
+}
+html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar, html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions, html body header.universal-app-topbar .universal-profile-menu-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-wrap {
+  overflow: visible;
+}
+html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+  pointer-events: auto; touch-action: manipulation;
+}
+html body header.universal-app-topbar .universal-profile-menu, html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu {
+  display: grid; pointer-events: auto; visibility: visible;
+}
+html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions, html body header.universal-app-topbar .universal-profile-menu-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-wrap, html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+  pointer-events: auto;
+}
+html body > .universal-profile-menu-backdrop {
+  background: rgba(0, 7, 16, 0.64); border: 0; bottom: 0; cursor: default; display: block; left: 0;
+  margin: 0; padding: 0; position: fixed; right: 0; top: 0; z-index: 2147483600;
+}
+html body:not(:has(> .universal-profile-menu-portal)) > .universal-profile-menu-backdrop {
+  display: none; pointer-events: none; visibility: hidden;
+}
+@media (max-width: 760px) {
+  html:not(:has(body > .universal-profile-menu-portal)):not(:has([data-mobile-filter-backdrop="true"])) {
+    overflow-y: auto; overscroll-behavior-y: auto; touch-action: pan-y;
+  }
+  html:not(:has(body > .universal-profile-menu-portal)):not(:has([data-mobile-filter-backdrop="true"])) body {
+    overflow-y: visible; overscroll-behavior-y: auto; touch-action: pan-y;
+  }
+}
+html body > .universal-profile-menu-portal {
+  background: radial-gradient(460px 260px at 100% 0%, rgba(255, 122, 26, 0.11), transparent 72%), linear-gradient(180deg, #061321, #020c17); border: 1px solid rgba(255, 122, 26, 0.86); border-radius: 9px; box-shadow: 0 28px 72px rgba(0, 0, 0, 0.78), inset 0 1px 0 rgba(255, 255, 255, 0.08); box-sizing: border-box; display: grid;
+  gap: 8px; max-height: calc(100dvh - var(--topbar-h, 64px) - 18px); overflow-y: auto; padding: 14px; position: fixed; right: 14px;
+  top: calc(var(--topbar-h, 64px) + 8px); visibility: visible; width: min(320px, calc(100vw - 28px)); z-index: 2147483640;
+}
+html body > .universal-profile-menu-portal > .universal-profile-menu-close {
+  display: none;
+}
+@media (min-width: 761px) {
+  html body > .universal-profile-menu-portal {
+    left: var(--profile-menu-left, auto); right: auto; top: var(--profile-menu-top, calc(var(--topbar-h, 64px) + 8px));
+  }
+}
+@media (max-width: 760px) {
+  html body > .universal-profile-menu-portal {
+    left: 4px; max-height: calc(100dvh - 12px); right: 4px; top: max(6px, env(safe-area-inset-top)); width: auto;
+  }
+  html body > .universal-profile-menu-portal > .universal-profile-menu-close {
+    align-items: center; appearance: none; background: rgba(255, 122, 26, 0.08); border: 0; border-radius: 50%; color: #ff7a1a;
+    cursor: pointer; display: inline-flex; height: 30px; justify-content: center; padding: 0; position: absolute;
+    right: 9px; top: 9px; width: 30px; z-index: 2;
+  }
+  html body > .universal-profile-menu-portal > .universal-profile-menu-close:active {
+    background: rgba(255, 122, 26, 0.18);
+  }
+  html body > .universal-profile-menu-portal > .universal-profile-menu-head {
+    padding-right: 32px;
+  }
+}
+@media (min-width: 861px) {
+  html body header.universal-app-topbar.universal-home-topbar {
+    display: block; height: 64px; min-height: 64px; overflow: visible; padding: 0; position: fixed;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    display: block; height: 64px; overflow: visible; position: relative; width: 100%;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    align-items: center; display: inline-flex; height: 64px; left: 14px; opacity: 1; position: absolute;
+    top: 0; transform: none; visibility: visible; width: 82px; z-index: 20;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    display: block; height: auto; max-height: 50px; opacity: 1; visibility: visible; width: 78px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center; display: flex; gap: clamp(14px, 1.8vw, 28px); height: 64px; justify-content: center; left: 50%;
+    margin: 0; max-width: calc(100vw - 560px); min-width: 0; overflow: hidden; position: absolute; right: auto;
+    top: 0; transform: translateX(-50%); width: max-content; z-index: 12;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    flex: 0 1 auto; font-size: 13px; max-width: 116px; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    align-items: center; display: flex; gap: 8px; height: 64px; justify-content: flex-end; margin: 0;
+    max-width: calc(100vw - 116px); min-width: 0; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    width: auto; z-index: 14;
+  }
+}
+@media (min-width: 861px) and (max-width: 1160px) {
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    gap: 12px; left: 42%; max-width: calc(100vw - 520px);
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    font-size: 12px; max-width: 94px;
+  }
+}
+@media (min-width: 861px) and (max-width: 1180px) {
+  html body header.universal-app-topbar.universal-home-topbar {
+    display: grid; grid-template-columns: 104px minmax(0, 1fr) 64px; height: 64px; min-height: 64px; padding: 0 12px; width: 100%;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    display: grid; grid-column: 1 / 3; grid-template-columns: 104px minmax(0, 1fr); height: 64px; min-width: 0; position: static;
+    width: 100%;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-navigation, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-primary-navigation, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-navigation.universal-primary-navigation {
+    padding: 0; padding-left: 0;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    grid-column: 1; height: 64px; justify-content: flex-start; left: auto; position: static; width: 104px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    max-height: 46px; width: 62px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center; display: flex; gap: clamp(8px, 1.25vw, 14px); grid-column: 2; height: 64px; justify-content: flex-start;
+    left: auto; margin: 0; max-width: none; min-width: 0; overflow: visible; position: static;
+    right: auto; top: auto; transform: none; width: 100%;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    flex: 0 1 auto; font-size: clamp(10px, 1.25vw, 12px); max-width: none; overflow: visible; padding-left: 2px; padding-right: 2px;
+    text-overflow: clip;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    grid-column: 3; height: 64px; justify-content: flex-end; max-width: none; min-width: 0; position: static;
+    transform: none; width: 64px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    height: 42px; min-height: 42px; min-width: 42px; padding: 0; width: 42px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button strong {
+    display: none;
+  }
+}
+@media (min-width: 981px) {
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    justify-content: center;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):hover, html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):hover, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active {
+    background: rgba(255, 122, 26, 0.14); color: #ffffff;
+  }
+}
+@media (min-width: 1181px) and (max-width: 1340px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    gap: 12px; grid-template-columns: minmax(430px, 1fr) auto; padding-left: 18px; padding-right: 18px;
+  }
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar .universal-primary-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    gap: 18px; grid-template-columns: 68px minmax(0, max-content);
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) {
+    font-size: 12px; padding-left: 9px; padding-right: 9px;
+  }
+}
+@media (min-width: 981px) and (max-width: 1180px) {
+  html body header.universal-app-topbar .universal-home-primary-nav > a[href*="/meista"], html body header.universal-app-topbar .universal-home-primary-nav > a[href*="/about"], html body header.universal-app-topbar .universal-home-primary-nav > a.universal-contact-cta, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a[href*="/meista"], html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a[href*="/about"], html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a.universal-contact-cta {
+    display: none;
+  }
+}
+@media (min-width: 721px) and (max-width: 980px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; height: 62px; min-height: 62px; padding: 0 10px;
+  }
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar .universal-primary-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    display: grid; gap: 10px; grid-column: 1; grid-template-columns: 54px minmax(0, 1fr); height: 62px; min-width: 0;
+    width: 100%;
+  }
+  html body header.universal-app-topbar .universal-home-brand, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    grid-column: 1; height: 62px; position: static; width: 54px;
+  }
+  html body header.universal-app-topbar .universal-home-brand-logo, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    height: 42px; max-height: 42px; width: 42px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: flex; gap: 7px; grid-column: 2; height: 62px; justify-content: flex-start; min-width: 0;
+    overflow: hidden; position: static; transform: none;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav > a[href*="/meista"], html body header.universal-app-topbar .universal-home-primary-nav > a[href*="/about"], html body header.universal-app-topbar .universal-home-primary-nav > a.universal-contact-cta, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a[href*="/meista"], html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a[href*="/about"], html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a.universal-contact-cta {
+    display: none;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) {
+    font-size: 11px; height: 36px; padding: 0 8px;
+  }
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    grid-column: 2; height: 62px; justify-content: flex-end; position: static; width: auto;
+  }
+}
+@media (min-width: 861px) and (max-width: 980px) {
+  html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: 82px minmax(0, 1fr) 54px; padding: 0 10px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    grid-template-columns: 82px minmax(0, 1fr);
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    width: 82px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    max-height: 40px; width: 52px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    gap: 8px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a[href*="/about"] {
+    display: none;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    font-size: 10.5px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    width: 54px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    height: 40px; min-height: 40px; min-width: 40px; width: 40px;
+  }
+}
+@media (min-width: 721px) and (max-width: 860px) {
+  html body header.universal-app-topbar.universal-home-topbar {
+    display: grid; grid-template-columns: 74px minmax(0, 1fr) 52px; height: 64px; min-height: 64px; overflow: visible; padding: 0 8px;
+    position: fixed; width: 100%;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    display: grid; grid-column: 1 / 3; grid-template-columns: 74px minmax(0, 1fr); height: 64px; min-width: 0; opacity: 1;
+    overflow: visible; position: static; visibility: visible; width: 100%;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    align-items: center; display: inline-flex; grid-column: 1; height: 64px; justify-content: flex-start; left: auto;
+    opacity: 1; position: static; top: auto; transform: none; visibility: visible; width: 74px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    display: block; max-height: 38px; opacity: 1; visibility: visible; width: 50px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center; display: flex; gap: clamp(7px, 1.4vw, 10px); grid-column: 2; height: 64px; justify-content: flex-start;
+    left: auto; margin: 0; max-width: none; min-width: 0; opacity: 1; overflow: visible;
+    position: static; right: auto; top: auto; transform: none; visibility: visible; width: 100%;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a[href*="/about"], html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a:nth-of-type(2), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a.universal-contact-cta {
+    display: none;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) {
+    display: inline-flex; flex: 0 1 auto; font-size: clamp(10px, 1.35vw, 11px); max-width: none; min-width: 0; opacity: 1;
+    overflow: visible; padding-left: 1px; padding-right: 1px; text-overflow: clip; visibility: visible; white-space: nowrap;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) svg {
+    height: 11px; width: 11px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    align-items: center; display: flex; grid-column: 3; height: 64px; justify-content: flex-end; opacity: 1;
+    position: static; transform: none; visibility: visible; width: 52px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    display: inline-flex; height: 40px; min-height: 40px; min-width: 40px; padding: 0; visibility: visible;
+    width: 40px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button strong {
+    display: none;
+  }
+}
+@media (min-width: 981px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    align-items: center; background: radial-gradient(820px 120px at 42% 0%, rgba(37, 60, 78, 0.22), transparent 70%), linear-gradient(180deg, #07121b 0%, #030a11 100%); border-bottom: 1px solid rgba(124, 152, 177, 0.18); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28); display: grid; top: 0;
+    width: 100%; z-index: 80;
+  }
+  html body header.universal-app-topbar .universal-home-brand, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    align-items: center; display: inline-flex; justify-content: flex-start; min-width: 0; position: static; text-decoration: none;
+    width: auto;
+  }
+  html body header.universal-app-topbar .universal-home-brand-logo, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    border-radius: 999px; object-fit: contain;
+  }
+  html body header.universal-app-topbar .universal-home-brand-copy, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy {
+    display: grid; line-height: 1;
+  }
+  html body header.universal-app-topbar .universal-home-brand-copy strong, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy strong {
+    color: #f8fbff; font-weight: 850; letter-spacing: 0.02em;
+  }
+  html body header.universal-app-topbar .universal-home-brand-copy small, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy small {
+    color: rgba(248, 251, 255, 0.78); font-weight: 650;
+  }
+  html body header.universal-app-topbar .universal-home-navigation::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation::after {
+    background: rgba(139, 162, 184, 0.22); content: ""; display: block; grid-column: 2; width: 1px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center; display: flex; margin: 0; max-width: none; min-width: 0; overflow: visible;
+    position: static; transform: none;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    align-items: center; background: transparent; box-shadow: none; color: rgba(248, 251, 255, 0.9); display: inline-flex; flex: 0 0 auto;
+    font-weight: 850; letter-spacing: 0; line-height: 1; text-decoration: none; white-space: nowrap;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button) svg, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) svg {
+    color: currentColor;
+  }
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    grid-column: 2; margin: 0; min-width: 0;
+  }
+  html body header.universal-app-topbar .universal-create-button, html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    background: linear-gradient(180deg, #ff901f 0%, #ff5d13 100%); border: 0; box-shadow: 0 18px 34px rgba(255, 103, 20, 0.24); color: #ffffff; display: inline-flex; font-weight: 900;
+    gap: 10px;
+  }
+  html body header.universal-app-topbar .universal-create-button strong, html body header.universal-app-topbar.universal-home-topbar .universal-create-button strong {
+    display: inline; font-size: inherit; font-weight: inherit;
+  }
+  html body header.universal-app-topbar .universal-icon-button, html body header.universal-app-topbar.universal-home-topbar .universal-icon-button, html body header.universal-app-topbar .universal-notification-button, html body header.universal-app-topbar.universal-home-topbar .universal-notification-button {
+    background: rgba(255, 255, 255, 0.06); border: 0; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03); color: rgba(248, 251, 255, 0.9);
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    background: rgba(255, 255, 255, 0.07); border: 0; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04); color: #ffffff; display: inline-flex;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button-copy strong, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+    font-weight: 850;
+  }
+  html body header.universal-app-topbar .universal-language-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-language-wrap {
+    display: none;
+  }
+}
+@media (min-width: 981px) and (max-width: 1500px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: minmax(620px, 1fr) auto; padding-left: 24px; padding-right: 24px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    gap: 10px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) {
+    font-size: 15px; padding-left: 11px; padding-right: 11px;
+  }
+  html body header.universal-app-topbar .universal-home-brand-logo, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    height: 64px; max-height: 64px; width: 64px;
+  }
+  html body header.universal-app-topbar .universal-home-brand-copy strong, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy strong {
+    font-size: 21px;
+  }
+  html body header.universal-app-topbar .universal-home-brand-copy small, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy small {
+    font-size: 12px;
+  }
+  html body header.universal-app-topbar .universal-create-button, html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    font-size: 15px; min-width: 148px; padding-left: 18px; padding-right: 18px;
+  }
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    gap: 10px;
+  }
+}
+@media (min-width: 981px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    gap: clamp(16px, 1.7vw, 30px); padding: 0 clamp(22px, 2.8vw, 44px);
+  }
+  html body header.universal-app-topbar .universal-home-brand, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    gap: 13px; height: 92px;
+  }
+  html body header.universal-app-topbar .universal-home-brand-copy, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy {
+    gap: 5px; min-width: 140px;
+  }
+  html body header.universal-app-topbar .universal-home-brand-copy strong, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy strong {
+    font-size: 19px;
+  }
+  html body header.universal-app-topbar .universal-home-brand-copy small, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy small {
+    font-size: 10.5px; letter-spacing: 0.34em;
+  }
+  html body header.universal-app-topbar .universal-home-navigation::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation::after {
+    height: 46px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    gap: clamp(8px, 1.1vw, 16px); height: 46px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    border-radius: 13px; font-size: 14px; gap: 7px; height: 44px; padding: 0 12px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active {
+    padding-left: 15px; padding-right: 15px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button) svg, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) svg {
+    height: 16px; width: 16px;
+  }
+  html body header.universal-app-topbar .universal-create-button, html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    border-radius: 9px; font-size: 14px; min-width: 136px; padding: 0 16px;
+  }
+  html body header.universal-app-topbar .universal-icon-button, html body header.universal-app-topbar.universal-home-topbar .universal-icon-button, html body header.universal-app-topbar .universal-notification-button, html body header.universal-app-topbar.universal-home-topbar .universal-notification-button {
+    border-radius: 9px; height: 44px; width: 44px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    border-radius: 14px; gap: 10px; height: 46px; min-height: 46px; min-width: 150px; padding: 0 13px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button-copy strong, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+    font-size: 14px;
+  }
+  html body header.universal-app-topbar .universal-profile-avatar, html body header.universal-app-topbar.universal-home-topbar .universal-profile-avatar {
+    height: 30px; width: 30px;
+  }
+}
+@media (min-width: 981px) and (max-width: 1280px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: minmax(540px, 1fr) auto; padding-left: 18px; padding-right: 18px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) {
+    font-size: 12.5px; padding-left: 8px; padding-right: 8px;
+  }
+  html body header.universal-app-topbar .universal-home-brand-copy strong, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy strong {
+    font-size: 17px;
+  }
+  html body header.universal-app-topbar .universal-home-brand-copy small, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy small {
+    font-size: 9.5px;
+  }
+}

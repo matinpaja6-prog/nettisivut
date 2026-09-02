@@ -1,5 +1,6 @@
 import { notFound, permanentRedirect } from "next/navigation";
 
+
 import { storefrontMetadata } from "@/lib/commerce/storefront-metadata";
 import { resolvePublicProfile } from "@/lib/public-profile-route";
 import { profilePath } from "@/lib/routes";

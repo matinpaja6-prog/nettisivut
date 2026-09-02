@@ -1,7 +1,8 @@
 "use client";
 
 import { Suspense, useEffect } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
+import { useRouter } from "@/lib/navigation";
 
 import {
   getListingById,

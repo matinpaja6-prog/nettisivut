@@ -4,7 +4,7 @@
 // listing links and text are present before client-side hydration.
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 
 import { Clock3, Heart, UserRound } from "lucide-react";
 import OptimizedListingImage, { fallbackListingImage } from "@/app/components/OptimizedListingImage";

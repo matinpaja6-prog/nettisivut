@@ -6,7 +6,8 @@ import { MASKINES_FEE_RATE } from "@/lib/commerce/fees";
 import type { CheckoutRequest, Company, CompanyDiscountCode, PickupPoint, Product, ShippingMethod } from "@/lib/commerce/types";
 import { calculateCartShippingPrice, canPublishProduct, formatPickupAddress, productShippingPriceForCountry, productSupportsPickup, productSupportsPosti } from "@/lib/commerce/validation";
 import { SHIPPING_VAT_RATE, vatFromGrossCents } from "@/lib/commerce/vat";
-import { integer, isEmail, normalizeText } from "@/lib/commerce/server";
+import { isEmail, normalizeText } from "@/lib/commerce/server";
+import { translateLocalizedPath } from "@/lib/routes";
 import { absoluteSiteUrl } from "@/lib/site-url";
 import { getStripe } from "@/lib/stripe";
 import { getSupabaseAdmin, requireUserFromRequest } from "@/lib/supabase-admin";
@@ -158,7 +159,11 @@ export async function POST(request: Request) {
     const quantities = new Map<string, number>();
     for (const item of body.items) {
       const id = normalizeText(item.productId, 80);
-      if (id) quantities.set(id, (quantities.get(id) ?? 0) + integer(item.quantity, 1, 1000));
+      const quantity = Number(item.quantity);
+      if (!id || !Number.isInteger(quantity) || quantity < 1 || quantity > 1000 || (quantities.get(id) ?? 0) + quantity > 1000) {
+        return NextResponse.json({ error: "Tuotemäärän pitää olla kokonaisluku väliltä 1–1000." }, { status: 400 });
+      }
+      quantities.set(id, (quantities.get(id) ?? 0) + quantity);
     }
     const ids = [...quantities.keys()];
     const { data, error } = await admin.from("products").select("*,company:companies(*)").in("id", ids).returns<ProductWithCompany[]>();
@@ -381,7 +386,7 @@ export async function POST(request: Request) {
           metadata,
         },
         metadata,
-        return_url: absoluteSiteUrl("/tilaus/onnistui?session_id={CHECKOUT_SESSION_ID}"),
+        return_url: absoluteSiteUrl(translateLocalizedPath("/tilaus/onnistui", locale) + "?session_id={CHECKOUT_SESSION_ID}"),
         locale: locale === "no" ? "nb" : locale,
       },
       { stripeAccount: seller.company.stripe_account_id! },

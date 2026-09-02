@@ -1,7 +1,8 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 import { useEffect } from "react";
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 
 export default function ErrorPage({
   error,
@@ -18,12 +19,12 @@ export default function ErrorPage({
     <main style={styles.page}>
       <section style={styles.card}>
         <span style={styles.badge}>!</span>
-        <p style={styles.eyebrow}>Sivua ei voitu näyttää</p>
-        <h1 style={styles.title}>Lataaminen epäonnistui</h1>
-        <p style={styles.text}>Yritä ladata sivu uudelleen. Antamasi tiedot säilyvät mahdollisuuksien mukaan.</p>
+        <p style={styles.eyebrow}><UiText text={"Sivua ei voitu näyttää"} /></p>
+        <h1 style={styles.title}><UiText text={"Lataaminen epäonnistui"} /></h1>
+        <p style={styles.text}><UiText text={"Yritä ladata sivu uudelleen. Antamasi tiedot säilyvät mahdollisuuksien mukaan."} /></p>
         <div style={styles.actions}>
-          <button type="button" style={styles.primaryButton} onClick={reset}>Yritä uudelleen</button>
-          <Link href="/" style={styles.secondaryButton}>Takaisin etusivulle</Link>
+          <button type="button" style={styles.primaryButton} onClick={reset}><UiText text={"Yritä uudelleen"} /></button>
+          <Link href="/" style={styles.secondaryButton}><UiText text={"Takaisin etusivulle"} /></Link>
         </div>
       </section>
     </main>

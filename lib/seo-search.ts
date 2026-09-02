@@ -576,9 +576,10 @@ export function listingMatchesSeoQuery(listing: Listing, query: string) {
   ].join(" "));
   const haystackWords = new Set(haystack.split(" ").filter(Boolean));
 
-  return words.every((word) =>
-    word.length <= 3 ? haystackWords.has(word) : haystack.includes(word)
-  );
+  // Generated collection terms are normalized catalogue words. A substring
+  // match made "moottori" (engine) match "moottorikelkka" (snowmobile), so
+  // an engine landing page incorrectly contained nearly every spare part.
+  return words.every((word) => haystackWords.has(word));
 }
 
 export function formatSeoSearchLabel(query: string) {

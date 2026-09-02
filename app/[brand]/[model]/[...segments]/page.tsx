@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+
 import ListingPage, { generateMetadata as generateBaseMetadata } from "@/app/listing/[id]/page";
 
 type SeoListingPageProps = {

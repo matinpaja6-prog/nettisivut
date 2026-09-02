@@ -14,6 +14,7 @@ import {
 } from "./listing-translations";
 import { isUuidLike, pagePath, slugifyProfileName } from "./routes";
 import { cleanOptionalUserText, cleanUserText } from "./text-input";
+import { listingProjection, NUMERIC_PRICE_FIELD } from "./listing-query-shape";
 
 /* =========================
    TYPES
@@ -621,7 +622,11 @@ async function deleteListingStorageImages(
    LISTINGS
 ========================= */
 
-type GetListingsOptions = {
+export type GetListingsOptions = {
+  filters?: import("./listing-query").ListingQueryFilters;
+  databaseFilters?: import("./database-listing-filters").SearchPredicate;
+  sort?: "newest" | "oldest" | "price-asc" | "price-desc";
+  signal?: AbortSignal;
   enrichSellerProfiles?: boolean;
   includeOptionalFields?: boolean;
   limit?: number;
@@ -782,16 +787,44 @@ export async function getListings(options: GetListingsOptions = {}) {
 
   try {
 
-    const publicListingsQuery = (columns: string[], includeCount = false) =>
-      supabase
-        .from("listings")
-        .select(columns.join(","), includeCount ? { count: "exact" } : undefined)
-        .eq("is_sold", false)
-        .eq("is_hidden", false);
+    const { listingSearchClauses, safeSearchTerm } = await import("./listing-query");
+    // The live catalogue stores price as text. A computed numeric field keeps
+    // ordering/filtering correct BEFORE pagination; never sort only one page.
+    const numericPriceReady = process.env.NEXT_PUBLIC_MARKETPLACE_DB_FILTERS === "true" || Boolean(options.databaseFilters);
+    const priceColumn = numericPriceReady ? NUMERIC_PRICE_FIELD : "price";
+    const sortColumn = options.sort?.startsWith("price") ? priceColumn : "created_at";
+    const publicListingsQuery = (columns: string[], includeCount = false) => {
+      const projection = listingProjection(columns, sortColumn, Boolean(options.databaseFilters));
+      let request = options.databaseFilters
+        ? supabase.rpc("maskines_search_listings", { search_filter: options.databaseFilters }, includeCount ? { count: "exact" } : undefined).select(projection)
+        : supabase.from("listings").select(projection, includeCount ? { count: "exact" } : undefined).eq("is_sold", false).eq("is_hidden", false);
+      for (const clause of listingSearchClauses(options.filters?.query || "")) request = request.or(clause);
+      if (options.databaseFilters) return options.signal ? request.abortSignal(options.signal) : request;
+      const filters = options.filters;
+      if (filters?.kind === "vehicles") request = request.or("category.in.(Ajoneuvo,Ajoneuvot,Kokonainen ajoneuvo),translations->_meta->>marketplace_kind.eq.vehicle");
+      if (filters?.kind === "gear") request = request.ilike("category", "*ajovaruste*");
+      if (filters?.kind === "parts") request = request.not("category", "in", "(Ajoneuvo,Ajoneuvot,Kokonainen ajoneuvo,Ajovarusteet)");
+      if (filters?.category) {
+        const term = safeSearchTerm(filters.category);
+        request = request.or("category.ilike.*" + term + "*,subcategory.ilike.*" + term + "*");
+      }
+      if (filters?.brand) {
+        const brand = safeSearchTerm(filters.brand);
+        if (brand) request = request.or(["brand", "title", "description"].map(column => column + ".ilike.*" + brand.replace(/[-\s]+/g, "*") + "*").join(","));
+      }
+      if (filters?.model) request = request.ilike("model", safeSearchTerm(filters.model));
+      if (filters?.minPrice) request = request.gte(priceColumn, filters.minPrice);
+      if (filters?.maxPrice !== undefined && filters.maxPrice < 100000) request = request.lte(priceColumn, filters.maxPrice);
+      if (filters?.yearMin) request = request.gte("year", filters.yearMin);
+      if (filters?.yearMax) request = request.lte("year", filters.yearMax);
+      if (options.signal) request = request.abortSignal(options.signal);
+      return request;
+    };
+    const ascending = options.sort === "oldest" || options.sort === "price-asc";
 
     const fetchListingsChunk = (columns: string[], from: number, to: number) =>
       publicListingsQuery(columns)
-        .order("created_at", { ascending: false })
+        .order(sortColumn, { ascending, nullsFirst: false }).order("id", { ascending: false })
         .range(from, to)
         .returns<Listing[]>();
 
@@ -802,7 +835,7 @@ export async function getListings(options: GetListingsOptions = {}) {
       includeCount: boolean
     ) =>
       publicListingsQuery(columns, includeCount)
-        .order("created_at", { ascending: false })
+        .order(sortColumn, { ascending, nullsFirst: false }).order("id", { ascending: false })
         .range(from, to)
         .returns<Listing[]>();
 
@@ -6426,7 +6459,9 @@ export async function trackUserActivity(params: {
   category?: string | null;
   search_term?: string | null;
 }) {
-  if (!supabase) return;
+  if (!supabase || typeof window === "undefined") return;
+  const { readCookieConsentSettings } = await import("./cookie-consent");
+  if (!readCookieConsentSettings().personalization) return;
   try {
     await supabase.rpc("track_user_activity", {
       p_vehicle_type: params.vehicle_type ?? null,

@@ -1,0 +1,701 @@
+import { generatedUiTranslations } from "@/lib/generated-ui-translations";
+import { commerceUiTranslations } from "@/lib/commerce-ui-translations";
+import {
+  translateCategory,
+  translations,
+  type SupportedLocale
+} from "@/lib/i18n";
+
+const WINDOWS_1252_BYTES: Record<string, number> = {
+  "\u20ac": 0x80,
+  "\u201a": 0x82,
+  "\u0192": 0x83,
+  "\u201e": 0x84,
+  "\u2026": 0x85,
+  "\u2020": 0x86,
+  "\u2021": 0x87,
+  "\u02c6": 0x88,
+  "\u2030": 0x89,
+  "\u0160": 0x8a,
+  "\u2039": 0x8b,
+  "\u0152": 0x8c,
+  "\u017d": 0x8e,
+  "\u2018": 0x91,
+  "\u2019": 0x92,
+  "\u201c": 0x93,
+  "\u201d": 0x94,
+  "\u2022": 0x95,
+  "\u2013": 0x96,
+  "\u2014": 0x97,
+  "\u02dc": 0x98,
+  "\u2122": 0x99,
+  "\u0161": 0x9a,
+  "\u203a": 0x9b,
+  "\u0153": 0x9c,
+  "\u017e": 0x9e,
+  "\u0178": 0x9f
+};
+
+function decodeMojibakePass(value: string) {
+  const bytes: number[] = [];
+
+  for (const character of value) {
+    const code = character.charCodeAt(0);
+    const byte = code <= 0xff ? code : WINDOWS_1252_BYTES[character];
+    if (byte === undefined) return value;
+    bytes.push(byte);
+  }
+
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(Uint8Array.from(bytes));
+  } catch {
+    return value;
+  }
+}
+
+function repairMojibake(value: string) {
+  let repaired = value;
+
+  for (let pass = 0; pass < 3 && /[ÃÂâ]/.test(repaired); pass += 1) {
+    const decoded = decodeMojibakePass(repaired);
+    if (decoded === repaired) break;
+    repaired = decoded;
+  }
+
+  return repaired;
+}
+
+const staticUiTranslations: Record<"en" | "sv" | "no", Record<string, string>> = {
+  en: {
+    "Ilmoituksen tyyppi": "Listing type",
+    "Valitse myyntityyppi": "Choose listing type",
+    "Ajoneuvon tiedot": "Vehicle details",
+    "Täytä ajoneuvon tiedot": "Fill in vehicle details",
+    "Kategoria ja hinta": "Category and price",
+    "Valitse kategoria ja hinta": "Choose category and price",
+    "Kunto & sijainti": "Condition & location",
+    "Valitse kunto ja paikka": "Choose condition and location",
+    "Kuvat": "Images",
+    "Lisää tuotteen kuvat": "Add product images",
+    "Otsikko ja kuvaus": "Title and description",
+    "Lisää otsikko ja kuvaus": "Add title and description",
+    "Julkaise": "Publish",
+    "Tarkista ja julkaise": "Review and publish",
+    "Luo myynti-ilmoitus": "Create sales listing",
+    "Valitse ilmoitustyyppi": "Choose listing type",
+    "Valitse, haluatko listata useita osia samasta ajoneuvosta vai yksittäisen osan.": "Choose whether to list several parts from the same vehicle or one individual part.",
+    "Useampi osa samasta ajoneuvosta": "Several parts from one vehicle",
+    "Yksittäinen ilmoitus": "Single listing",
+    "Listaa vain saman ajoneuvon osia samalla kertaa.": "List only parts from the same vehicle at the same time.",
+    "Säästä aikaa ja hallitse kaikkia osia yhdessä paikassa.": "Save time and manage all parts in one place.",
+    "Myy yksi osa kerrallaan.": "Sell one part at a time.",
+    "Sopii yksittäisille osille tai harvinaisille tuotteille.": "Best for individual parts or rare products.",
+    "Nollaa": "Reset",
+    "Jatka": "Continue",
+    "Aktiivista ilmoitusta": "Active listings",
+    "Aktiiviset": "Active",
+    "Piilotetut": "Hidden",
+    "Kaikki": "All",
+    "Myynti": "Sales",
+    "Katselukerrat": "Views",
+    "Viestit": "Messages",
+    "uutta": "new",
+    "myyntiä": "sales",
+    "lukematta": "unread",
+    "keskustelua": "conversations",
+    "viim. 7 päivää": "last 7 days",
+    "viim. 24 h": "last 24 h",
+    "viim. 30 päivää": "last 30 days",
+    "kaikkina aikoina": "all time",
+    "Ajoneuvoa": "Vehicles",
+    "ajoneuvoa": "vehicles",
+    "Suosikkia": "Favorites",
+    "suosikkia": "favorites",
+    "Viimeksi päivitetty": "Last updated",
+    "Ajoneuvotallisi": "Your garage",
+    "Oma Talli": "My Garage",
+    "Tallenna ajoneuvosi ja katso niihin sopivat osat yhdellä klikkauksella.": "Save your vehicles and find matching parts with one click.",
+    "Valitse ajoneuvo ja näe siihin sopivat ilmoitukset.": "Select a vehicle to see matching listings.",
+    "Valitse ajoneuvo ja näe siihen sopivat ilmoitukset.": "Select a vehicle to see matching listings.",
+    "Lisää ajoneuvo": "Add vehicle",
+    "Näytä sopivat osat": "Show matching parts",
+    "Ilmoituksen tiedot": "Listing details",
+    "Näytä ilmoitus": "View listing",
+    "Avaa ilmoitus": "Open listing",
+    "Poista keskustelu": "Delete conversation",
+    "Profiili": "Profile",
+    "Näytä myyjän profiili": "View seller profile",
+    "Myyjä": "Seller",
+    "Myyjät": "Sellers",
+    "Turvallista kaupankäyntiä": "Safe trading",
+    "Älä jaa henkilötietojasi tai tee kauppoja alustan ulkopuolella.": "Do not share personal details or complete deals outside the platform.",
+    "Lue lisää turvallisista kaupoista.": "Read more about safe trading.",
+    "Tallessa": "Saved",
+    "Saved listings": "Saved listings",
+    "Kaikki suosikit yhdessä paikassa, valmiina kun palaat vertailemaan.": "All favorites in one place, ready when you come back to compare.",
+    "ilmoitusta": "listings",
+    "Ei ilmoituksia näytettäväksi": "No listings to show",
+    "Paina ilmoituksen sydäntä, niin se näkyy täällä myöhemmin.": "Press the heart on a listing and it will appear here later.",
+    "Katso kaikki ›": "View all ›",
+    "Search Alerts": "Search Alerts",
+    "Hakuvahti": "Search alert",
+    "Hakuvahteja": "Search alerts",
+    "Ilmoitukset": "Notifications",
+    "aktiivista": "active",
+    "valmiina": "ready",
+    "Päällä": "On",
+    "Tallennetut hakuehdot": "Saved search criteria",
+    "Kaikki vahdit": "All alerts",
+    "Ei hakuvahteja vielä": "No search alerts yet",
+    "Luo ensimmäinen hakuvahti, niin ilmoitamme kun sopiva ilmoitus vastaa hakuehtojasi.": "Create your first search alert and we will notify you when a matching listing appears.",
+    "Luo ensimmäinen hakuvahti": "Create first search alert",
+    "Profiilin tiedot": "Profile details",
+    "Julkinen profiili": "Public profile",
+    "Osoitetiedot": "Address details",
+    "Tilin turvallisuus": "Account security",
+    "Poista tili": "Delete account",
+    "Yksityiset tiedot": "Private details",
+    "Henkilökohtaiset tiedot": "Private details",
+    "Nämä käytetään tilin hallintaan.": "These are used for account management.",
+    "Etunimi": "First name",
+    "Sukunimi": "Last name",
+    "Puhelinnumero": "Phone number",
+    "Julkinen myyjäprofiili": "Public seller profile",
+    "Nimi, ID, tarkka osoite ja esittely näkyvät julkisesti.": "Name, ID, exact address and your intro are shown publicly.",
+    "Näyttönimi": "Public name",
+    "Tietoa minusta": "About seller",
+    "Hallinnoi osoitetietojasi.": "Manage your address details.",
+    "Tilin sähköposti": "Account email",
+    "Vaihda salasana": "Change password",
+    "Yrityksen vahvistus": "Company verification",
+    "Vahvista yritys": "Verify company",
+    "Vahvistettu yritys": "Verified company",
+    "Vahvistettu yritys -merkintä.": "Verified company badge.",
+    "Vahvista yritystili": "Verify company account",
+    "Lähetä yrityksesi tiedot tarkistettavaksi.": "Send your company details for review.",
+    "Käsittelyaika on yleensä 0-2 päivää.": "Processing usually takes 0-2 days.",
+    "Kun admin hyväksyy pyynnön, profiilissasi näkyy vihreä Vahvistettu yritys -merkintä.": "When an admin approves the request, your profile will show a green Verified company badge.",
+    "Lähetä pyyntö": "Send request",
+    "Kirjaudu sisään": "Log in",
+    "Rekisteröidy": "Register",
+    "Eikö sinulla ole tiliä?": "Don't have an account?",
+    "Onko sinulla tili?": "Already have an account?",
+    "Tai jatka": "Or continue",
+    "Tätä Gmail-tiliä ei ole rekisteröity. Rekisteröidy ensin.": "This Gmail account is not registered. Register first.",
+    "Tilin poistaminen": "Delete account",
+    "Tämä poistaa tilin pysyvästi. Kysymme vielä viimeisen varmistuksen ennen kuin poisto tehdään.": "This permanently deletes the account. We will ask for one final confirmation before deleting it.",
+    "Jatka poistoon": "Continue deletion",
+    "Peruuta": "Cancel",
+    "Poistetaanko tili pysyvästi?": "Delete account permanently?",
+    "Tätä toimintoa ei voi perua. Tilisi, profiilisi ja kirjautumisoikeutesi poistetaan.": "This action cannot be undone. Your account, profile and login access will be deleted.",
+    "Puhelinnumero varataan 3 kuukaudeksi.": "Phone number is reserved for 3 months.",
+    "Poiston jälkeen tiliä ei voi palauttaa.": "The account cannot be restored after deletion.",
+    "Kyllä, poista pysyvästi": "Yes, delete permanently",
+    "Takaisin": "Back",
+    "Jos tilillä on puhelinnumero, sitä ei voi liittää uuteen tiliin 3 kuukauteen poiston jälkeen.": "If the account has a phone number, it cannot be linked to a new account for 3 months after deletion.",
+    "Vaihda puhelinnumero": "Change phone number",
+    "Puhelinnumero tallennetaan profiiliisi ilman SMS-vahvistusta.": "The phone number is saved to your profile without SMS verification.",
+    "Tallenna": "Save",
+    "Ajoneuvotyyppi": "Vehicle type",
+    "Tyyppi": "Type",
+    "Kaikki tyypit": "All types",
+    "Merkki": "Brand",
+    "Malli": "Model",
+    "Kaikki merkit": "All brands",
+    "Valitse ensin merkki": "Select brand first",
+    "Vuosimalli": "Model year",
+    "Vuosi tai kirjoita itse": "Year or type manually",
+    "Moottorin koko (cc)": "Engine size (cc)",
+    "Moottori": "Engine",
+    "Tyhjennä": "Clear",
+    "Jatka osiin": "Continue to parts",
+    "Näytä tulokset": "Show results",
+    "Ajoneuvo": "Vehicle",
+    "Brand and model": "Brand and model",
+    "Vuosi": "Year",
+    "Kunto": "Condition",
+    "Toimitus": "Delivery",
+    "Lähetys ja nouto": "Shipping and pickup",
+    "Päivitetty": "Updated",
+    "Sijainti": "Location",
+    "Jäsenenä vuodesta": "Member since",
+    "Ei arvioita": "No reviews",
+    "arviota": "reviews",
+    "Onnistunutta kauppaa": "Successful deals",
+    "Lähetä viesti": "Send message",
+    "Näytä numero": "Show number",
+    "Näytä profiili": "View profile"
+  },
+  sv: {},
+  no: {}
+};
+
+staticUiTranslations.sv = {
+  "Ilmoituksen tyyppi": "Annonstyp",
+  "Valitse myyntityyppi": "Välj försäljningstyp",
+  "Ajoneuvon tiedot": "Fordonsuppgifter",
+  "Täytä ajoneuvon tiedot": "Fyll i fordonsuppgifter",
+  "Kategoria ja hinta": "Kategori och pris",
+  "Kunto & sijainti": "Skick & plats",
+  "Julkaise": "Publicera",
+  "Luo myynti-ilmoitus": "Skapa försäljningsannons",
+  "Useampi osa samasta ajoneuvosta": "Flera delar från samma fordon",
+  "Useampi ilmoitus": "Flera annonser",
+  "Yksittäinen ilmoitus": "Enskild annons",
+  "Nollaa": "Återställ",
+  "Jatka": "Fortsätt",
+  "Aktiiviset": "Aktiva",
+  "Piilotetut": "Dolda",
+  "Kaikki": "Alla",
+  "Viestit": "Meddelanden",
+  "Ajoneuvoa": "Fordon",
+  "ajoneuvoa": "fordon",
+  "Suosikkia": "Favoriter",
+  "suosikkia": "favoriter",
+  "Viimeksi päivitetty": "Senast uppdaterad",
+  "Oma Talli": "Mitt garage",
+  "Lisää ajoneuvo": "Lägg till fordon",
+  "Näytä sopivat osat": "Visa matchande delar",
+  "Ilmoituksen tiedot": "Annonsuppgifter",
+  "Avaa ilmoitus": "Öppna annons",
+  "Poista keskustelu": "Ta bort konversation",
+  "Profiili": "Profil",
+  "Myyjä": "Säljare",
+  "Myyjät": "Säljare",
+  "Tallessa": "Sparat",
+  "Ei ilmoituksia näytettäväksi": "Inga annonser att visa",
+  "Tallennetut hakuehdot": "Sparade sökvillkor",
+  "Ei hakuvahteja vielä": "Inga sökbevakningar ännu",
+  "Profiilin tiedot": "Profiluppgifter",
+  "Julkinen profiili": "Offentlig profil",
+  "Osoitetiedot": "Adressuppgifter",
+  "Tilin turvallisuus": "Kontosäkerhet",
+  "Poista tili": "Ta bort konto",
+  "Etunimi": "Förnamn",
+  "Sukunimi": "Efternamn",
+  "Puhelinnumero": "Telefonnummer",
+  "Vaihda salasana": "Byt lösenord",
+  "Yrityksen vahvistus": "Företagsverifiering",
+  "Vahvista yritys": "Verifiera företag",
+  "Vahvistettu yritys": "Verifierat företag",
+  "Vahvista yritystili": "Verifiera företagskonto",
+  "Lähetä pyyntö": "Skicka begäran",
+  "Kirjaudu sisään": "Logga in",
+  "Rekisteröidy": "Registrera",
+  "Eikö sinulla ole tiliä?": "Har du inget konto?",
+  "Onko sinulla tili?": "Har du redan ett konto?",
+  "Tai jatka": "Eller fortsätt",
+  "Tilin poistaminen": "Ta bort konto",
+  "Jatka poistoon": "Fortsätt radera",
+  "Peruuta": "Avbryt",
+  "Poistetaanko tili pysyvästi?": "Ta bort kontot permanent?",
+  "Kyllä, poista pysyvästi": "Ja, ta bort permanent",
+  "Takaisin": "Tillbaka",
+  "Vaihda puhelinnumero": "Byt telefonnummer",
+  "Tallenna": "Spara",
+  "Ajoneuvotyyppi": "Fordonstyp",
+  "Tyyppi": "Typ",
+  "Kaikki tyypit": "Alla typer",
+  "Merkki": "Märke",
+  "Malli": "Modell",
+  "Vuosimalli": "Årsmodell",
+  "Moottorin koko (cc)": "Motorstorlek (cc)",
+  "Moottori": "Motor",
+  "Tyhjennä": "Rensa",
+  "Jatka osiin": "Fortsätt till delar",
+  "Näytä tulokset": "Visa resultat",
+  "Ajoneuvo": "Fordon",
+  "Vuosi": "År",
+  "Kunto": "Skick",
+  "Toimitus": "Leverans",
+  "Lähetys ja nouto": "Frakt och upphämtning",
+  "Päivitetty": "Uppdaterad",
+  "Sijainti": "Plats",
+  "Jäsenenä vuodesta": "Medlem sedan",
+  "Ei arvioita": "Inga recensioner",
+  "Lähetä viesti": "Skicka meddelande",
+  "Näytä numero": "Visa nummer"
+};
+
+Object.assign(staticUiTranslations.en, {
+  "AJONEUVOA": "VEHICLES",
+  "SUOSIKKIA": "FAVORITES",
+  "VIIMEKSI PÄIVITETTY": "LAST UPDATED",
+  "Kaikki keskustelut": "All conversations",
+  "Ostajat": "Buyers",
+  "Hae viesteistä tai käyttäjistä...": "Search messages or users...",
+  "Eilen": "Yesterday",
+  "Paikalla eilen klo 23.06": "Online yesterday at 23:06",
+  "Kirjoita viesti...": "Write a message...",
+  "Valitsematta": "Not selected",
+  "Ei lisatty": "Not added",
+  "Ei lisätty": "Not added",
+  "Kuvausta ei ole viela lisatty.": "No description added yet.",
+  "Kuvausta ei ole vielä lisätty.": "No description added yet."
+});
+
+Object.assign(staticUiTranslations.sv, {
+  "AJONEUVOA": "FORDON",
+  "SUOSIKKIA": "FAVORITER",
+  "VIIMEKSI PÄIVITETTY": "SENAST UPPDATERAD",
+  "Kaikki keskustelut": "Alla konversationer",
+  "Ostajat": "Köpare",
+  "Hae viesteistä tai käyttäjistä...": "Sök i meddelanden eller användare...",
+  "Eilen": "Igår",
+  "Paikalla eilen klo 23.06": "Online igår kl. 23.06",
+  "Kirjoita viesti...": "Skriv ett meddelande...",
+  "Valitsematta": "Inte valt",
+  "Ei lisatty": "Inte tillagt",
+  "Ei lisätty": "Inte tillagt",
+  "Kuvausta ei ole viela lisatty.": "Ingen beskrivning har lagts till ännu.",
+  "Kuvausta ei ole vielä lisätty.": "Ingen beskrivning har lagts till ännu."
+});
+
+const translatedLocales: Array<"en" | "sv" | "no"> = ["en", "sv", "no"];
+
+for (const locale of translatedLocales) {
+  const sharedDictionary = Object.fromEntries(
+    (Object.keys(translations.fi) as Array<keyof typeof translations.fi>).map((key) => [
+      translations.fi[key],
+      translations[locale][key]
+    ])
+  );
+
+  staticUiTranslations[locale] = {
+    ...((generatedUiTranslations as Partial<Record<"en" | "sv" | "no", Record<string, string>>>)[locale] ?? {}),
+    ...sharedDictionary,
+    ...commerceUiTranslations[locale],
+    ...staticUiTranslations[locale]
+  };
+}
+
+Object.assign(staticUiTranslations.en, {
+  "Kauppa": "Store", "Yleiskatsaus": "Overview", "Ilmoitukset": "Listings", "Lisää ilmoitus": "Add listing",
+  "Tilaukset": "Orders", "Palautukset ja palautusohjeet": "Returns and return policy", "Tarjoukset ja kampanjat": "Offers and campaigns",
+  "Talous ja kasvu": "Finance and growth", "Maksut ja tilitykset": "Payments and payouts", "Toimitukset": "Delivery", "Markkinointi": "Marketing",
+  "Käytössä": "Enabled", "Pois käytöstä": "Disabled", "Ladataan yrityksen hallintapaneelia…": "Loading the business dashboard…",
+  "Etusivu": "Home",
+  "Oma talli": "My garage",
+  "Hakuvahti": "Search alerts",
+  "Tietoa meistä": "About us",
+  "Ohjeet": "Help",
+  Maskines: "Maskines",
+  maskines: "maskines",
+  "Maskines.": "Maskines.",
+  "© 2026 Maskines. Kaikki oikeudet pidätetään.": "© 2026 Maskines. All rights reserved.",
+  Paanavigaatio: "Main navigation",
+  "Ota yhteytta": "Contact us",
+  "Select your region & language": "Select your region & language",
+  Hae: "Search",
+  Maa: "Country",
+  "Haku:": "Search:",
+  Missiomme: "Our mission",
+  "Moottoritilavuus (cm³)": "Engine displacement (cm³)",
+  "Kaikki moottorit": "All engines",
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.\nOsta ja myy moottorikelkat, mönkijät, motocross-pyörät, mopot ja niiden varaosat helposti samassa paikassa.": "A Nordic marketplace for small vehicles and spare parts.\nBuy and sell snowmobiles, ATVs, motocross bikes, mopeds and their spare parts in one place."
+});
+Object.assign(staticUiTranslations.sv, {
+  "Kauppa": "Butik", "Yleiskatsaus": "Översikt", "Ilmoitukset": "Annonser", "Lisää ilmoitus": "Lägg till annons",
+  "Tilaukset": "Beställningar", "Palautukset ja palautusohjeet": "Returer och returvillkor", "Tarjoukset ja kampanjat": "Erbjudanden och kampanjer",
+  "Talous ja kasvu": "Ekonomi och tillväxt", "Maksut ja tilitykset": "Betalningar och utbetalningar", "Toimitukset": "Leveranser", "Markkinointi": "Marknadsföring",
+  "Käytössä": "Aktiverad", "Pois käytöstä": "Inaktiverad", "Ladataan yrityksen hallintapaneelia…": "Företagspanelen laddas…",
+  "Etusivu": "Startsida",
+  "Oma talli": "Mitt garage",
+  "Hakuvahti": "Sökbevakningar",
+  "Tietoa meistä": "Om oss",
+  "Ohjeet": "Hjälp",
+  Maskines: "Maskines",
+  maskines: "maskines",
+  "Maskines.": "Maskines.",
+  "© 2026 Maskines. Kaikki oikeudet pidätetään.": "© 2026 Maskines. Alla rättigheter förbehållna.",
+  Paanavigaatio: "Huvudnavigation",
+  "Ota yhteytta": "Kontakta oss",
+  "Select your region & language": "Välj region och språk",
+  Hae: "Sök",
+  Maa: "Land",
+  "Haku:": "Sökning:",
+  Missiomme: "Vårt uppdrag",
+  "Moottoritilavuus (cm³)": "Motorvolym (cm³)",
+  "Kaikki moottorit": "Alla motorer",
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.\nOsta ja myy moottorikelkat, mönkijät, motocross-pyörät, mopot ja niiden varaosat helposti samassa paikassa.": "En nordisk marknadsplats för småfordon och reservdelar.\nKöp och sälj snöskotrar, fyrhjulingar, motocrosscyklar, mopeder och deras reservdelar på samma ställe."
+});
+Object.assign(staticUiTranslations.no, {
+  "Kauppa": "Butikk", "Yleiskatsaus": "Oversikt", "Lisää ilmoitus": "Legg til annonse",
+  "Tilaukset": "Bestillinger", "Palautukset ja palautusohjeet": "Returer og returvilkår", "Tarjoukset ja kampanjat": "Tilbud og kampanjer",
+  "Talous ja kasvu": "Økonomi og vekst", "Maksut ja tilitykset": "Betalinger og utbetalinger", "Toimitukset": "Leveranser", "Markkinointi": "Markedsføring",
+  "Käytössä": "Aktivert", "Pois käytöstä": "Deaktivert", "Ladataan yrityksen hallintapaneelia…": "Bedriftspanelet lastes inn…",
+  Etusivu: "Hjem",
+  Pääsivu: "Hjem",
+  "Oma talli": "Min garasje",
+  "Sulje Oma talli": "Lukk garasjen",
+  Hakuvahti: "Søkevarsel",
+  Hakuvahteja: "Søkevarsler",
+  "Search Alerts": "Søkevarsler",
+  Ohjeet: "Hjelp",
+  "Tietoa meistä": "Om oss",
+  Maskines: "Maskines",
+  maskines: "maskines",
+  "Maskines.": "Maskines.",
+  "Maskines – nollaa etusivu": "Maskines – gå til forsiden",
+  "Maskines - etusivulle": "Maskines – gå til forsiden",
+  "Takaisin edelliselle sivulle": "Tilbake til forrige side",
+  Päänavigaatio: "Hovednavigasjon",
+  Pikatoiminnot: "Hurtighandlinger",
+  Hae: "Søk",
+  "Haku:": "Søk:",
+  "Hae varaosia": "Søk etter deler",
+  "Ei valintoja": "Ingen valg",
+  Ilmoitus: "Annonse",
+  ilmoitus: "annonse",
+  Ilmoitukset: "Annonser",
+  ilmoitukset: "annonser",
+  ilmoitusta: "annonser",
+  "Omat ilmoitukset": "Mine annonser",
+  "Uusi ilmoitus": "Ny annonse",
+  "Luo ilmoitus": "Opprett annonse",
+  "Luo myynti-ilmoitus": "Opprett salgsannonse",
+  "Ilmoituksen tyyppi": "Annonsetype",
+  "Ilmoituksen tiedot": "Annonsedetaljer",
+  "Näytä ilmoitus": "Vis annonse",
+  "Avaa ilmoitus": "Åpne annonse",
+  "Ilmoitus poistettu": "Annonsen er fjernet",
+  "Ilmoitus on poistettu": "Annonsen er fjernet",
+  "Viimeisimmät ilmoitukset": "Nyeste annonser",
+  "Ei ilmoituksia": "Ingen annonser",
+  "Ei ilmoituksia näytettäväksi": "Ingen annonser å vise",
+  "Aktiivinen ilmoitus": "Aktiv annonse",
+  "Aktiivista ilmoitusta": "Aktive annonser",
+  "Maskines ohjekeskus": "Maskines hjelpesenter",
+  "Maskines-tuki": "Maskines-støtte",
+  "Maskines lukuina": "Maskines i tall",
+  "Miksi Maskines?": "Hvorfor Maskines?",
+  "Tietoa Maskinesista": "Om Maskines",
+  "Uusi viesti": "Ny melding",
+  Kuva: "Bilde",
+  "Kaikki keskustelut": "Alle samtaler",
+  "Valitse keskustelu": "Velg en samtale",
+  "Avaa viesti vasemmalta jatkaaksesi keskustelua.": "Åpne en melding til venstre for å fortsette samtalen.",
+  "Kirjoita viesti...": "Skriv en melding...",
+  Sijainti: "Sted",
+  "Kaikki sijainnit": "Alle steder",
+  "Hae maata, aluetta tai kuntaa": "Søk etter land, fylke eller kommune",
+  "Ei hakutuloksia": "Ingen resultater",
+  "Tyhjennä valinnat": "Fjern valg",
+  Valmis: "Ferdig",
+  Maat: "Land",
+  Suomi: "Finland",
+  Ruotsi: "Sverige",
+  Norja: "Norge",
+  "Valitse alue": "Velg fylke",
+  "Valitse kaupunki tai kunta": "Velg by eller kommune",
+  "Suomen alueet": "Finlands regioner",
+  "Suomen kaupungit ja kunnat": "Finlands byer og kommuner",
+  "Ruotsin läänit": "Sveriges län",
+  "Ruotsin kaupungit ja kunnat": "Sveriges byer og kommuner",
+  "Norjan läänit": "Norges fylker",
+  "Norjan kaupungit ja kunnat": "Norges byer og kommuner",
+  "Kaikki ajoneuvot": "Alle kjøretøy",
+  "Kaikki tyypit": "Alle typer",
+  "Kaikki merkit": "Alle merker",
+  "Kaikki mallit": "Alle modeller",
+  "Kaikki koot": "Alle størrelser",
+  "Kaikki moottorit": "Alle motorer",
+  "Valitse pääkategoria": "Velg hovedkategori",
+  "Valitse alakategoria": "Velg underkategori",
+  "Valitse tarkempi osa": "Velg detaljert del"
+});
+
+/* Marketplace terminology is curated instead of machine-translated so the
+   vehicle filters and listing forms read naturally in every language. */
+Object.assign(staticUiTranslations.en, {
+  "Nopea haku": "Fast search",
+  "osta ja myy": "buy and sell",
+  "varaosat ja ajoneuvot": "parts and vehicles",
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.": "A Nordic marketplace for small vehicles and spare parts.",
+  Ilmainen: "Free",
+  "Pohjoismainen myyntialusta": "Nordic marketplace",
+  "Osta ja myy ilmaiseksi": "Buy and sell for free",
+  "Nopeasti myyntiin": "Quick to publish",
+  "muutamassa minuutissa": "in a few minutes",
+  Palvelemme: "We serve",
+  "Suomessa ja Pohjoismaissa": "in Finland and the Nordics",
+  Ajoneuvolaji: "Vehicle type",
+  "Kaikki ajoneuvot": "All vehicles",
+  Merkki: "Brand",
+  "Kaikki merkit": "All brands",
+  Malli: "Model",
+  "Kaikki mallit": "All models",
+  "Moottoritilavuus (cm³)": "Engine displacement (cm³)",
+  "Kaikki koot": "All sizes",
+  Moottori: "Engine",
+  "Kaikki moottorit": "All engines",
+  "Ei väliä": "Any",
+  Vetotapa: "Drive type",
+  Tieliikennekelpoisuus: "Road legal",
+  "Esim. 123-ABC": "e.g. 123-ABC",
+  Ilmoitustyyppi: "Listing type",
+  Ajoneuvot: "Vehicles",
+  Ajoneuvoilmoitus: "Vehicle listing",
+  "Merkki *": "Brand *",
+  "Maa *": "Country *",
+  "Kuvat *": "Images *",
+  "Ajoneuvon lisätiedot": "Additional vehicle details",
+  "Ajomäärä ja rekisteri": "Mileage and registration",
+  "Käyttötunnit (h)": "Operating hours (h)"
+});
+
+Object.assign(staticUiTranslations.sv, {
+  "Nopea haku": "Snabb sökning",
+  "osta ja myy": "köp och sälj",
+  "varaosat ja ajoneuvot": "reservdelar och fordon",
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.": "En nordisk marknadsplats för småfordon och reservdelar.",
+  Ilmainen: "Gratis",
+  "Pohjoismainen myyntialusta": "Nordisk marknadsplats",
+  "Osta ja myy ilmaiseksi": "Köp och sälj gratis",
+  "Nopeasti myyntiin": "Snabbt till salu",
+  "muutamassa minuutissa": "på några minuter",
+  Palvelemme: "Vi betjänar",
+  "Suomessa ja Pohjoismaissa": "i Finland och Norden",
+  Ajoneuvolaji: "Fordonstyp",
+  "Kaikki ajoneuvot": "Alla fordon",
+  Merkki: "Märke",
+  "Kaikki merkit": "Alla märken",
+  Malli: "Modell",
+  "Kaikki mallit": "Alla modeller",
+  "Moottoritilavuus (cm³)": "Motorvolym (cm³)",
+  "Kaikki koot": "Alla storlekar",
+  Moottori: "Motor",
+  "Kaikki moottorit": "Alla motorer",
+  "Ei väliä": "Valfritt",
+  Vetotapa: "Drivtyp",
+  Tieliikennekelpoisuus: "Godkänd för vägtrafik",
+  "Esim. 123-ABC": "T.ex. 123-ABC",
+  Ilmoitustyyppi: "Annonstyp",
+  Ajoneuvot: "Fordon",
+  Ajoneuvoilmoitus: "Fordonsannons",
+  "Merkki *": "Märke *",
+  "Maa *": "Land *",
+  "Kuvat *": "Bilder *",
+  "Ajoneuvon lisätiedot": "Ytterligare fordonsuppgifter",
+  "Ajomäärä ja rekisteri": "Körsträcka och registrering",
+  "Käyttötunnit (h)": "Drifttimmar (h)"
+});
+
+Object.assign(staticUiTranslations.no, {
+  "Nopea haku": "Raskt søk",
+  "osta ja myy": "kjøp og selg",
+  "varaosat ja ajoneuvot": "reservedeler og kjøretøy",
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.": "En nordisk markedsplass for små kjøretøy og reservedeler.",
+  Ilmainen: "Gratis",
+  "Pohjoismainen myyntialusta": "Nordisk markedsplass",
+  "Osta ja myy ilmaiseksi": "Kjøp og selg gratis",
+  "Nopeasti myyntiin": "Raskt til salgs",
+  "muutamassa minuutissa": "på noen minutter",
+  Palvelemme: "Vi hjelper",
+  "Suomessa ja Pohjoismaissa": "i Finland og Norden",
+  Ajoneuvolaji: "Kjøretøytype",
+  "Kaikki ajoneuvot": "Alle kjøretøy",
+  Merkki: "Merke",
+  "Kaikki merkit": "Alle merker",
+  Malli: "Modell",
+  "Kaikki mallit": "Alle modeller",
+  "Moottoritilavuus (cm³)": "Motorvolum (cm³)",
+  "Kaikki koot": "Alle størrelser",
+  Moottori: "Motor",
+  "Kaikki moottorit": "Alle motorer",
+  "Ei väliä": "Valgfritt",
+  Vetotapa: "Drivtype",
+  Tieliikennekelpoisuus: "Godkjent for vei",
+  "Esim. 123-ABC": "F.eks. 123-ABC",
+  Ilmoitustyyppi: "Annonsetype",
+  Ajoneuvot: "Kjøretøy",
+  Ajoneuvoilmoitus: "Kjøretøyannonse",
+  "Merkki *": "Merke *",
+  "Maa *": "Land *",
+  "Kuvat *": "Bilder *",
+  "Ajoneuvon lisätiedot": "Flere kjøretøyopplysninger",
+  "Ajomäärä ja rekisteri": "Kjørelengde og registrering",
+  "Käyttötunnit (h)": "Driftstimer (t)"
+});
+for (const locale of translatedLocales) {
+  const normalizedDictionary: Record<string, string> = {};
+
+  for (const [source, translated] of Object.entries(staticUiTranslations[locale])) {
+    normalizedDictionary[repairMojibake(source)] = repairMojibake(translated);
+  }
+
+  staticUiTranslations[locale] = normalizedDictionary;
+}
+
+
+function getLocationTranslation(locale: SupportedLocale, text: string) {
+  const repaired = repairMojibake(text.trim());
+  const match = repaired.match(/^(.+?),\s*(Suomi|Finland|Ruotsi|Sverige|Norja|Norge|Norway)$/i);
+  if (!match) return null;
+
+  const place = match[1].trim();
+  const country = match[2].toLocaleLowerCase("fi-FI");
+  const isSweden = country === "ruotsi" || country === "sverige";
+  const isNorway = country === "norja" || country === "norge" || country === "norway";
+  const translatedCountry = locale === "sv"
+    ? isNorway ? "Norge" : isSweden ? "Sverige" : "Finland"
+    : locale === "no"
+      ? isNorway ? "Norge" : isSweden ? "Sverige" : "Finland"
+      : isNorway ? "Norway" : isSweden ? "Sweden" : "Finland";
+
+  return `${place}, ${translatedCountry}`;
+}
+
+export function getStaticTranslation(locale: SupportedLocale, text: string) {
+  if (locale === "fi") return null;
+
+  const trimmed = repairMojibake(text.trim());
+  const locationTranslation = getLocationTranslation(locale, trimmed);
+  if (locationTranslation) return locationTranslation;
+
+  const corrections = {
+    "Suodata ilmoituksia": {en:"Filter listings",sv:"Filtrera annonser",no:"Filtrer annonser"},
+    "Ilmoitukset": {en:"Listings",sv:"Annonser",no:"Annonser"},
+    "Uusimmat ilmoitukset": {en:"Latest listings",sv:"Senaste annonserna",no:"Nyeste annonser"},
+    "Valitse ensin merkki": {en:"Choose a brand first",sv:"Välj märke först",no:"Velg merke først"},
+    "Osuvimmat ensin": {en:"Most relevant first",sv:"Mest relevanta först",no:"Mest relevante først"},
+    "Myyjätyyppi": {en:"Seller type",sv:"Säljartyp",no:"Selgertype"},
+    "Kaikki myyjät": {en:"All sellers",sv:"Alla säljare",no:"Alle selgere"},
+    "Yritys": {en:"Business",sv:"Företag",no:"Bedrift"},
+    "Yksityinen myyjä": {en:"Private seller",sv:"Privat säljare",no:"Privat selger"},
+    "Vahvistettu yritys": {en:"Verified business",sv:"Verifierat företag",no:"Verifisert bedrift"},
+    "Sulje suodatus": {en:"Close filters",sv:"Stäng filter",no:"Lukk filtre"},
+    "Sulje sijaintivalikko": {en:"Close location menu",sv:"Stäng platsmenyn",no:"Lukk stedsmenyen"},
+    "Myyjän suodatin": {en:"Seller filter",sv:"Säljarfilter",no:"Selgerfilter"},
+    "Sijaintisuodatin": {en:"Location filter",sv:"Platsfilter",no:"Stedsfilter"},
+    "Valitse markkinapaikka": {en:"Choose marketplace",sv:"Välj marknadsplats",no:"Velg markedsplass"},
+    "Kirjaudu sisään jatkaaksesi ilmoituksen luontia.": {en:"Sign in to continue creating your listing.",sv:"Logga in för att fortsätta skapa din annons.",no:"Logg inn for å fortsette å opprette annonsen."},
+    "Lisää suodattimia": {en:"More filters",sv:"Fler filter",no:"Flere filtre"},
+    "Kaikki hakuehdot": {en:"All filters",sv:"Alla filter",no:"Alle filtre"},
+    "Sulje kaikki hakuehdot": {en:"Close all filters",sv:"Stäng alla filter",no:"Lukk alle filtre"},
+    "Rajaa hakua tarkasti Maskines-markkinapaikalla": {en:"Refine your search on Maskines",sv:"Precisera din sökning på Maskines",no:"Avgrens søket på Maskines"},
+    "Minimi": {en:"Minimum",sv:"Minimum",no:"Minimum"},
+    "Maksimi": {en:"Maximum",sv:"Maximum",no:"Maksimum"},
+    "Esim. yleismallinen kiinnike": {en:"e.g. universal bracket",sv:"T.ex. universalfäste",no:"F.eks. universalfeste"},
+    "Kirjoita jos tiedossa": {en:"Enter if known",sv:"Ange om känt",no:"Oppgi hvis kjent"},
+    "Esim. 42 mm tai 30 x 20 cm": {en:"e.g. 42 mm or 30 x 20 cm",sv:"T.ex. 42 mm eller 30 x 20 cm",no:"F.eks. 42 mm eller 30 x 20 cm"}
+  } as const;
+  if (trimmed in corrections) return corrections[trimmed as keyof typeof corrections][locale];
+  const direct = staticUiTranslations[locale][trimmed];
+  if (direct) {
+    const repaired = repairMojibake(direct);
+    // Translations must never redirect a user to a different contact address.
+    const emails = (value: string) => value.match(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/gi) ?? [];
+    const originals = emails(trimmed).sort();
+    if (JSON.stringify(originals) !== JSON.stringify(emails(repaired).sort())) return null;
+    return repaired;
+  }
+
+  const categoryTranslation = translateCategory(locale, trimmed);
+  if (categoryTranslation !== trimmed) return repairMojibake(categoryTranslation);
+
+  // Never assemble a sentence from individually translated fragments. That
+  // produced mixed-language UI such as "Tee löydettävä annons". An unknown
+  // complete string stays visible in the source language until reviewed.
+  return null;
+}

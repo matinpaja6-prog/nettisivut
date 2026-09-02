@@ -1,4 +1,5 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 import { FormEvent, useEffect, useState } from "react";
 import { Star } from "lucide-react";
@@ -295,9 +296,7 @@ export default function RequiredReviewGate() {
           className="review-gate-close"
           aria-label={text.close}
           onClick={() => setSelectedRequestId("")}
-        >
-          ×
-        </button>
+        ><UiText text={"×"} /></button>
 
         <div className="review-gate-icon">
           <Star size={28} />

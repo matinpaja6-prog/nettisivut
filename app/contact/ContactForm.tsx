@@ -1,4 +1,5 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 import { useState } from "react";
 import { Check, Mail, Send } from "lucide-react";
@@ -75,13 +76,13 @@ export default function ContactForm({ embedded = false }: ContactFormProps) {
             <Mail size={24} />
           </span>
           <div>
-            <h2>Ota yhteyttä</h2>
-            <p>Kirjoita yhteystiedot ja asia mahdollisimman selkeästi.</p>
+            <h2><UiText text={"Ota yhteyttä"} /></h2>
+            <p><UiText text={"Kirjoita yhteystiedot ja asia mahdollisimman selkeästi."} /></p>
           </div>
         </div>
 
         <label className="contact-field">
-          <span>Nimi</span>
+          <span><UiText text={"Nimi"} /></span>
           <input
             autoComplete="name"
             name="name"
@@ -94,7 +95,7 @@ export default function ContactForm({ embedded = false }: ContactFormProps) {
         </label>
 
         <label className="contact-field">
-          <span>Sähköposti</span>
+          <span><UiText text={"Sähköposti"} /></span>
           <input
             autoComplete="email"
             inputMode="email"
@@ -108,7 +109,7 @@ export default function ContactForm({ embedded = false }: ContactFormProps) {
         </label>
 
         <label className="contact-field">
-          <span>Otsikko</span>
+          <span><UiText text={"Otsikko"} /></span>
           <input
             name="subject"
             onChange={updateField("subject")}
@@ -120,7 +121,7 @@ export default function ContactForm({ embedded = false }: ContactFormProps) {
         </label>
 
         <label className="contact-field">
-          <span>Viesti</span>
+          <span><UiText text={"Viesti"} /></span>
           <textarea
             minLength={10}
             name="message"
@@ -143,7 +144,7 @@ export default function ContactForm({ embedded = false }: ContactFormProps) {
           <span>
             <Check size={15} aria-hidden="true" />
           </span>
-          <strong>Hyväksyn Maskinesin käyttöehdot</strong>
+          <strong><UiText text={"Hyväksyn Maskinesin käyttöehdot"} /></strong>
         </label>
 
         <button className="contact-submit" disabled={status === "sending"} type="submit">
@@ -168,12 +169,9 @@ export default function ContactForm({ embedded = false }: ContactFormProps) {
     <main className="contact-page">
       <section className="contact-hero">
         <div className="contact-shell contact-hero-inner">
-          <span className="contact-kicker">Maskines-tuki</span>
-          <h1>Ota yhteyttä</h1>
-          <p>
-            Lähetä meille viesti lomakkeella. Se tulee suoraan sähköpostiin, ja kun vastaamme
-            siihen sähköpostista, vastaus lähtee antamaasi osoitteeseen.
-          </p>
+          <span className="contact-kicker"><UiText text={"Maskines-tuki"} /></span>
+          <h1><UiText text={"Ota yhteyttä"} /></h1>
+          <p><UiText text={"Lähetä meille viesti lomakkeella. Se tulee suoraan sähköpostiin, ja kun vastaamme siihen sähköpostista, vastaus lähtee antamaasi osoitteeseen."} /></p>
         </div>
       </section>
 

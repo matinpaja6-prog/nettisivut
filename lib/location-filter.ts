@@ -112,8 +112,8 @@ export function parseLocationFilter(value: string): LocationFilterSelection {
       countries: Array.isArray(parsed.countries)
         ? parsed.countries.filter((country) => country === "FI" || country === "SE" || country === "NO")
         : [],
-      regions: Array.isArray(parsed.regions) ? parsed.regions.filter(Boolean) : [],
-      municipalities: Array.isArray(parsed.municipalities) ? parsed.municipalities.filter(Boolean) : []
+      regions: Array.isArray(parsed.regions) ? parsed.regions.filter((value): value is string => typeof value === "string" && Boolean(value)) : [],
+      municipalities: Array.isArray(parsed.municipalities) ? parsed.municipalities.filter((value): value is string => typeof value === "string" && Boolean(value)) : []
     };
   } catch {
     return EMPTY_LOCATION_SELECTION;
@@ -255,4 +255,24 @@ export function listingMatchesLocationFilter(location: string, filterValue: stri
     const country = LOCATION_COUNTRIES.find((item) => item.value === countryCode);
     return country?.aliases.some((alias) => containsLocationTerm(location, alias)) ?? false;
   });
+}
+/** The same country/region expansion for the database search predicate. */
+export function databaseLocationGroups(filterValue: string): string[][] {
+  const selection = parseLocationFilter(filterValue);
+  const countries = [
+    { code: "FI", municipalities: FINLAND_MUNICIPALITIES, regions: FINLAND_REGIONS, children: FINLAND_MUNICIPALITIES_BY_REGION },
+    { code: "SE", municipalities: SWEDEN_MUNICIPALITIES, regions: SWEDEN_COUNTIES, children: SWEDEN_MUNICIPALITIES_BY_COUNTY },
+    { code: "NO", municipalities: NORWAY_MUNICIPALITIES, regions: NORWAY_COUNTIES, children: NORWAY_MUNICIPALITIES_BY_COUNTY }
+  ];
+  const countryOf = (value: string) => value.startsWith("SE|") ? "SE" : value.startsWith("NO|") ? "NO" : "FI";
+  const nameOf = (value: string) => value.replace(/^(SE|NO)\|/, "");
+  const groups = countries.filter(country => !selection.countries.length || selection.countries.includes(country.code)).map(country => {
+    const regions = selection.regions.filter(value => countryOf(value) === country.code).map(nameOf);
+    const specific = [...regions, ...regions.flatMap(region => country.children[region] || []),
+      ...selection.municipalities.filter(value => countryOf(value) === country.code).map(nameOf)];
+    return specific.length || !selection.countries.length ? specific : [
+      ...(LOCATION_COUNTRIES.find(item => item.value === country.code)?.aliases || []), ...country.municipalities, ...country.regions
+    ];
+  }).filter(group => group.length);
+  return groups.map(group => [...new Set(group.map(normalizeLocationText))]);
 }

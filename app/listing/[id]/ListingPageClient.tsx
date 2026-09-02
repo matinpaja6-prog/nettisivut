@@ -1,10 +1,14 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 import type { MouseEvent, TouchEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import Link from "@/app/components/LocalizedLink";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/lib/navigation";
 import OptimizedListingImage from "@/app/components/OptimizedListingImage";
+import ListingImagePreview from "@/app/components/ListingImagePreview";
+import { listingTitleDetailFacts } from "@/lib/listing-title-facts";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 import ListingSalePrice from "@/app/components/ListingSalePrice";
 import { useCurrency } from "@/app/components/CurrencyProvider";
@@ -537,8 +541,8 @@ const listingExtraText: Record<
     noReviews: "Ei arvioita",
     oneReview: "1 arvio",
     reviews: (count) => `${count} arviota`,
-    successfulDeal: "Onnistunut kauppa",
-    successfulDeals: "Onnistunutta kauppaa",
+    successfulDeal: "Myyty ilmoitus",
+    successfulDeals: "Myytyä ilmoitusta",
     sellerStatsAria: "Myyj\u00e4n arviot ja kaupat"
   },
   en: {
@@ -553,8 +557,8 @@ const listingExtraText: Record<
     noReviews: "No reviews",
     oneReview: "1 review",
     reviews: (count) => `${count} reviews`,
-    successfulDeal: "Successful deal",
-    successfulDeals: "Successful deals",
+    successfulDeal: "Sold listing",
+    successfulDeals: "Sold listings",
     sellerStatsAria: "Seller reviews and deals"
   },
   sv: {
@@ -569,8 +573,8 @@ const listingExtraText: Record<
     noReviews: "Inga recensioner",
     oneReview: "1 recension",
     reviews: (count) => `${count} recensioner`,
-    successfulDeal: "Lyckad aff\u00e4r",
-    successfulDeals: "Lyckade aff\u00e4rer",
+    successfulDeal: "Såld annons",
+    successfulDeals: "Sålda annonser",
     sellerStatsAria: "S\u00e4ljarens recensioner och aff\u00e4rer"
   },
   no: {
@@ -585,8 +589,8 @@ const listingExtraText: Record<
     noReviews: "Ingen anmeldelser",
     oneReview: "1 anmeldelse",
     reviews: (count) => `${count} anmeldelser`,
-    successfulDeal: "Vellykket handel",
-    successfulDeals: "Vellykkede handler",
+    successfulDeal: "Solgt annonse",
+    successfulDeals: "Solgte annonser",
     sellerStatsAria: "Selgerens anmeldelser og handler"
   },
 };
@@ -667,6 +671,12 @@ export default function ListingPage({
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { locale, activeLocale } = useLanguage();
+  const photoUi = {
+    fi: {open:"Avaa kuva suurempana",previous:"Edellinen kuva",next:"Seuraava kuva",gallery:"Ilmoituksen kuvat",image:"Kuva",similar:"Samanlaisia tuotteita myynnissä"},
+    en: {open:"Enlarge image",previous:"Previous image",next:"Next image",gallery:"Listing photos",image:"Image",similar:"Similar products for sale"},
+    sv: {open:"Förstora bild",previous:"Föregående bild",next:"Nästa bild",gallery:"Annonsbilder",image:"Bild",similar:"Liknande produkter till salu"},
+    no: {open:"Forstørr bilde",previous:"Forrige bilde",next:"Neste bilde",gallery:"Annonsebilder",image:"Bilde",similar:"Lignende produkter til salgs"}
+  }[locale];
   const { currency, formatAmount, formatFromEur } = useCurrency();
   const ui = listingUiText[locale];
   const extraUi = listingExtraText[locale];
@@ -857,90 +867,6 @@ export default function ListingPage({
 
   const sellerIdForPublicStats =
     listing?.seller_id ?? null;
-
-  useEffect(() => {
-    if (!previewImage) return;
-
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    const previousHtmlOverscrollBehavior =
-      document.documentElement.style.overscrollBehavior;
-    const previousPreviewHeaderHeight =
-      document.documentElement.style.getPropertyValue(
-        "--listing-preview-header-height",
-      );
-    const previousPreviewUtilityHeight =
-      document.documentElement.style.getPropertyValue(
-        "--listing-preview-utility-height",
-      );
-    const previousOverflow = document.body.style.overflow;
-    const previousBodyOverscrollBehavior =
-      document.body.style.overscrollBehavior;
-    const appHeader = document.querySelector<HTMLElement>(
-      ".universal-app-topbar",
-    );
-    const appHeaderHeight = Math.ceil(
-      appHeader?.getBoundingClientRect().height ?? 0,
-    );
-    const utilityBar = document.querySelector<HTMLElement>(
-      ".universal-utility-bar",
-    );
-    const utilityBarHeight = Math.ceil(
-      utilityBar?.getBoundingClientRect().height ?? 0,
-    );
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setPreviewImage(null);
-      }
-    }
-
-    document.documentElement.style.overflow = "hidden";
-    document.documentElement.style.overscrollBehavior = "none";
-    if (appHeaderHeight > 0) {
-      document.documentElement.style.setProperty(
-        "--listing-preview-header-height",
-        `${appHeaderHeight}px`,
-      );
-    }
-    if (utilityBarHeight > 0) {
-      document.documentElement.style.setProperty(
-        "--listing-preview-utility-height",
-        `${utilityBarHeight}px`,
-      );
-    }
-    document.body.style.overflow = "hidden";
-    document.body.style.overscrollBehavior = "none";
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.documentElement.style.overflow = previousHtmlOverflow;
-      document.documentElement.style.overscrollBehavior =
-        previousHtmlOverscrollBehavior;
-      if (previousPreviewHeaderHeight) {
-        document.documentElement.style.setProperty(
-          "--listing-preview-header-height",
-          previousPreviewHeaderHeight,
-        );
-      } else {
-        document.documentElement.style.removeProperty(
-          "--listing-preview-header-height",
-        );
-      }
-      if (previousPreviewUtilityHeight) {
-        document.documentElement.style.setProperty(
-          "--listing-preview-utility-height",
-          previousPreviewUtilityHeight,
-        );
-      } else {
-        document.documentElement.style.removeProperty(
-          "--listing-preview-utility-height",
-        );
-      }
-      document.body.style.overflow = previousOverflow;
-      document.body.style.overscrollBehavior = previousBodyOverscrollBehavior;
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [previewImage]);
 
   useEffect(() => {
     if (!supabase) {
@@ -1452,6 +1378,7 @@ export default function ListingPage({
   }
 
   async function handleShowPhone() {
+    trackAnalyticsEvent("contact_seller", { listing_id: listing?.id, method: "phone" });
     if (!listing) return;
 
     if (listing.seller_phone) {
@@ -1496,6 +1423,7 @@ export default function ListingPage({
   }
 
   async function handleSendMessage() {
+    trackAnalyticsEvent("contact_seller", { listing_id: listing?.id, method: "message" });
     if (!listing || messageLoading) {
       return;
     }
@@ -1701,7 +1629,7 @@ export default function ListingPage({
       : sellerAccountType === "private"
         ? extraUi.privateSeller
         : null;
-  const showSellerBusinessId = sellerAccountType !== "private";
+  const showSellerBusinessId = sellerAccountType === "company";
   const listingText = (() => {
     if (locale === "fi") return baseListingText;
     const leaf = listing.subcategory?.split("/").map((p) => p.trim()).filter(Boolean).at(-1);
@@ -1730,10 +1658,10 @@ export default function ListingPage({
       .replace(/Ajoneuvo:\s*\S+\s+Merkki:\s*[^\s]+(?:\s+\S+)?\s+Malli:\s*[^\s]+(?:\s+\S+)*?\s+Vuosimalli:\s*\d+\s*/i, "")
       .trim();
   const listingDeliveryMethod =
-    descriptionWithoutVehicleMeta.match(/(?:^|\n)Toimitustapa:\s*([^\n]+)/i)?.[1]?.trim() || "";
+    readDescriptionField(listing.description, "Toimitustapa");
   const listingVehicleSubtype =
     listing.vehicle_subtype?.trim() ||
-    descriptionWithoutVehicleMeta.match(/(?:^|\n)Ajoneuvotyyppi:\s*([^\n]+)/i)?.[1]?.trim() ||
+    readDescriptionField(listing.description, "Ajoneuvotyyppi") ||
     "";
   const listingVehicleMileage = readDescriptionField(listing.description, "Ajokilometrit");
   const listingVehicleHours = readDescriptionField(listing.description, "Käyttötunnit");
@@ -1769,6 +1697,17 @@ export default function ListingPage({
       ? listingVehicleHours
       : `${listingVehicleHours} h`
     : "";
+  const titleDetailFacts = listingTitleDetailFacts({
+    isVehicle: listingIsVehicle,
+    category: listingPartForSale,
+    mileage: formattedVehicleMileage,
+    operatingHours: formattedVehicleHours
+  }, {
+    category: ui.category,
+    mileage: vehicleFacts.mileage,
+    operatingHours: vehicleFacts.operatingHours,
+    notSpecified: ui.notSpecified
+  });
   const vehicleEquipmentTitle = ({
     fi: "Varusteet",
     en: "Equipment",
@@ -1792,8 +1731,7 @@ export default function ListingPage({
             <div className="title-row">
 
               <div className="title-left">
-                <span className="mobile-listing-id">
-                  ID <strong>{
+                <span className="mobile-listing-id"><UiText text={"ID "} /><strong>{
                     listingDisplayNumber ??
                     listing.listing_number ??
                     String(params.id).match(/^id(\d+)$/i)?.[1] ??
@@ -1810,10 +1748,12 @@ export default function ListingPage({
                     <dt>{ui.year}</dt>
                     <dd>{listing.year || ui.notSpecified}</dd>
                   </div>
-                  <div>
-                    <dt>{ui.category}</dt>
-                    <dd>{listingPartForSale || ui.notSpecified}</dd>
-                  </div>
+                  {titleDetailFacts.map(fact => (
+                    <div key={fact.label}>
+                      <dt>{fact.label}</dt>
+                      <dd>{fact.value}</dd>
+                    </div>
+                  ))}
                 </dl>
 
               </div>
@@ -1862,7 +1802,7 @@ export default function ListingPage({
                 {listingLocation}
                 <MapPin size={15} />
               </span>
-              <strong>ID {listingDisplayNumber ?? "..."}</strong>
+              <strong><UiText text={"ID "} />{listingDisplayNumber ?? "..."}</strong>
             </div>
 
             <div className="image-wrapper">
@@ -1881,7 +1821,7 @@ export default function ListingPage({
                   }}
                   onTouchStart={startImageSwipe}
                   onTouchEnd={finishImageSwipe}
-                  aria-label="Avaa kuva suurempana"
+                  aria-label={photoUi.open}
                 >
                   <span className="listing-image-soft-bg" aria-hidden="true">
                     <OptimizedListingImage
@@ -1911,7 +1851,7 @@ export default function ListingPage({
                     type="button"
                     className="gallery-arrow gallery-arrow-left"
                     onClick={() => switchGalleryImage(-1)}
-                    aria-label="Edellinen kuva"
+                    aria-label={photoUi.previous}
                   >
                     <ChevronLeft size={22} />
                   </button>
@@ -1919,7 +1859,7 @@ export default function ListingPage({
                     type="button"
                     className="gallery-arrow gallery-arrow-right"
                     onClick={() => switchGalleryImage(1)}
-                    aria-label="Seuraava kuva"
+                    aria-label={photoUi.next}
                   >
                     <ChevronRight size={22} />
                   </button>
@@ -1931,7 +1871,7 @@ export default function ListingPage({
                   type="button"
                   className="image-zoom-button"
                   onClick={() => setPreviewImage(activeImage)}
-                  aria-label="Avaa kuva suurempana"
+                  aria-label={photoUi.open}
                 >
                   <ZoomIn size={20} />
                 </button>
@@ -1968,18 +1908,18 @@ export default function ListingPage({
               </div>
 
               {gallery.length > 1 && (
-                <div className="mobile-image-thumbs" aria-label="Ilmoituksen kuvat">
+                <div className="mobile-image-thumbs" aria-label={photoUi.gallery}>
                   {gallery.map((url, index) => (
                     <button
                       key={`${url}-mobile-${index}`}
                       type="button"
                       className={activeImage === url ? "active" : ""}
                       onClick={() => setActiveImage(url)}
-                      aria-label={`Kuva ${index + 1}/${gallery.length}`}
+                      aria-label={`${photoUi.image} ${index + 1}/${gallery.length}`}
                     >
                       <OptimizedListingImage
                         src={url}
-                        alt={`${listingImageDescription}, kuva ${index + 1}`}
+                        alt={`${listingImageDescription}, ${photoUi.image} ${index + 1}`}
                         sizes="72px"
                       />
                     </button>
@@ -1989,18 +1929,18 @@ export default function ListingPage({
             </div>
 
             {gallery.length > 0 && (
-              <div className="desktop-image-thumbs" aria-label="Ilmoituksen kuvat">
+              <div className="desktop-image-thumbs" aria-label={photoUi.gallery}>
                 {gallery.map((url, index) => (
                   <button
                     key={`${url}-desktop-${index}`}
                     type="button"
                     className={activeImage === url ? "active" : ""}
                     onClick={() => setActiveImage(url)}
-                    aria-label={`Kuva ${index + 1}/${gallery.length}`}
+                    aria-label={`${photoUi.image} ${index + 1}/${gallery.length}`}
                   >
                     <OptimizedListingImage
                       src={url}
-                      alt={`${listingImageDescription}, kuva ${index + 1}`}
+                      alt={`${listingImageDescription}, ${photoUi.image} ${index + 1}`}
                       sizes="120px"
                     />
                   </button>
@@ -2015,7 +1955,7 @@ export default function ListingPage({
               <div className="image-actions">
 
                 <span className={`price-stack${commerceDiscountPercent > 0 ? " listing-sale-price-stack" : ""}`}>
-                  {commerceDiscountPercent > 0 && <span className="listing-sale-badge">ALE −{commerceDiscountPercent} %</span>}
+                  {commerceDiscountPercent > 0 && <span className="listing-sale-badge"><UiText text={"ALE −"} />{commerceDiscountPercent} %</span>}
                   <span className="price-display">
                     {formattedCurrentPrice}
                   </span>
@@ -2061,6 +2001,7 @@ export default function ListingPage({
             </div>
 
             {/* DETAILS */}
+
 
             {!listingIsVehicle && (
               <div className="description-card listing-facts-card">
@@ -2330,15 +2271,13 @@ export default function ListingPage({
                 {!commerceProductPending && commerceProduct && (
                   <div className="seller-commerce-actions" aria-label="Tuotteen ostaminen">
                     <span className="seller-commerce-label">
-                      <ShoppingCart size={17} aria-hidden="true" /> Osta turvallisesti Stripe-maksulla
-                    </span>
+                      <ShoppingCart size={17} aria-hidden="true" /><UiText text={" Osta turvallisesti Stripe-maksulla"} /></span>
                     <button
                       type="button"
                       className="seller-add-cart-button"
                       onClick={() => addCommerceItem(false)}
                     >
-                      <ShoppingCart size={18} aria-hidden="true" /> Lisää ostoskoriin
-                    </button>
+                      <ShoppingCart size={18} aria-hidden="true" /><UiText text={" Lisää ostoskoriin"} /></button>
                     {commerceMessage && (
                       <p className="seller-commerce-message" role="status">{commerceMessage}</p>
                     )}
@@ -2352,8 +2291,8 @@ export default function ListingPage({
                     aria-controls="seller-company-contact-options"
                     onClick={() => setCompanyContactOpen((open) => !open)}
                   >
-                    <span><MessageSquareText size={19} aria-hidden="true" /> Ota yhteyttä</span>
-                    <small>Viesti, puhelin tai sähköposti</small>
+                    <span><MessageSquareText size={19} aria-hidden="true" /><UiText text={" Ota yhteyttä"} /></span>
+                    <small><UiText text={"Viesti, puhelin tai sähköposti"} /></small>
                     {companyContactOpen ? <ChevronUp size={19} aria-hidden="true" /> : <ChevronDown size={19} aria-hidden="true" />}
                   </button>
                 )}
@@ -2363,8 +2302,8 @@ export default function ListingPage({
                 >
                   {commerceProduct && (
                     <div className="seller-company-contact-heading">
-                      <strong>Ota yhteyttä yritykseen</strong>
-                      <span>Kysy tuotteesta viestillä, puhelimella tai sähköpostilla.</span>
+                      <strong><UiText text={"Ota yhteyttä yritykseen"} /></strong>
+                      <span><UiText text={"Kysy tuotteesta viestillä, puhelimella tai sähköpostilla."} /></span>
                     </div>
                   )}
                   {isLoggedIn ? (
@@ -2408,7 +2347,7 @@ export default function ListingPage({
                       onClick={() => setCompanyPhoneVisible(true)}
                     >
                       <span className="seller-company-contact-icon"><Phone size={19} aria-hidden="true" /></span>
-                      <span><small>Puhelin</small><strong>{ui.showPhone}</strong></span>
+                      <span><small><UiText text={"Puhelin"} /></small><strong>{ui.showPhone}</strong></span>
                       <ChevronRight size={18} aria-hidden="true" />
                     </button>
                   ) : !showPhone ? (
@@ -2487,7 +2426,7 @@ export default function ListingPage({
                   {commerceProduct?.company.email?.trim() && (
                     <a className="seller-company-contact-method" href={`mailto:${commerceProduct.company.email}`}>
                       <Mail size={19} aria-hidden="true" />
-                      <span><small>Sähköposti</small><strong>{commerceProduct.company.email}</strong></span>
+                      <span><small><UiText text={"Sähköposti"} /></small><strong>{commerceProduct.company.email}</strong></span>
                     </a>
                   )}
                 </div>}
@@ -2561,10 +2500,10 @@ export default function ListingPage({
         </section>
 
         {similarListings.length > 0 && (
-          <section className="similar-listings-section" aria-label="Samanlaisia tuotteita myynnissä">
+          <section className="similar-listings-section" aria-label={photoUi.similar}>
             <div className="similar-listings-head">
               <span>{ui.forSale}</span>
-              <h2>Samanlaisia tuotteita</h2>
+              <h2><UiText text={"Samanlaisia tuotteita"} /></h2>
             </div>
             <div className={`${homeStyles.cardsGrid} similar-home-grid`} data-similar-listings-grid="true">
               {similarListings.map((item) => {
@@ -2580,7 +2519,7 @@ export default function ListingPage({
                     className={`${homeStyles.card} similar-home-card`}
                     role="link"
                     tabIndex={0}
-                    aria-label={`Avaa ilmoitus ${itemText.title}`}
+                    aria-label={itemText.title}
                     onClick={(event) => {
                       if ((event.target as HTMLElement).closest('[data-listing-favorite="true"]')) return;
                       openSimilarListing(item);
@@ -2601,9 +2540,7 @@ export default function ListingPage({
                         alt={itemText.title}
                       />
                       {isListingNew(item.created_at) && (
-                        <span className={homeStyles.newBadge} aria-label="Uusi">
-                          Uusi
-                        </span>
+                        <span className={homeStyles.newBadge} aria-label="Uusi"><UiText text={"Uusi"} /></span>
                       )}
                       {isLoggedIn && <button
                         onClick={(event) => toggleSimilarSave(event, item.id)}
@@ -2659,56 +2596,10 @@ export default function ListingPage({
       </div>
 
       {previewImage && (
-        <div
-          className="listing-image-preview"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Kuvan esikatselu"
-          onClick={() => setPreviewImage(null)}
-        >
-          <div className="listing-image-preview-backdrop" aria-hidden="true" />
-          <button
-            type="button"
-            className="listing-image-preview-close"
-            onClick={() => setPreviewImage(null)}
-            aria-label="Sulje kuvan esikatselu"
-          >
-            <X size={26} strokeWidth={2.5} />
-          </button>
-          <div
-            className="listing-image-preview-panel"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <OptimizedListingImage
-              src={previewImage}
-              alt={listingImageDescription}
-              priority
-              sizes="96vw"
-              onTouchStart={startImageSwipe}
-              onTouchEnd={finishImageSwipe}
-            />
-            {gallery.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  className="listing-image-preview-arrow listing-image-preview-arrow-left"
-                  onClick={() => switchGalleryImage(-1)}
-                  aria-label="Edellinen kuva"
-                >
-                  <ChevronLeft size={24} />
-                </button>
-                <button
-                  type="button"
-                  className="listing-image-preview-arrow listing-image-preview-arrow-right"
-                  onClick={() => switchGalleryImage(1)}
-                  aria-label="Seuraava kuva"
-                >
-                  <ChevronRight size={24} />
-                </button>
-              </>
-            )}
-          </div>
-        </div>
+        <ListingImagePreview src={previewImage} alt={listingImageDescription} locale={locale}
+          imageNumber={activeImageNumber} imageCount={gallery.length}
+          onClose={() => setPreviewImage(null)} onNavigate={switchGalleryImage}
+          onTouchStart={startImageSwipe} onTouchEnd={finishImageSwipe} />
       )}
 
       <style jsx>{`

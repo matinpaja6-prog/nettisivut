@@ -1,42 +1,18 @@
 import type { Metadata } from "next";
-import { unstable_cache } from "next/cache";
+import { glossaryTitle } from "@/lib/part-glossary";
+import { getServerLocale } from "@/lib/server-locale";
 
 import { formatPrice, getListingSalePricing, isVehicleListing } from "@/lib/listings";
 import { getLocalizedListingText, type ListingLocale } from "@/lib/listing-translations";
-import { listingNumberUrlId, listingPath } from "@/lib/routes";
+import { listingNumberUrlId, listingPath, languagePaths } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
 import { getListingById, getListingDisplayNumber } from "@/lib/supabase";
+import { getServerListing } from "@/lib/server-listing";
 
 type ListingPageParams = {
   params: Promise<{ id: string }>;
 };
 
-const translateMetadataText = unstable_cache(
-  async (text: string, targetLocale: ListingLocale) => {
-    if (!text.trim() || targetLocale === "fi") return text;
-
-    try {
-      const query = new URLSearchParams({
-        client: "gtx",
-        sl: "auto",
-        tl: targetLocale,
-        dt: "t",
-        q: text
-      });
-      const response = await fetch(
-        `https://translate.googleapis.com/translate_a/single?${query}`,
-        { signal: AbortSignal.timeout(4_000) }
-      );
-      if (!response.ok) return text;
-      const payload = await response.json();
-      return payload?.[0]?.map((part: unknown[]) => part?.[0] ?? "").join("").trim() || text;
-    } catch {
-      return text;
-    }
-  },
-  ["listing-share-metadata-translation-v1"],
-  { revalidate: 86_400 }
-);
 
 async function getShareListingText(
   listing: NonNullable<Awaited<ReturnType<typeof getListingById>>["data"]>,
@@ -45,19 +21,7 @@ async function getShareListingText(
   if (!locale) return { title: listing.title, description: listing.description || "" };
 
   const localized = getLocalizedListingText(listing, locale);
-  const storedTitle = listing.translations?.[locale]?.title?.trim() || "";
-  const storedDescription = listing.translations?.[locale]?.description?.trim() || "";
-  const hasStoredTranslation = Boolean(
-    (storedTitle && storedTitle !== listing.title.trim()) ||
-    (storedDescription && storedDescription !== (listing.description || "").trim())
-  );
-  if (hasStoredTranslation || listing.original_language === locale) return localized;
-
-  const [title, description] = await Promise.all([
-    translateMetadataText(listing.title, locale),
-    translateMetadataText(listing.description || "", locale)
-  ]);
-  return { title, description };
+  return localized;
 }
 
 function cleanMetaText(value?: string | null, fallback = "") {
@@ -129,23 +93,22 @@ export async function generateListingMetadataForLocale(
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
 
-  // Local navigation must not wait for remote social/SEO metadata. Production
-  // still generates the complete listing metadata below.
-  if (process.env.NODE_ENV === "development") {
-    return {
-      title: "Ilmoitus | Maskines",
-      robots: { index: false, follow: false }
-    };
-  }
-
-  const { data: listing } = await getListingById(decodedId);
+  const effectiveLocale = locale ?? "fi";
+  const fallbackCopy = {
+    fi: { title: "Ilmoitus", description: "Katso ajoneuvojen varaosailmoitus Maskines-palvelussa." },
+    en: { title: "Listing", description: "View vehicle parts and listings on Maskines." },
+    sv: { title: "Annons", description: "Se fordonsdelar och annonser på Maskines." },
+    no: { title: "Annonse", description: "Se kjøretøydeler og annonser på Maskines." }
+  }[effectiveLocale];
+  const fallbackTitle = `${fallbackCopy.title} | Maskines`;
+  const { data: listing } = await getServerListing(decodedId);
 
   if (!listing || listing.is_hidden || listing.is_sold) {
-    const fallbackUrl = absoluteSiteUrl(listingPath(decodedId));
+    const fallbackUrl = absoluteSiteUrl(listingPath(decodedId, effectiveLocale));
 
     return {
-      title: "Ilmoitus | Maskines",
-      description: "Katso ajoneuvojen varaosailmoitus Maskines-palvelussa.",
+      title: { absolute: fallbackTitle },
+      description: fallbackCopy.description,
       robots: {
         index: false,
         follow: false,
@@ -166,8 +129,8 @@ export async function generateListingMetadataForLocale(
       openGraph: {
         type: "website",
         siteName: "Maskines",
-        title: "Ilmoitus | Maskines",
-        description: "Katso ajoneuvojen varaosailmoitus Maskines-palvelussa.",
+        title: fallbackTitle,
+        description: fallbackCopy.description,
         url: fallbackUrl,
         images: [
           {
@@ -180,8 +143,8 @@ export async function generateListingMetadataForLocale(
       },
       twitter: {
         card: "summary_large_image",
-        title: "Ilmoitus | Maskines",
-        description: "Katso ajoneuvojen varaosailmoitus Maskines-palvelussa.",
+        title: fallbackTitle,
+        description: fallbackCopy.description,
         images: [absoluteSiteUrl("/maskines-brand-share-v2.png")]
       }
     };
@@ -191,24 +154,21 @@ export async function generateListingMetadataForLocale(
   const metadataListing = localizedText
     ? { ...listing, title: localizedText.title, description: localizedText.description }
     : listing;
-  const effectiveLocale = locale ?? "fi";
   const rawPartType = !isVehicleListing(listing)
     ? cleanMetaText(listing.subcategory?.split("/").at(-1) || listing.category)
     : "";
-  const localizedPartType = rawPartType
-    ? await translateMetadataText(rawPartType, effectiveLocale)
-    : "";
+  const localizedPartType = glossaryTitle(rawPartType, effectiveLocale);
   const title = buildTitle(metadataListing, localizedPartType);
   const description = buildDescription(metadataListing, localizedPartType);
   const displayNumber = await getListingDisplayNumber(listing.created_at, listing.listing_number);
   const urlId = listingNumberUrlId(displayNumber) || listing.id;
-  const canonicalListingPath = listingPath({ ...listing, listing_number: displayNumber, id: urlId });
+  const canonicalListingPath = listingPath({ ...listing, listing_number: displayNumber, id: urlId }, effectiveLocale);
   const url = absoluteSiteUrl(canonicalListingPath);
   const imageUrl = absoluteSiteUrl(`/og/listing/${encodeURIComponent(urlId)}/preview.jpg`);
 
   return {
     metadataBase: new URL(PUBLIC_SITE_URL),
-    title,
+    title: { absolute: `${title} | Maskines` },
     description,
     robots: {
       index: true,
@@ -223,7 +183,8 @@ export async function generateListingMetadataForLocale(
     },
     alternates: {
       // All legacy share aliases resolve to this one public listing URL.
-      canonical: url
+      canonical: url,
+      languages: languagePaths(canonicalListingPath)
     },
     openGraph: {
       type: "website",
@@ -252,5 +213,5 @@ export async function generateListingMetadataForLocale(
 }
 
 export async function generateListingMetadata(props: ListingPageParams): Promise<Metadata> {
-  return generateListingMetadataForLocale(props);
+  return generateListingMetadataForLocale(props, await getServerLocale());
 }

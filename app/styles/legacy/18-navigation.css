@@ -1,0 +1,586 @@
+
+@media (min-width: 1025px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    --topbar-h: 64px; align-items: center; background: linear-gradient(180deg, rgba(2, 8, 16, 0.98), rgba(2, 9, 18, 0.96)); border-bottom: 1px solid rgba(126, 197, 240, 0.18); box-shadow: 0 14px 36px rgba(0, 7, 18, 0.22); display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto minmax(420px, 1fr); gap: 14px; height: var(--topbar-h); min-height: var(--topbar-h); padding: 0 18px 0 20px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation {
+    align-items: center; display: contents; inset: auto; pointer-events: auto; position: static; width: auto;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    grid-column: 1; justify-self: start; left: auto; position: static;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    height: 56px; max-height: 56px; width: 86px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center; display: flex; gap: clamp(10px, 1.35vw, 22px); grid-column: 2; justify-content: center; justify-self: center;
+    left: auto; margin: 0; position: static; right: auto; top: auto; transform: none;
+    max-width: max-content; min-width: 0; overflow: visible; width: max-content;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+    align-items: center; border-radius: 8px; color: rgba(231, 242, 252, 0.82); display: inline-flex; font-size: 12px; font-weight: 900;
+    gap: 4px; min-height: 34px; padding: 0 2px; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active {
+    color: #ffffff;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    align-items: center; display: flex; gap: 8px; grid-column: 3; justify-content: flex-end; justify-self: end;
+    min-width: 0; flex: 0 0 auto; width: auto;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    border-color: rgba(255, 201, 145, 0.58); border-radius: 8px; box-shadow: 0 12px 28px rgba(255, 107, 22, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.2); height: 44px; min-height: 44px; min-width: 132px;
+    padding: 0 14px; white-space: nowrap;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button strong {
+    font-size: 13px; font-weight: 950;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button svg {
+    height: 16px; width: 16px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-button, html body header.universal-app-topbar.universal-home-topbar .language-switcher, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    border: 1px solid rgba(126, 197, 240, 0.28); border-radius: 8px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); height: 44px; min-height: 44px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-button, html body header.universal-app-topbar.universal-home-topbar .language-switcher {
+    width: 48px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    min-width: 118px; padding: 0 10px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar {
+    height: 34px; width: 34px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+    font-size: 13px; max-width: 64px;
+  }
+}
+@media (max-width: 1380px), (hover: none) and (pointer: coarse) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: auto 1fr;
+  }
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation {
+    display: flex; grid-column: 1; min-width: 0; pointer-events: auto; position: static; width: auto;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: none;
+  }
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    grid-column: 2; justify-self: end;
+  }
+}
+@media (min-width: 721px) and (max-width: 1380px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; overflow: hidden; padding-left: 10px; padding-right: 10px;
+  }
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar .universal-primary-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    display: none;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    opacity: 0; pointer-events: none; visibility: hidden;
+  }
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions, html body header.universal-app-topbar .universal-topbar-actions-guest, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions-guest {
+    display: flex; flex-wrap: nowrap; gap: 8px; grid-column: 2; justify-self: end; max-width: calc(100vw - 24px);
+    min-width: 0; overflow: hidden; position: static; transform: none;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    flex: 0 0 auto;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    flex: 0 1 136px; min-width: 0;
+  }
+}
+@media (min-width: 721px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    --topbar-h: 64px; align-items: center; min-height: var(--topbar-h);
+  }
+  html body header.universal-app-topbar .universal-primary-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    display: contents;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    display: none;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center; display: flex; gap: clamp(18px, 2.25vw, 30px); height: var(--topbar-h); justify-content: center; left: calc(50% - 7px);
+    margin: 0; max-width: calc(100vw - 420px); min-height: var(--topbar-h); overflow: visible; position: absolute; right: auto;
+    top: 0; transform: translateX(-50%); width: max-content; z-index: 4;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+    align-items: center; background: transparent; border: 0; border-radius: 0; box-shadow: none; color: rgba(230, 241, 251, 0.78);
+    display: inline-flex; font-size: 12px; font-weight: 900; gap: 4px; height: var(--topbar-h); line-height: 1;
+    min-height: var(--topbar-h); overflow: visible; padding: 0; position: relative; text-decoration: none; text-decoration-line: none;
+    text-shadow: none; white-space: nowrap;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover, html body header.universal-app-topbar .universal-home-primary-nav a.is-active, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active {
+    background: transparent; border: 0; box-shadow: none; color: #ffffff; text-decoration: none; text-decoration-line: none;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a::after {
+    background: #ff7a1a; bottom: 13px; content: ""; display: block; height: 2px; left: 0;
+    opacity: 0; position: absolute; right: 0; transform: scaleX(0.72); transition: opacity 140ms ease, transform 140ms ease;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover::after, html body header.universal-app-topbar .universal-home-primary-nav a.is-active::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active::after {
+    opacity: 1; transform: scaleX(1);
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a:focus-visible, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:focus-visible {
+    outline: none;
+  }
+}
+@media (min-width: 721px) and (max-width: 1380px) {
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: none;
+  }
+}
+@media (max-width: 1499px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; overflow: hidden; padding-left: 8px; padding-right: 8px;
+  }
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar .universal-primary-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation, html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: none; opacity: 0; pointer-events: none; visibility: hidden;
+  }
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions, html body header.universal-app-topbar .universal-topbar-actions-guest, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions-guest {
+    display: flex; flex-wrap: nowrap; gap: 7px; grid-column: 2; justify-content: flex-end; justify-self: end;
+    max-width: calc(100vw - 16px); min-width: 0; overflow: visible; position: static; transform: none; width: auto;
+  }
+}
+@media (max-width: 720px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: minmax(0, 1fr); padding-left: 4px; padding-right: 4px;
+  }
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    gap: 6px; grid-column: 1; max-width: calc(100vw - 8px); width: 100%;
+  }
+  html body header.universal-app-topbar .universal-create-button, html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    flex: 0 0 134px; max-width: 134px; min-width: 134px; width: 134px;
+  }
+  html body header.universal-app-topbar .universal-notification-wrap, html body header.universal-app-topbar .universal-language-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-notification-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-language-wrap {
+    flex: 0 0 44px; max-width: 44px; min-width: 44px; width: 44px;
+  }
+  html body header.universal-app-topbar .universal-notification-button, html body header.universal-app-topbar .language-switcher, html body header.universal-app-topbar.universal-home-topbar .universal-notification-button, html body header.universal-app-topbar.universal-home-topbar .language-switcher {
+    flex: 0 0 44px; max-width: 44px; min-width: 44px; width: 44px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    flex: 0 1 116px; max-width: 116px; min-width: 0; width: 116px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button-copy, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy {
+    width: 44px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button-copy strong, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+    max-width: 44px;
+  }
+}
+@media (min-width: 1500px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    overflow: visible;
+  }
+}
+@media (min-width: 1180px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    --topbar-h: 64px; align-items: center; display: grid; gap: clamp(8px, 1.2vw, 18px); height: var(--topbar-h); min-height: var(--topbar-h);
+    overflow: visible; padding-left: clamp(12px, 2vw, 24px); padding-right: clamp(8px, 1.5vw, 18px);
+  }
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar .universal-primary-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center; display: flex; grid-column: 1; justify-content: center; min-width: 0; opacity: 1;
+    pointer-events: auto; position: static; visibility: visible; width: 100%;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    display: none;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    display: inline-flex; flex: 0 0 auto; margin-right: clamp(8px, 1.4vw, 20px);
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center; display: flex; flex: 1 1 auto; gap: clamp(12px, 1.45vw, 24px); height: var(--topbar-h); justify-content: center;
+    margin: 0; min-height: var(--topbar-h); min-width: 0; opacity: 1; overflow: visible; pointer-events: auto;
+    right: auto; visibility: visible; z-index: 4;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+    align-items: center; background: transparent; border: 0; box-shadow: none; color: rgba(230, 241, 251, 0.8); display: inline-flex;
+    flex: 0 0 auto; font-size: clamp(11px, 0.9vw, 12px); font-weight: 900; gap: 4px; height: var(--topbar-h); line-height: 1;
+    min-height: var(--topbar-h); padding: 0; position: relative; text-decoration: none; text-decoration-line: none; white-space: nowrap;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a::after {
+    background: #ff7a1a; bottom: 12px; content: ""; display: block; height: 2px; left: 0;
+    opacity: 0; position: absolute; right: 0; transform: scaleX(0.72);
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover, html body header.universal-app-topbar .universal-home-primary-nav a.is-active, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active {
+    color: #ffffff;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover::after, html body header.universal-app-topbar .universal-home-primary-nav a.is-active::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active::after {
+    opacity: 1; transform: scaleX(1);
+  }
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    display: flex; flex: 0 0 auto; flex-wrap: nowrap; gap: clamp(6px, 0.8vw, 10px); grid-column: 2; justify-content: flex-end;
+    justify-self: end; max-width: none; min-width: 0; overflow: visible; position: static; transform: none;
+    width: auto; z-index: 5;
+  }
+  html body header.universal-app-topbar .universal-create-button, html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    flex: 0 0 auto; min-width: clamp(118px, 9.5vw, 136px); padding-left: 12px; padding-right: 12px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    flex: 0 0 clamp(112px, 9vw, 136px); min-width: clamp(112px, 9vw, 136px); width: clamp(112px, 9vw, 136px);
+  }
+  html body header.universal-app-topbar .universal-language-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-language-wrap, html body header.universal-app-topbar .language-switcher, html body header.universal-app-topbar.universal-home-topbar .language-switcher, html body header.universal-app-topbar .universal-notification-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-notification-wrap, html body header.universal-app-topbar .universal-notification-button, html body header.universal-app-topbar.universal-home-topbar .universal-notification-button {
+    flex: 0 0 44px; min-width: 44px; width: 44px;
+  }
+}
+@media (min-width: 861px) and (max-width: 1180px) {
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    gap: 12px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+    font-size: 11px;
+  }
+  html body header.universal-app-topbar .universal-create-button strong, html body header.universal-app-topbar.universal-home-topbar .universal-create-button strong {
+    font-size: 12px;
+  }
+}
+@media (max-width: 860px) {
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar .universal-primary-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation, html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: none;
+  }
+}
+@media (min-width: 861px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    background: linear-gradient(180deg, rgba(4, 12, 22, 0.98), rgba(3, 10, 18, 0.96)); border-bottom: 1px solid rgba(72, 123, 155, 0.26); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 14px 32px rgba(0, 0, 0, 0.22);
+  }
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar .universal-primary-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    gap: clamp(26px, 5vw, 260px); grid-column: 1; justify-content: flex-start; position: static;
+  }
+  html body header.universal-app-topbar .universal-home-brand, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    flex: 0 0 74px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    flex: 0 1 auto; min-height: var(--topbar-h); pointer-events: auto; right: auto;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+    align-items: center; background: transparent; border: 0; border-radius: 0; box-shadow: none; color: rgba(230, 241, 251, 0.82);
+    display: inline-flex; flex: 0 0 auto; font-size: 12px; font-weight: 900; gap: 4px; height: var(--topbar-h);
+    line-height: 1; min-height: var(--topbar-h); padding: 0; position: relative; text-decoration: none; text-shadow: none;
+    white-space: nowrap;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a::after {
+    background: #ff7a1a; bottom: 10px; content: ""; display: block; height: 2px; left: 0;
+    opacity: 0; position: absolute; right: 0; transform: scaleX(0.72); transition: opacity 140ms ease, transform 140ms ease;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover, html body header.universal-app-topbar .universal-home-primary-nav a.is-active, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active {
+    color: #ffffff;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover::after, html body header.universal-app-topbar .universal-home-primary-nav a.is-active::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active::after {
+    opacity: 1; transform: scaleX(1);
+  }
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    flex: 0 0 auto; flex-wrap: nowrap; max-width: none; min-width: 0;
+  }
+  html body header.universal-app-topbar .universal-create-button, html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    flex: 0 0 auto;
+  }
+  html body header.universal-app-topbar .universal-notification-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-notification-wrap, html body header.universal-app-topbar .universal-language-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-language-wrap {
+    flex: 0 0 44px; height: 44px; max-width: 44px; min-width: 44px; width: 44px;
+  }
+  html body header.universal-app-topbar .universal-notification-button, html body header.universal-app-topbar.universal-home-topbar .universal-notification-button, html body header.universal-app-topbar .language-switcher, html body header.universal-app-topbar.universal-home-topbar .language-switcher {
+    border-radius: 8px; flex: 0 0 44px; height: 44px; max-height: 44px; max-width: 44px; min-height: 44px;
+    min-width: 44px; width: 44px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    border-radius: 8px; flex: 0 0 130px; height: 44px; max-width: 130px; min-height: 44px; min-width: 130px;
+    width: 130px;
+  }
+}
+@media (min-width: 861px) and (max-width: 1220px) {
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    left: clamp(330px, 43vw, 410px);
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav a, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+    font-size: 11px;
+  }
+}
+@media (min-width: 861px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    --topbar-h: 64px; align-items: center; gap: 16px; grid-template-columns: 96px minmax(0, 1fr) auto; top: 0; width: 100%;
+  }
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar .universal-primary-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center; opacity: 1; pointer-events: auto; visibility: visible;
+  }
+  html body header.universal-app-topbar .universal-home-brand, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    grid-column: 1; min-width: 0;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    grid-column: 2; justify-self: center; margin: 0; opacity: 1; visibility: visible;
+  }
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    gap: 10px; grid-column: 3; justify-self: end; margin-right: 16px;
+  }
+}
+@media (min-width: 861px) and (max-width: 1220px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: 70px minmax(0, 1fr) auto; padding: 0 16px;
+  }
+}
+html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+  box-shadow: none;
+}
+html body header.universal-app-topbar::after, html body header.universal-app-topbar.universal-home-topbar::after {
+  display: none;
+}
+html body header.universal-app-topbar :is( .universal-home-primary-nav a, .universal-create-button, .universal-icon-button, .language-switcher, .rebuilt-profile-button, .universal-profile-avatar, .profile-avatar-initial, .rebuilt-profile-xp-track ) {
+  box-shadow: none; text-shadow: none;
+}
+html body header.universal-app-topbar .universal-home-primary-nav a, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+  overflow: visible; text-overflow: clip;
+}
+html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+  align-items: center; flex: 0 0 auto; gap: 8px; height: 48px; max-height: none; max-width: none;
+  min-height: 48px; min-width: 152px; overflow: visible; padding: 0 12px 0 8px; width: auto;
+}
+html body header.universal-app-topbar .rebuilt-profile-button-copy, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy {
+  display: grid; flex: 1 1 auto; gap: 4px; line-height: 1; min-width: 72px; overflow: visible;
+}
+html body header.universal-app-topbar .rebuilt-profile-button-copy strong, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+  display: block; line-height: 1.05; max-width: none; overflow: visible; text-overflow: clip; white-space: nowrap;
+}
+html body header.universal-app-topbar .rebuilt-profile-xp-row, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-row {
+  align-items: center; display: grid; gap: 5px; grid-template-columns: auto minmax(44px, 1fr); line-height: 1; min-height: 12px;
+  overflow: visible;
+}
+html body header.universal-app-topbar .rebuilt-profile-xp-row small, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-row small {
+  display: block; line-height: 1; min-width: 10px; overflow: visible;
+}
+html body header.universal-app-topbar .rebuilt-profile-xp-track, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-track {
+  height: 5px; min-width: 44px; overflow: hidden;
+}
+html body header.universal-app-topbar .universal-profile-avatar, html body header.universal-app-topbar.universal-home-topbar .universal-profile-avatar {
+  flex: 0 0 34px; height: 34px; width: 34px;
+}
+@media (min-width: 1180px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: 110px minmax(0, 1fr) auto; position: sticky;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    left: calc(50% - 7px); max-width: min(650px, calc(100vw - 560px)); position: absolute; top: 0; transform: translateX(-50%); width: max-content;
+  }
+}
+@media (min-width: 861px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    display: block; height: 64px; min-height: 64px; overflow: visible; padding: 0; position: sticky;
+  }
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar .universal-primary-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    display: block; height: 64px; min-width: 0; overflow: visible; width: 100%;
+  }
+  html body header.universal-app-topbar .universal-home-brand, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    align-items: center; display: inline-flex; height: 64px; justify-content: flex-start; left: 22px; margin: 0;
+    opacity: 1; overflow: visible; pointer-events: auto; position: absolute; top: 0; transform: none;
+    visibility: visible; width: 100px; z-index: 20;
+  }
+  html body header.universal-app-topbar .universal-home-brand-logo, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    display: block; flex: 0 0 auto; height: 54px; max-height: 54px; opacity: 1; overflow: visible;
+    visibility: visible; width: 96px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    justify-content: center; left: 50%; min-width: 0; overflow: visible; position: absolute; top: 0;
+    transform: translateX(-50%); width: max-content; z-index: 12;
+  }
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    align-items: center; display: flex; height: 64px; justify-content: flex-end; margin: 0; overflow: visible;
+    position: absolute; right: 24px; top: 50%; transform: translateY(-50%); width: auto; z-index: 14;
+  }
+}
+@media (min-width: 861px) and (max-width: 1220px) {
+  html body header.universal-app-topbar .universal-home-brand, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    left: 14px; width: 82px;
+  }
+  html body header.universal-app-topbar .universal-home-brand-logo, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    height: 48px; width: 78px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    gap: 13px; max-width: calc(100vw - 480px);
+  }
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    right: 14px;
+  }
+}
+@media (min-width: 861px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    align-items: center; display: inline-flex; height: 64px; justify-content: flex-start; left: 22px; margin: 0;
+    opacity: 1; overflow: visible; pointer-events: auto; position: absolute; top: 0; transform: none;
+    visibility: visible; width: 100px; z-index: 20;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand-logo {
+    display: block; flex: 0 0 auto; height: 54px; max-height: 54px; opacity: 1; overflow: visible;
+    visibility: visible; width: 96px;
+  }
+}
+@media (min-width: 861px) and (max-width: 1220px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    left: 14px; width: 82px;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand-logo {
+    height: 48px; width: 78px;
+  }
+}
+html body header.universal-app-topbar .universal-mobile-search-button {
+  display: none;
+}
+@media (max-width: 760px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    align-items: center; display: grid; gap: 8px; grid-template-columns: 64px minmax(0, 1fr) auto; height: 64px; min-height: 64px;
+    overflow: visible; padding: 0 8px;
+  }
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar .universal-primary-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center; display: flex; grid-column: 1; height: 64px; justify-content: flex-start; min-width: 0;
+    overflow: visible; width: 64px;
+  }
+  html body header.universal-app-topbar .universal-home-brand, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    left: auto; overflow: visible; top: auto;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav, html body header.universal-app-topbar .universal-create-button, html body header.universal-app-topbar.universal-home-topbar .universal-create-button, html body header.universal-app-topbar .universal-profile-menu-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-wrap {
+    display: none;
+  }
+  html body header.universal-app-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    align-items: center; display: flex; grid-column: 3; height: 64px; justify-content: flex-end; justify-self: end;
+    margin: 0; max-width: calc(100vw - 82px); min-width: 0; overflow: visible; position: static; right: auto;
+    top: auto; transform: none; width: auto;
+  }
+  html body header.universal-app-topbar .universal-mobile-search-button, html body header.universal-app-topbar.universal-home-topbar .universal-mobile-search-button {
+    align-items: center; background: linear-gradient(135deg, #ff8a1c, #ff6b16); border: 1px solid rgba(255, 210, 165, 0.42); border-radius: 9px; box-shadow: none; color: #ffffff;
+    cursor: pointer; flex: 0 0 auto; font-size: 13px; font-weight: 950; gap: 6px; height: 42px;
+    justify-content: center; min-height: 42px; min-width: 76px; padding: 0 12px; text-shadow: none; white-space: nowrap;
+  }
+  html body header.universal-app-topbar .universal-mobile-search-button svg {
+    height: 16px; width: 16px;
+  }
+  html body header.universal-app-topbar .universal-notification-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-notification-wrap, html body header.universal-app-topbar .universal-language-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-language-wrap {
+    flex: 0 0 auto; height: 42px; min-width: 42px; width: auto;
+  }
+  html body header.universal-app-topbar .universal-notification-button, html body header.universal-app-topbar.universal-home-topbar .universal-notification-button, html body header.universal-app-topbar .language-switcher, html body header.universal-app-topbar.universal-home-topbar .language-switcher {
+    border-radius: 9px; box-shadow: none; height: 42px; max-height: 42px; min-height: 42px; min-width: 42px;
+    width: 42px;
+  }
+  html body header.universal-app-topbar .language-switcher span[aria-hidden="true"], html body header.universal-app-topbar .language-switcher img {
+    border-radius: 6px; height: 25px; width: 34px;
+  }
+}
+@media (max-width: 380px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: 56px minmax(0, 1fr) auto; padding: 0 6px;
+  }
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation {
+    width: 56px;
+  }
+  html body header.universal-app-topbar .universal-home-brand-logo, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    height: 42px; width: 54px;
+  }
+  html body header.universal-app-topbar .universal-mobile-search-button, html body header.universal-app-topbar.universal-home-topbar .universal-mobile-search-button {
+    min-width: 68px; padding: 0 9px;
+  }
+}
+@media (max-width: 760px) {
+  html body header.universal-app-topbar .universal-mobile-search-button, html body header.universal-app-topbar.universal-home-topbar .universal-mobile-search-button {
+    display: none;
+  }
+  html body header.universal-app-topbar .universal-profile-menu-wrap, html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-wrap {
+    display: inline-flex; flex: 0 0 auto; height: 42px; overflow: visible; position: relative; visibility: visible;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    align-items: center; max-height: 42px; min-height: 42px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button-copy, html body header.universal-app-topbar .rebuilt-profile-button > svg, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button > svg {
+    display: none;
+  }
+}
+@media (min-width: 861px) {
+  html body header.universal-app-topbar .universal-home-brand, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    align-items: center; display: inline-flex; height: 64px; justify-content: center; left: 22px; position: absolute;
+    top: 0; width: 56px;
+  }
+  html body header.universal-app-topbar .universal-home-brand-logo, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand-logo {
+    display: block; height: 46px; max-height: 46px; object-fit: contain; opacity: 1; visibility: visible;
+    width: 46px;
+  }
+}
+@media (max-width: 760px) {
+  html body header.universal-app-topbar {
+    grid-template-columns: 56px minmax(0, 1fr) auto; position: static; top: auto;
+  }
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar .universal-primary-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center; display: flex; grid-column: 1; height: 64px; justify-content: flex-start; min-width: 0;
+    overflow: visible; width: 56px;
+  }
+  html body header.universal-app-topbar .universal-home-brand, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    align-items: center; display: inline-flex; height: 64px; justify-content: flex-start; opacity: 1; position: static;
+    transform: none; visibility: visible; width: 56px;
+  }
+  html body header.universal-app-topbar .universal-home-brand-logo, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo, html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand-logo {
+    display: block; height: 42px; max-height: 42px; object-fit: contain; opacity: 1; visibility: visible;
+    width: 42px;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    display: inline-flex;
+  }
+  html body header.universal-app-topbar .universal-page-back-button {
+    align-items: center; background: transparent; border: 0; box-shadow: none; color: #ff7a1a; display: inline-flex;
+    flex: 0 0 44px; height: 44px; justify-content: center; min-height: 44px; min-width: 44px; padding: 0;
+    width: 44px;
+  }
+  html body header.universal-app-topbar .universal-page-back-button svg {
+    color: #ff7a1a; height: 25px; stroke-width: 2.8; width: 25px;
+  }
+  html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button {
+    display: none;
+  }
+}
+@media (min-width: 861px) {
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center; display: flex; gap: clamp(8px, 1vw, 14px); height: 64px; max-width: min(650px, calc(100vw - 560px));
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button), html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) {
+    align-items: center; appearance: none; -webkit-appearance: none; background: linear-gradient(180deg, rgba(17, 34, 51, 0.52), rgba(7, 18, 31, 0.18)); border: 1px solid transparent; border-radius: 8px;
+    box-shadow: none; color: rgba(235, 245, 255, 0.82); cursor: pointer; display: inline-flex; font: inherit; font-size: 12px;
+    font-weight: 950; gap: 5px; height: 38px; justify-content: center; letter-spacing: 0; line-height: 1;
+    min-height: 38px; padding: 0 10px; position: relative; text-decoration: none; text-shadow: none; transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+    white-space: nowrap;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button)::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button)::after {
+    background: linear-gradient(90deg, transparent, #ff8a1c, transparent); border-radius: 999px; bottom: 4px; content: ""; height: 2px; left: 10px;
+    opacity: 0; position: absolute; right: 10px; transform: scaleX(0.72); transition: opacity 140ms ease, transform 140ms ease;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):hover, html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):hover, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active {
+    background: linear-gradient(180deg, rgba(28, 56, 82, 0.76), rgba(10, 27, 45, 0.48)); border-color: rgba(255, 138, 28, 0.32); color: #ffffff; transform: translateY(-1px);
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):hover::after, html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):hover::after, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active::after {
+    opacity: 1; transform: scaleX(1);
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):focus-visible, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):focus-visible {
+    outline: 2px solid rgba(255, 138, 28, 0.82); outline-offset: 3px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button) svg, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) svg {
+    flex: 0 0 auto; height: 13px; transition: transform 140ms ease; width: 13px;
+  }
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):hover svg, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):hover svg {
+    transform: translateY(1px);
+  }
+}
+@media (min-width: 761px) and (max-width: 1179px) {
+  html body header.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  html body header.universal-app-topbar, html body header.universal-app-topbar.universal-home-topbar {
+    position: static; top: auto;
+  }
+  html body header.universal-app-topbar .universal-home-navigation, html body header.universal-app-topbar .universal-primary-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation, html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    opacity: 1; pointer-events: auto; visibility: visible;
+  }
+  html body header.universal-app-topbar .universal-home-brand, html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    opacity: 1; visibility: visible;
+  }
+}
+@media (max-width: 760px) {
+  html body header.universal-app-topbar .rebuilt-profile-button > svg, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button > svg {
+    color: #f6fbff; display: block; flex: 0 0 auto; margin: 0; transform: rotate(0deg);
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button.is-open > svg, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button.is-open > svg {
+    transform: rotate(180deg);
+  }
+}

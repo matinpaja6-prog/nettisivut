@@ -13,3 +13,8 @@ yarn-error.log*
 tsconfig.tsbuildinfo
 
 .vercel
+# Local reports, screenshots and temporary exports are not deployment inputs.
+output/
+tmp/
+.env.*
+!.env.local.example

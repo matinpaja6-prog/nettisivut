@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
+
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import type { Company } from "@/lib/commerce/types";
 import { isStripeReady } from "@/lib/commerce/validation";

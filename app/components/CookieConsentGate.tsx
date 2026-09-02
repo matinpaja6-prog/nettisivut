@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from "@/app/components/LocalizedLink";
+import { usePathname } from "@/lib/navigation";
 import { BarChart3, ChevronDown, Cookie, Globe2, LockKeyhole, Monitor, Moon, Palette, ShieldCheck, Sun, X } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { COOKIE_CONSENT_EVENT, readCookieConsent, readCookieConsentSettings, saveCookieConsent, type CookieConsentChoice, type CookieConsentSettings } from "@/lib/cookie-consent";
-import { applyLocale, isLocale, type SupportedLocale } from "@/lib/i18n";
+import { useLanguage, type SupportedLocale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, pagePath } from "@/lib/routes";
 import { applyUserTheme, readUserSettings, saveUserSettings, type UserTheme } from "@/lib/user-settings";
 import { SUPPORTED_CURRENCIES, type SupportedCurrency } from "@/lib/currency";
@@ -88,7 +88,7 @@ export default function CookieConsentGate({ children }: { children: ReactNode })
   const { currency, setCurrency } = useCurrency();
   const [choice, setChoice] = useState<CookieConsentChoice | null>(null);
   const [checked, setChecked] = useState(false);
-  const [locale, setLocale] = useState<SupportedLocale>("en");
+  const { locale, setLocale } = useLanguage();
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const [theme, setTheme] = useState<UserTheme>("dark");
   const [optionalCookies, setOptionalCookies] = useState(false);
@@ -99,27 +99,17 @@ export default function CookieConsentGate({ children }: { children: ReactNode })
 
   useEffect(() => {
     const storedChoice = readCookieConsent();
-    const documentLocale = document.documentElement.lang;
-    const nextLocale = storedChoice && isLocale(documentLocale) ? documentLocale : "en";
     const storedSettings = readCookieConsentSettings();
-    setLocale(nextLocale);
     setChoice(storedChoice);
     setOptionalCookies(storedSettings.analytics && storedSettings.personalization);
     const userSettings = readUserSettings();
     setTheme(userSettings.theme);
     applyUserTheme(userSettings.theme);
     setChecked(true);
-    if (!storedChoice) applyLocale("en");
     const handleConsentChange = () => setChoice(readCookieConsent());
-    const handleLocaleChange = (event: Event) => {
-      const next = (event as CustomEvent<SupportedLocale>).detail;
-      if (isLocale(next)) setLocale(next);
-    };
     window.addEventListener(COOKIE_CONSENT_EVENT, handleConsentChange);
-    window.addEventListener("localechange", handleLocaleChange);
     return () => {
       window.removeEventListener(COOKIE_CONSENT_EVENT, handleConsentChange);
-      window.removeEventListener("localechange", handleLocaleChange);
     };
   }, []);
 
@@ -135,7 +125,7 @@ export default function CookieConsentGate({ children }: { children: ReactNode })
     };
   }, [isBlocked]);
 
-  function chooseLocale(nextLocale: SupportedLocale) { setLocale(nextLocale); setLanguageMenuOpen(false); applyLocale(nextLocale); }
+  function chooseLocale(nextLocale: SupportedLocale) { setLocale(nextLocale); setLanguageMenuOpen(false); }
   function chooseTheme(nextTheme: UserTheme) {
     setTheme(nextTheme); applyUserTheme(nextTheme); saveUserSettings({ ...readUserSettings(), theme: nextTheme });
   }

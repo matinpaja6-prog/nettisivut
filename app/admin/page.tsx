@@ -1,9 +1,10 @@
 ﻿"use client";
+import UiText from "@/app/components/UiText";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 import {
   Activity,
   ArrowLeft,
@@ -847,13 +848,9 @@ export default function AdminPage() {
 
         <div className={styles.sidebarBottom}>
           <Link href="/" className={styles.sidebarLink}>
-            <ArrowLeft size={16} />
-            Takaisin sivustolle
-          </Link>
+            <ArrowLeft size={16} /><UiText text={"Takaisin sivustolle"} /></Link>
           <button type="button" className={`${styles.sidebarLink} danger`} onClick={handleSignOut}>
-            <LogOut size={16} />
-            Kirjaudu ulos
-          </button>
+            <LogOut size={16} /><UiText text={"Kirjaudu ulos"} /></button>
         </div>
       </aside>
 
@@ -861,8 +858,8 @@ export default function AdminPage() {
         {!bootLoading && isAdmin && mfaUnlocked && stats && (
           <div className={styles.dashboardHero}>
             <div>
-              <h1>Tervetuloa takaisin, {adminName}! <span aria-hidden="true">👋</span></h1>
-              <p>Tässä näet, mitä kauppapaikalla tapahtuu tänään.</p>
+              <h1><UiText text={"Tervetuloa takaisin, "} />{adminName}! <span aria-hidden="true">👋</span></h1>
+              <p><UiText text={"Tässä näet, mitä kauppapaikalla tapahtuu tänään."} /></p>
             </div>
           </div>
         )}
@@ -872,74 +869,66 @@ export default function AdminPage() {
             <article className={`${styles.summaryCard} ${styles.onlineSummaryCard}`}>
               <div className={`${styles.summaryIcon} ${styles.iconGreen}`}><Radio size={22} /></div>
               <div className={styles.summaryBody}>
-                <span>Paikalla nyt</span>
+                <span><UiText text={"Paikalla nyt"} /></span>
                 <strong>{presenceLoading && !presence ? "…" : Number(presence?.onlineCount ?? 0).toLocaleString("fi-FI")}</strong>
-                <small>{Number(presence?.totalRegistered ?? stats.profiles_total ?? 0).toLocaleString("fi-FI")} rekisteröitynyttä</small>
+                <small>{Number(presence?.totalRegistered ?? stats.profiles_total ?? 0).toLocaleString("fi-FI")}<UiText text={" rekisteröitynyttä"} /></small>
               </div>
             </article>
             <article className={styles.summaryCard}>
               <div className={`${styles.summaryIcon} ${styles.iconBlue}`}><Users size={22} /></div>
               <div className={styles.summaryBody}>
-                <span>Käyttäjät</span>
+                <span><UiText text={"Käyttäjät"} /></span>
                 <strong>{Number(stats.profiles_total ?? 0).toLocaleString("fi-FI")}</strong>
-                <small>Aktiiviset käyttäjät</small>
+                <small><UiText text={"Aktiiviset käyttäjät"} /></small>
               </div>
             </article>
             <article className={styles.summaryCard}>
               <div className={`${styles.summaryIcon} ${styles.iconCyan}`}><ClipboardList size={22} /></div>
               <div className={styles.summaryBody}>
-                <span>Ilmoitukset</span>
+                <span><UiText text={"Ilmoitukset"} /></span>
                 <strong>{Number(stats.listings_total ?? 0).toLocaleString("fi-FI")}</strong>
-                <small>Ilmoituksia yhteensä</small>
+                <small><UiText text={"Ilmoituksia yhteensä"} /></small>
               </div>
             </article>
             <article className={styles.summaryCard}>
               <div className={`${styles.summaryIcon} ${styles.iconGreen}`}><BadgeCheck size={22} /></div>
               <div className={styles.summaryBody}>
-                <span>Myydyt</span>
+                <span><UiText text={"Myydyt"} /></span>
                 <strong>{Number(stats.sold_total ?? 0).toLocaleString("fi-FI")}</strong>
-                <small>Tällä viikolla</small>
+                <small><UiText text={"Tällä viikolla"} /></small>
               </div>
             </article>
             <article className={styles.summaryCard}>
               <div className={`${styles.summaryIcon} ${styles.iconRed}`}><Ban size={22} /></div>
               <div className={styles.summaryBody}>
-                <span>Bannatut</span>
+                <span><UiText text={"Bannatut"} /></span>
                 <strong>{users.filter((u) => u.is_banned).length}</strong>
-                <small>Tällä viikolla</small>
+                <small><UiText text={"Tällä viikolla"} /></small>
               </div>
             </article>
             <article className={styles.summaryCard}>
               <div className={`${styles.summaryIcon} ${styles.iconOrange}`}><Euro size={22} /></div>
               <div className={styles.summaryBody}>
-                <span>Liikevaihto</span>
+                <span><UiText text={"Liikevaihto"} /></span>
                 <strong>{Number(stats.revenue_total ?? 0).toLocaleString("fi-FI")} €</strong>
-                <small>Liikevaihto yhteensä</small>
+                <small><UiText text={"Liikevaihto yhteensä"} /></small>
               </div>
             </article>
           </div>
         )}
 
         {bootLoading && (
-          <div className={styles.notice}>
-            Tarkistetaan oikeudet...
-          </div>
+          <div className={styles.notice}><UiText text={"Tarkistetaan oikeudet..."} /></div>
         )}
 
         {!bootLoading && !isAdmin && (
           <div className={styles.notice}>
             <strong>{bootMessage}</strong>
             {adminSetupRequired ? (
-              <p>
-                Aja Supabase SQL Editorissa tiedosto <code>supabase/admin-mfa.sql</code>
-                ja päivitä tämä sivu. Admin-paneeli pysyy suljettuna siihen asti.
-              </p>
+              <p><UiText text={"Aja Supabase SQL Editorissa tiedosto "} /><code>supabase/admin-mfa.sql</code><UiText text={"ja päivitä tämä sivu. Admin-paneeli pysyy suljettuna siihen asti."} /></p>
             ) : (
               <>
-                <p>
-                  Aja Supabasessa <code>supabase/admin-roles.sql</code> ja <code>supabase/admin-extended.sql</code>,
-                  ja lisää käyttäjä tällä komennolla:
-                </p>
+                <p><UiText text={"Aja Supabasessa "} /><code>supabase/admin-roles.sql</code><UiText text={" ja "} /><code>supabase/admin-extended.sql</code><UiText text={", ja lisää käyttäjä tällä komennolla:"} /></p>
                 <pre>{"select public.grant_admin_to_email('sinun@gmail.com');"}</pre>
               </>
             )}
@@ -968,10 +957,7 @@ export default function AdminPage() {
 
               {mfaMode === "enroll" && (
                 <>
-                  <p>
-                    Admin-PIN on korvattu käyttäjäkohtaisella vaihtuvalla koodilla.
-                    Tarvitset puhelimeen esimerkiksi Google Authenticatorin tai Microsoft Authenticatorin.
-                  </p>
+                  <p><UiText text={"Admin-PIN on korvattu käyttäjäkohtaisella vaihtuvalla koodilla. Tarvitset puhelimeen esimerkiksi Google Authenticatorin tai Microsoft Authenticatorin."} /></p>
                   <button
                     type="button"
                     className={styles.primaryBtn}
@@ -985,7 +971,7 @@ export default function AdminPage() {
 
               {mfaMode === "enroll-verify" && mfaEnrollment && (
                 <>
-                  <p>Skannaa tämä QR-koodi puhelimen Authenticator-sovelluksella.</p>
+                  <p><UiText text={"Skannaa tämä QR-koodi puhelimen Authenticator-sovelluksella."} /></p>
                   <div style={{ display: "flex", justifyContent: "center" }}>
                     <Image
                       src={getAuthenticatorQrSource(mfaEnrollment.qrCode)}
@@ -996,8 +982,7 @@ export default function AdminPage() {
                       style={{ background: "white", borderRadius: 12, padding: 8 }}
                     />
                   </div>
-                  <p style={{ margin: 0, fontSize: "0.85rem" }}>
-                    Jos skannaus ei onnistu, syötä tämä avain käsin:<br />
+                  <p style={{ margin: 0, fontSize: "0.85rem" }}><UiText text={"Jos skannaus ei onnistu, syötä tämä avain käsin:"} /><br />
                     <code style={{ wordBreak: "break-all", userSelect: "all" }}>{mfaEnrollment.secret}</code>
                   </p>
                 </>
@@ -1005,10 +990,7 @@ export default function AdminPage() {
 
               {(mfaMode === "challenge" || mfaMode === "enroll-verify") && (
                 <>
-                  <p>
-                    Avaa Authenticator puhelimessa ja anna uusi kuusinumeroinen koodi.
-                    Koodi vaihtuu noin 30 sekunnin välein.
-                  </p>
+                  <p><UiText text={"Avaa Authenticator puhelimessa ja anna uusi kuusinumeroinen koodi. Koodi vaihtuu noin 30 sekunnin välein."} /></p>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -1037,9 +1019,7 @@ export default function AdminPage() {
               )}
 
               {mfaMode === "error" && (
-                <button type="button" className={styles.primaryBtn} onClick={() => window.location.reload()}>
-                  Yritä uudelleen
-                </button>
+                <button type="button" className={styles.primaryBtn} onClick={() => window.location.reload()}><UiText text={"Yritä uudelleen"} /></button>
               )}
 
               {mfaError && (
@@ -1254,7 +1234,7 @@ function RecentEventsPanel({ users, listings }: {
 
   return (
     <div className={styles.recentEvents}>
-      <h3>Viimeisimmät tapahtumat</h3>
+      <h3><UiText text={"Viimeisimmät tapahtumat"} /></h3>
       <div className={styles.recentEventList}>
         {events.map((e, idx) => (
           <div key={idx} className={styles.recentEventItem}>
@@ -1305,8 +1285,8 @@ function RecentEventsPanelV2({ users, listings, onViewAll }: {
   return (
     <div className={styles.recentEvents}>
       <div className={styles.recentEventsHeader}>
-        <h3>Viimeisin toiminta</h3>
-        <button type="button" onClick={onViewAll}>Näytä kaikki tapahtumat</button>
+        <h3><UiText text={"Viimeisin toiminta"} /></h3>
+        <button type="button" onClick={onViewAll}><UiText text={"Näytä kaikki tapahtumat"} /></button>
       </div>
       <div className={styles.recentEventList}>
         {events.map((event, index) => (
@@ -1517,12 +1497,9 @@ function ActivityAndPresencePanel({
     <section className={`${styles.panel} ${styles.activityPanel}`}>
       <div className={styles.activityPanelHeader}>
         <div>
-          <span>Reaaliaikainen seuranta</span>
-          <h2>Tapahtumaloki ja paikallaolo</h2>
-          <p>
-            Uusimmat tapahtumat ovat ylhäällä. Lisää historiaa latautuu automaattisesti,
-            kun vierität alaspäin.
-          </p>
+          <span><UiText text={"Reaaliaikainen seuranta"} /></span>
+          <h2><UiText text={"Tapahtumaloki ja paikallaolo"} /></h2>
+          <p><UiText text={"Uusimmat tapahtumat ovat ylhäällä. Lisää historiaa latautuu automaattisesti, kun vierität alaspäin."} /></p>
         </div>
         <button
           type="button"
@@ -1530,37 +1507,35 @@ function ActivityAndPresencePanel({
           onClick={refreshAll}
           disabled={eventsLoading || presenceUsersLoading || summaryLoading}
         >
-          <RefreshCw size={16} />
-          Päivitä
-        </button>
+          <RefreshCw size={16} /><UiText text={"Päivitä"} /></button>
       </div>
 
       <div className={styles.activityMetricGrid}>
         <article className={styles.activityMetric}>
           <span className={styles.liveDot} aria-hidden="true" />
           <div>
-            <small>Paikalla nyt</small>
+            <small><UiText text={"Paikalla nyt"} /></small>
             <strong>{summaryLoading && !summary ? "…" : summary?.onlineCount ?? 0}</strong>
           </div>
         </article>
         <article className={styles.activityMetric}>
           <Users size={20} />
           <div>
-            <small>Rekisteröityneet</small>
+            <small><UiText text={"Rekisteröityneet"} /></small>
             <strong>{summary?.totalRegistered ?? presenceUsers.length}</strong>
           </div>
         </article>
         <article className={styles.activityMetric}>
           <Activity size={20} />
           <div>
-            <small>Lokitapahtumia ladattu</small>
+            <small><UiText text={"Lokitapahtumia ladattu"} /></small>
             <strong>{events.length}</strong>
           </div>
         </article>
         <article className={styles.activityMetric}>
           <Radio size={20} />
           <div>
-            <small>Tilanne päivitetty</small>
+            <small><UiText text={"Tilanne päivitetty"} /></small>
             <strong className={styles.activityMetricTime}>
               {summary?.updatedAt ? formatAdminDateTime(summary.updatedAt) : "—"}
             </strong>
@@ -1573,9 +1548,9 @@ function ActivityAndPresencePanel({
           <div className={styles.activityColumnHeader}>
             <div>
               <span className={styles.liveDot} aria-hidden="true" />
-              <h3>Tapahtumat</h3>
+              <h3><UiText text={"Tapahtumat"} /></h3>
             </div>
-            <small>Viestien sisältöjä ei näytetä · IP:t vain adminille</small>
+            <small><UiText text={"Viestien sisältöjä ei näytetä · IP:t vain adminille"} /></small>
           </div>
           <div
             ref={eventsScrollRef}
@@ -1593,8 +1568,7 @@ function ActivityAndPresencePanel({
                   </div>
                   <p>{event.detail || "Ei lisätietoja"}</p>
                   {event.actor_name && (
-                    <small>
-                      Tekijä: {event.actor_name}
+                    <small><UiText text={"Tekijä: "} />{event.actor_name}
                       {event.actor_id ? ` · ${event.actor_id.slice(0, 8)}` : ""}
                     </small>
                   )}
@@ -1615,9 +1589,7 @@ function ActivityAndPresencePanel({
                           event.actor_name || event.title
                         )}
                       >
-                        <Ban size={14} />
-                        Bannaa IP
-                      </button>
+                        <Ban size={14} /><UiText text={"Bannaa IP"} /></button>
                     </div>
                   )}
                 </div>
@@ -1625,13 +1597,11 @@ function ActivityAndPresencePanel({
             ))}
 
             {!events.length && !eventsLoading && !eventsError && (
-              <div className={styles.activityEmpty}>Tapahtumia ei löytynyt.</div>
+              <div className={styles.activityEmpty}><UiText text={"Tapahtumia ei löytynyt."} /></div>
             )}
             {eventsError && <div className={styles.activityError}>{eventsError}</div>}
             {eventsPartial && (
-              <div className={styles.activityWarning}>
-                Osa vanhoista tapahtumalähteistä ei ole käytössä tässä ympäristössä.
-              </div>
+              <div className={styles.activityWarning}><UiText text={"Osa vanhoista tapahtumalähteistä ei ole käytössä tässä ympäristössä."} /></div>
             )}
             <div ref={eventsSentinelRef} className={styles.activitySentinel}>
               {eventsLoading
@@ -1647,9 +1617,9 @@ function ActivityAndPresencePanel({
           <div className={styles.activityColumnHeader}>
             <div>
               <Radio size={18} />
-              <h3>Rekisteröityneet</h3>
+              <h3><UiText text={"Rekisteröityneet"} /></h3>
             </div>
-            <small>Viimeksi paikalla</small>
+            <small><UiText text={"Viimeksi paikalla"} /></small>
           </div>
           <div
             ref={presenceScrollRef}
@@ -1674,7 +1644,7 @@ function ActivityAndPresencePanel({
             ))}
 
             {!presenceUsers.length && !presenceUsersLoading && !presenceUsersError && (
-              <div className={styles.activityEmpty}>Rekisteröityneitä ei löytynyt.</div>
+              <div className={styles.activityEmpty}><UiText text={"Rekisteröityneitä ei löytynyt."} /></div>
             )}
             {presenceUsersError && (
               <div className={styles.activityError}>{presenceUsersError}</div>
@@ -1743,12 +1713,10 @@ function AdminStepUpDialog({
         <div style={{ display: "grid", gap: 14 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <Smartphone size={24} aria-hidden="true" />
-            <h3 style={{ margin: 0 }}>Vahvista vaarallinen toiminto</h3>
+            <h3 style={{ margin: 0 }}><UiText text={"Vahvista vaarallinen toiminto"} /></h3>
           </div>
           <p style={{ margin: 0 }}>
-            <strong>{state.title}</strong> vaatii uuden Authenticator-koodin.
-            Hyväksyntä toimii vain tähän yhteen toimintoon ja vanhenee kahdessa minuutissa.
-          </p>
+            <strong>{state.title}</strong><UiText text={" vaatii uuden Authenticator-koodin. Hyväksyntä toimii vain tähän yhteen toimintoon ja vanhenee kahdessa minuutissa."} /></p>
           <input
             type="text"
             inputMode="numeric"
@@ -1771,9 +1739,7 @@ function AdminStepUpDialog({
             </span>
           )}
           <div className={styles.modalActions}>
-            <button type="button" className={styles.ghostBtn} onClick={onCancel} disabled={checking}>
-              Peruuta
-            </button>
+            <button type="button" className={styles.ghostBtn} onClick={onCancel} disabled={checking}><UiText text={"Peruuta"} /></button>
             <button
               type="button"
               className={styles.dangerBtn}
@@ -1888,8 +1854,8 @@ function OverviewPanel({ stats, loading, onRefresh }: {
     <section className={styles.panel}>
       <div className={styles.panelHeader}>
         <div>
-          <span>Tilastot</span>
-          <h2>Yleiskatsaus</h2>
+          <span><UiText text={"Tilastot"} /></span>
+          <h2><UiText text={"Yleiskatsaus"} /></h2>
         </div>
         <button type="button" className={styles.ghostBtn} onClick={onRefresh}>
           {loading ? "Päivitetään..." : "Päivitä"}
@@ -1917,15 +1883,15 @@ function OverviewPanel({ stats, loading, onRefresh }: {
               </div>
               <div className={styles.statCardBreakdown}>
                 <div>
-                  <small>Tänään</small>
+                  <small><UiText text={"Tänään"} /></small>
                   <strong>{formatNumber(card.today, card.suffix)}</strong>
                 </div>
                 <div>
-                  <small>7 pv</small>
+                  <small><UiText text={"7 pv"} /></small>
                   <strong>{formatNumber(card.week, card.suffix)}</strong>
                 </div>
                 <div>
-                  <small>Yhteensä</small>
+                  <small><UiText text={"Yhteensä"} /></small>
                   <strong>{formatNumber(card.total, card.suffix)}</strong>
                 </div>
               </div>
@@ -2050,7 +2016,7 @@ function DashboardOverviewPanel({ stats }: {
   return (
     <section className={`${styles.panel} ${styles.dashboardPanel}`}>
       <div className={styles.dashboardSectionHeader}>
-        <h2>Tilastojen yleiskatsaus</h2>
+        <h2><UiText text={"Tilastojen yleiskatsaus"} /></h2>
       </div>
 
       <div className={styles.statsGridLarge}>
@@ -2069,15 +2035,15 @@ function DashboardOverviewPanel({ stats }: {
               </div>
               <div className={styles.statCardBreakdown}>
                 <div>
-                  <small>Tänään</small>
+                  <small><UiText text={"Tänään"} /></small>
                   <strong>{formatNumber(card.today, card.suffix)}</strong>
                 </div>
                 <div>
-                  <small>7 pv</small>
+                  <small><UiText text={"7 pv"} /></small>
                   <strong>{formatNumber(card.week, card.suffix)}</strong>
                 </div>
                 <div>
-                  <small>All</small>
+                  <small><UiText text={"All"} /></small>
                   <strong>{formatNumber(card.value, card.suffix)}</strong>
                 </div>
               </div>
@@ -2134,16 +2100,16 @@ function CompanyVerificationsPanel({
     <section className={`${styles.panel} ${styles.companyVerificationPanel}`}>
       <div className={styles.panelHeader}>
         <div>
-          <span>Luottamus ja turvallisuus</span>
-          <h2>Yritysvahvistukset</h2>
+          <span><UiText text={"Luottamus ja turvallisuus"} /></span>
+          <h2><UiText text={"Yritysvahvistukset"} /></h2>
         </div>
-        <p>Tarkista maksetut vahvistuspyynnöt. Päätösviesti lähtee automaattisesti käyttäjän omalla kielellä.</p>
+        <p><UiText text={"Tarkista maksetut vahvistuspyynnöt. Päätösviesti lähtee automaattisesti käyttäjän omalla kielellä."} /></p>
       </div>
 
       <div className={styles.companyVerificationSummary}>
-        <div><span>Odottaa käsittelyä</span><strong>{pending.length}</strong></div>
-        <div><span>Hyväksytty</span><strong>{approvedCount}</strong></div>
-        <div><span>Hylätty</span><strong>{rejectedCount}</strong></div>
+        <div><span><UiText text={"Odottaa käsittelyä"} /></span><strong>{pending.length}</strong></div>
+        <div><span><UiText text={"Hyväksytty"} /></span><strong>{approvedCount}</strong></div>
+        <div><span><UiText text={"Hylätty"} /></span><strong>{rejectedCount}</strong></div>
         <button type="button" className={styles.ghostBtn} onClick={onRefresh} disabled={loading}>
           <RefreshCw size={15} /> {loading ? "Päivitetään…" : "Päivitä jono"}
         </button>
@@ -2152,8 +2118,8 @@ function CompanyVerificationsPanel({
       {pending.length === 0 && !loading ? (
         <div className={styles.companyVerificationEmpty}>
           <BadgeCheck size={30} />
-          <strong>Kaikki pyynnöt on käsitelty</strong>
-          <span>Uudet maksetut vahvistuspyynnöt ilmestyvät automaattisesti tähän jonoon.</span>
+          <strong><UiText text={"Kaikki pyynnöt on käsitelty"} /></strong>
+          <span><UiText text={"Uudet maksetut vahvistuspyynnöt ilmestyvät automaattisesti tähän jonoon."} /></span>
         </div>
       ) : (
         <div className={styles.companyVerificationGrid}>
@@ -2166,7 +2132,7 @@ function CompanyVerificationsPanel({
                 <div className={styles.companyVerificationCardHead}>
                   <div className={styles.companyVerificationIcon}><Building2 size={22} /></div>
                   <div>
-                    <span>MAKSETTU · ODOTTAA TARKISTUSTA</span>
+                    <span><UiText text={"MAKSETTU · ODOTTAA TARKISTUSTA"} /></span>
                     <h3>{companyName}</h3>
                     <p>{user.business_id || "Y-tunnus puuttuu"}</p>
                   </div>
@@ -2174,17 +2140,17 @@ function CompanyVerificationsPanel({
                 </div>
 
                 <div className={styles.companyVerificationDetails}>
-                  <div><span>Sähköposti</span><strong>{user.email || "—"}</strong></div>
-                  <div><span>Kieli</span><strong>{(user.preferred_locale || "automaattinen").toUpperCase()}</strong></div>
-                  <div><span>Maa</span><strong>{user.country || "—"}</strong></div>
-                  <div><span>Puhelin</span><strong>{user.phone || "—"}</strong></div>
-                  {user.company_website && <div className={styles.companyVerificationWide}><span>Verkkosivu</span><strong>{user.company_website}</strong></div>}
-                  {(user.address || user.city) && <div className={styles.companyVerificationWide}><span>Osoite</span><strong>{[user.address, user.postal_code, user.city].filter(Boolean).join(", ")}</strong></div>}
+                  <div><span><UiText text={"Sähköposti"} /></span><strong>{user.email || "—"}</strong></div>
+                  <div><span><UiText text={"Kieli"} /></span><strong>{(user.preferred_locale || "automaattinen").toUpperCase()}</strong></div>
+                  <div><span><UiText text={"Maa"} /></span><strong>{user.country || "—"}</strong></div>
+                  <div><span><UiText text={"Puhelin"} /></span><strong>{user.phone || "—"}</strong></div>
+                  {user.company_website && <div className={styles.companyVerificationWide}><span><UiText text={"Verkkosivu"} /></span><strong>{user.company_website}</strong></div>}
+                  {(user.address || user.city) && <div className={styles.companyVerificationWide}><span><UiText text={"Osoite"} /></span><strong>{[user.address, user.postal_code, user.city].filter(Boolean).join(", ")}</strong></div>}
                 </div>
 
                 {isRejecting && (
                   <div className={styles.companyRejectionBox}>
-                    <label htmlFor={`rejection-${user.id}`}>Hylkäyksen perustelu sähköpostiin</label>
+                    <label htmlFor={`rejection-${user.id}`}><UiText text={"Hylkäyksen perustelu sähköpostiin"} /></label>
                     <textarea
                       id={`rejection-${user.id}`}
                       value={rejectionReason}
@@ -2193,17 +2159,16 @@ function CompanyVerificationsPanel({
                       rows={3}
                       autoFocus
                     />
-                    <small>{rejectionReason.length}/600 merkkiä · perustelu on vapaaehtoinen</small>
+                    <small>{rejectionReason.length}<UiText text={"/600 merkkiä · perustelu on vapaaehtoinen"} /></small>
                   </div>
                 )}
 
                 <div className={styles.companyVerificationActions}>
                   <button type="button" className={styles.ghostBtn} onClick={() => onView(user)} disabled={isBusy}>
-                    <Eye size={15} /> Tarkat tiedot
-                  </button>
+                    <Eye size={15} /><UiText text={" Tarkat tiedot"} /></button>
                   {isRejecting ? (
                     <>
-                      <button type="button" className={styles.ghostBtn} onClick={() => { setRejectingUserId(null); setRejectionReason(""); }} disabled={isBusy}>Peruuta</button>
+                      <button type="button" className={styles.ghostBtn} onClick={() => { setRejectingUserId(null); setRejectionReason(""); }} disabled={isBusy}><UiText text={"Peruuta"} /></button>
                       <button type="button" className={styles.companyRejectBtn} onClick={() => void reject(user)} disabled={isBusy}>
                         <X size={16} /> {isBusy ? "Käsitellään…" : "Vahvista hylkäys"}
                       </button>
@@ -2211,15 +2176,14 @@ function CompanyVerificationsPanel({
                   ) : (
                     <>
                       <button type="button" className={styles.companyRejectBtn} onClick={() => { setRejectingUserId(user.id); setRejectionReason(""); }} disabled={isBusy}>
-                        <X size={16} /> Hylkää
-                      </button>
+                        <X size={16} /><UiText text={" Hylkää"} /></button>
                       <button type="button" className={styles.companyApproveBtn} onClick={() => void onDecision(user, "approved")} disabled={isBusy}>
                         <BadgeCheck size={17} /> {isBusy ? "Käsitellään…" : "Hyväksy yritys"}
                       </button>
                     </>
                   )}
                 </div>
-                <div className={styles.companyVerificationMailNote}><Mail size={14} /> Päätöksen jälkeen sähköposti lähetetään automaattisesti.</div>
+                <div className={styles.companyVerificationMailNote}><Mail size={14} /><UiText text={" Päätöksen jälkeen sähköposti lähetetään automaattisesti."} /></div>
               </article>
             );
           })}
@@ -2229,7 +2193,7 @@ function CompanyVerificationsPanel({
       {recentDecisions.length > 0 && (
         <div className={styles.companyDecisionHistory}>
           <div className={styles.companyDecisionHistoryTitle}>
-            <div><span>Viimeisimmät päätökset</span><strong>Hyväksynnät ja hylkäykset</strong></div>
+            <div><span><UiText text={"Viimeisimmät päätökset"} /></span><strong><UiText text={"Hyväksynnät ja hylkäykset"} /></strong></div>
           </div>
           {recentDecisions.map((user) => {
             const rejected = user.company_verification_status === "rejected";
@@ -2307,10 +2271,10 @@ function UsersPanel({
     <section className={styles.panel}>
       <div className={styles.panelHeader}>
         <div>
-          <span>Hallinta</span>
-          <h2>Käyttäjät</h2>
+          <span><UiText text={"Hallinta"} /></span>
+          <h2><UiText text={"Käyttäjät"} /></h2>
         </div>
-        <p>Etsi nimellä, sähköpostilla, puhelinnumerolla tai ID:llä.</p>
+        <p><UiText text={"Etsi nimellä, sähköpostilla, puhelinnumerolla tai ID:llä."} /></p>
       </div>
 
       <div className={styles.searchBar}>
@@ -2345,19 +2309,19 @@ function UsersPanel({
       </div>
 
       {filteredUsers.length === 0 && !loading ? (
-        <div className={styles.empty}>Ei käyttäjiä.</div>
+        <div className={styles.empty}><UiText text={"Ei käyttäjiä."} /></div>
       ) : (
         <div style={{ overflowX: "auto" }}>
           <table className={styles.userTable}>
             <thead>
               <tr>
-                <th>Nimi</th>
-                <th>Sähköposti</th>
-                <th>Vahvistukset</th>
-                <th>Tila</th>
-                <th>Viimeksi paikalla</th>
-                <th>Liittynyt</th>
-                <th style={{ textAlign: "right" }}>Toiminnot</th>
+                <th><UiText text={"Nimi"} /></th>
+                <th><UiText text={"Sähköposti"} /></th>
+                <th><UiText text={"Vahvistukset"} /></th>
+                <th><UiText text={"Tila"} /></th>
+                <th><UiText text={"Viimeksi paikalla"} /></th>
+                <th><UiText text={"Liittynyt"} /></th>
+                <th style={{ textAlign: "right" }}><UiText text={"Toiminnot"} /></th>
               </tr>
             </thead>
             <tbody>
@@ -2450,20 +2414,19 @@ function UserTableRow({
         <strong title={displayName}>{displayName}</strong>
         <small>{u.account_type === "company" ? "Yritys" : "Yksityinen"}{u.business_id ? ` · ${u.business_id}` : ""}</small>
         {u.company_verified_at && (
-          <span className={styles.companyVerifiedText}>Vahvistettu yritys</span>
+          <span className={styles.companyVerifiedText}><UiText text={"Vahvistettu yritys"} /></span>
         )}
         {u.account_type === "company" && u.company_verification_requested_at && !u.company_verified_at && (
-          <span className={styles.companyPendingText}>Odottaa vahvistusta</span>
+          <span className={styles.companyPendingText}><UiText text={"Odottaa vahvistusta"} /></span>
         )}
-        {u.is_admin && <span className={styles.adminInlineText}>ADMIN</span>}
+        {u.is_admin && <span className={styles.adminInlineText}><UiText text={"ADMIN"} /></span>}
       </td>
       <td className={styles.contactCell}>
         <div title={u.email || undefined}>{u.email || "—"}</div>
         <small>
           {u.phone || "ei puhelinta"}
         </small>
-        <small className={styles.ipLine} title={ip || undefined}>
-          IP: {ip || "ei tallennettua IP:tä"}
+        <small className={styles.ipLine} title={ip || undefined}><UiText text={"IP: "} />{ip || "ei tallennettua IP:tä"}
           {u.ip_count ? ` · ${u.ip_count} osumaa` : ""}
         </small>
       </td>
@@ -2474,11 +2437,11 @@ function UserTableRow({
       </td>
       <td>
         {u.is_banned ? (
-          <span className={`${styles.statusPill} ${styles.statusBanned}`}>Bannattu</span>
+          <span className={`${styles.statusPill} ${styles.statusBanned}`}><UiText text={"Bannattu"} /></span>
         ) : !phoneVerified ? (
-          <span className={`${styles.statusPill} ${styles.statusPending}`}>Odottaa</span>
+          <span className={`${styles.statusPill} ${styles.statusPending}`}><UiText text={"Odottaa"} /></span>
         ) : (
-          <span className={`${styles.statusPill} ${styles.statusActive}`}>Aktiivinen</span>
+          <span className={`${styles.statusPill} ${styles.statusActive}`}><UiText text={"Aktiivinen"} /></span>
         )}
       </td>
       <td className={styles.userPresenceCell}>
@@ -2496,8 +2459,7 @@ function UserTableRow({
             type="button"
             className={styles.actionMenuTrigger}
             onClick={() => menuOpen ? setMenuOpen(false) : openMenu()}
-          >
-            Toiminnot <ChevronDown size={14} />
+          ><UiText text={"Toiminnot "} /><ChevronDown size={14} />
           </button>
         </div>
         {menuOpen && typeof document !== "undefined" && createPortal(
@@ -2512,37 +2474,32 @@ function UserTableRow({
               className={styles.actionMenuItem}
               onClick={() => { setMenuOpen(false); onAction("view-profile", u); }}
             >
-              <Eye size={14} /> Tarkat tiedot
-            </button>
+              <Eye size={14} /><UiText text={" Tarkat tiedot"} /></button>
             <button
               type="button"
               className={styles.actionMenuItem}
               onClick={() => { setMenuOpen(false); onAction("edit-profile", u); }}
             >
-              <UserCog size={14} /> Muokkaa
-            </button>
+              <UserCog size={14} /><UiText text={" Muokkaa"} /></button>
             <button
               type="button"
               className={styles.actionMenuItem}
               onClick={() => { setMenuOpen(false); onAdjustPhoneVer(u, 1); }}
             >
-              <BadgeCheck size={14} /> +1 vahvistus
-            </button>
+              <BadgeCheck size={14} /><UiText text={" +1 vahvistus"} /></button>
             <button
               type="button"
               className={styles.actionMenuItem}
               onClick={() => { setMenuOpen(false); onAdjustPhoneVer(u, -1); }}
               disabled={(u.extra_phone_verifications ?? 0) === 0}
             >
-              <BadgeCheck size={14} /> -1 vahvistus
-            </button>
+              <BadgeCheck size={14} /><UiText text={" -1 vahvistus"} /></button>
             <button
               type="button"
               className={styles.actionMenuItem}
               onClick={() => { setMenuOpen(false); onAction("verify-phone", u); }}
             >
-              <BadgeCheck size={14} /> Puhelin ok
-            </button>
+              <BadgeCheck size={14} /><UiText text={" Puhelin ok"} /></button>
             {u.account_type === "company" && (
               <button
                 type="button"
@@ -2573,16 +2530,14 @@ function UserTableRow({
               onClick={() => { setMenuOpen(false); onBanUserIp(u); }}
               disabled={u.is_admin}
             >
-              <Ban size={14} /> Bannaa IP
-            </button>
+              <Ban size={14} /><UiText text={" Bannaa IP"} /></button>
             <button
               type="button"
               className={`${styles.actionMenuItem} ${styles.danger}`}
               onClick={() => { setMenuOpen(false); onAction("delete-user", u); }}
               disabled={u.is_admin}
             >
-              <Trash2 size={14} /> Poista käyttäjä
-            </button>
+              <Trash2 size={14} /><UiText text={" Poista käyttäjä"} /></button>
             </div>
           </div>,
           document.body
@@ -2686,8 +2641,8 @@ function ListingsPanel({
     <section className={styles.panel}>
       <div className={styles.listingsHero}>
         <div>
-          <h2>Ilmoitusten hallinta</h2>
-          <p>Hallitse ilmoituksia ja seuraa niiden tilannetta.</p>
+          <h2><UiText text={"Ilmoitusten hallinta"} /></h2>
+          <p><UiText text={"Hallitse ilmoituksia ja seuraa niiden tilannetta."} /></p>
         </div>
         <button
           type="button"
@@ -2709,14 +2664,14 @@ function ListingsPanel({
           <div className={`${styles.summaryIcon} ${styles.iconBlue}`}><ClipboardList size={22} /></div>
           <div className={styles.summaryBody}>
             <strong>{counts.active}</strong>
-            <span>Aktiivisia ilmoituksia</span>
+            <span><UiText text={"Aktiivisia ilmoituksia"} /></span>
           </div>
         </article>
         <article className={styles.summaryCard}>
           <div className={`${styles.summaryIcon} ${styles.iconGreen}`}><Euro size={22} /></div>
           <div className={styles.summaryBody}>
             <strong>{Number(activeRevenue).toLocaleString("fi-FI")} €</strong>
-            <span>Kokonaismyynti</span>
+            <span><UiText text={"Kokonaismyynti"} /></span>
           </div>
         </article>
         <article className={styles.summaryCard}>
@@ -2725,14 +2680,14 @@ function ListingsPanel({
           </div>
           <div className={styles.summaryBody}>
             <strong>{Number(totalViews).toLocaleString("fi-FI")}</strong>
-            <span>Katselukertoja</span>
+            <span><UiText text={"Katselukertoja"} /></span>
           </div>
         </article>
         <article className={styles.summaryCard}>
           <div className={`${styles.summaryIcon} ${styles.iconOrange}`}><BadgeCheck size={22} /></div>
           <div className={styles.summaryBody}>
             <strong>{counts.sold}</strong>
-            <span>Myyty</span>
+            <span><UiText text={"Myyty"} /></span>
           </div>
         </article>
       </div>
@@ -2744,22 +2699,19 @@ function ListingsPanel({
             type="button"
             className={`${styles.listingStatusTab} ${status === "all" ? styles.listingStatusTabActive : ""}`}
             onClick={() => onStatusChange("all")}
-          >
-            Kaikki ({counts.all})
+          ><UiText text={"Kaikki ("} />{counts.all})
           </button>
           <button
             type="button"
             className={`${styles.listingStatusTab} ${status === "active" ? styles.listingStatusTabActive : ""}`}
             onClick={() => onStatusChange("active")}
-          >
-            Aktiiviset ({counts.active})
+          ><UiText text={"Aktiiviset ("} />{counts.active})
           </button>
           <button
             type="button"
             className={`${styles.listingStatusTab} ${status === "sold" ? styles.listingStatusTabActive : ""}`}
             onClick={() => onStatusChange("sold")}
-          >
-            Myydyt ({counts.sold})
+          ><UiText text={"Myydyt ("} />{counts.sold})
           </button>
         </div>
         <button type="button" className={styles.ghostBtn} onClick={onRefresh}>
@@ -2800,14 +2752,13 @@ function ListingsPanel({
         </button>
       </div>
       {listings.length < counts.all && !query.trim() && vehicle === "all" && (
-        <p className={styles.listingLimitNote}>
-          Näytetään {listings.length.toLocaleString("fi-FI")} uusinta ilmoitusta. Kokonaismäärä on {counts.all.toLocaleString("fi-FI")}.
+        <p className={styles.listingLimitNote}><UiText text={"Näytetään "} />{listings.length.toLocaleString("fi-FI")}<UiText text={" uusinta ilmoitusta. Kokonaismäärä on "} />{counts.all.toLocaleString("fi-FI")}.
         </p>
       )}
 
       <div className={styles.listingCardList}>
         {filtered.length === 0 && !loading && (
-          <div className={styles.empty}>Ei ilmoituksia.</div>
+          <div className={styles.empty}><UiText text={"Ei ilmoituksia."} /></div>
         )}
         {filtered.map((listing) => {
           const imgUrl = listing.image_url || (listing.image_urls && listing.image_urls[0]) || null;
@@ -2836,7 +2787,7 @@ function ListingsPanel({
                 <h3 className={styles.listingMgmtTitle}>{listing.title || "Nimetön ilmoitus"}</h3>
                 {subtitle && <p className={styles.listingMgmtSub}>{subtitle}</p>}
                 <div className={styles.listingMgmtMeta}>
-                  <span><Eye size={13} /> {Number(listing.view_count ?? 0).toLocaleString("fi-FI")} katselua</span>
+                  <span><Eye size={13} /> {Number(listing.view_count ?? 0).toLocaleString("fi-FI")}<UiText text={" katselua"} /></span>
                   <span>👤 {listing.seller_name || "—"}</span>
                 </div>
               </div>
@@ -2844,26 +2795,23 @@ function ListingsPanel({
               <div className={styles.listingMgmtPrice}>
                 <strong>{formatPrice(listing.price)}</strong>
                 {listing.is_sold ? (
-                  <span className={`${styles.statusPill} ${styles.statusBanned}`} style={{ background: "#dcfce7", color: "#166534" }}>● Myyty</span>
+                  <span className={`${styles.statusPill} ${styles.statusBanned}`} style={{ background: "#dcfce7", color: "#166534" }}><UiText text={"● Myyty"} /></span>
                 ) : listing.is_hidden ? (
-                  <span className={styles.statusPill} style={{ background: "#fef3c7", color: "#92400e", borderColor: "#fcd34d" }}>● Piilotettu</span>
+                  <span className={styles.statusPill} style={{ background: "#fef3c7", color: "#92400e", borderColor: "#fcd34d" }}><UiText text={"● Piilotettu"} /></span>
                 ) : (
-                  <span className={`${styles.statusPill} ${styles.statusActive}`}>● Aktiivinen</span>
+                  <span className={`${styles.statusPill} ${styles.statusActive}`}><UiText text={"● Aktiivinen"} /></span>
                 )}
-                <small>Lisätty {formatDate(listing.created_at)}</small>
+                <small><UiText text={"Lisätty "} />{formatDate(listing.created_at)}</small>
               </div>
 
               <div className={styles.listingMgmtActions}>
-                <Link href={listingPath(listing)} target="_blank" rel="noreferrer">
-                  Avaa
-                </Link>
+                <Link href={listingPath(listing)} target="_blank" rel="noreferrer"><UiText text={"Avaa"} /></Link>
                 <button
                   type="button"
                   className="danger"
                   onClick={() => onDelete(listing)}
                 >
-                  <Trash2 size={14} /> Poista
-                </button>
+                  <Trash2 size={14} /><UiText text={" Poista"} /></button>
               </div>
             </div>
           );
@@ -2900,29 +2848,28 @@ function BansPanel({
     <section className={styles.panel}>
       <div className={styles.panelHeader}>
         <div>
-          <span>Suojaus</span>
-          <h2>Bannit</h2>
+          <span><UiText text={"Suojaus"} /></span>
+          <h2><UiText text={"Bannit"} /></h2>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button type="button" className={styles.ghostBtn} onClick={onRefresh}>
             {loading || usersLoading ? "..." : "Päivitä"}
           </button>
           <button type="button" className={styles.primaryBtn} onClick={onAddIp}>
-            <Ban size={14} /> Bannaa IP
-          </button>
+            <Ban size={14} /><UiText text={" Bannaa IP"} /></button>
         </div>
       </div>
 
       <div className={styles.bansGrid}>
         <div className={styles.banColumn}>
           <div className={styles.banColumnHead}>
-            <strong>IP-bännit</strong>
+            <strong><UiText text={"IP-bännit"} /></strong>
             <span>{bannedIps.length}</span>
           </div>
 
           <div className={styles.list}>
             {bannedIps.length === 0 && !loading && (
-              <div className={styles.empty}>Ei bannattuja IP-osoitteita.</div>
+              <div className={styles.empty}><UiText text={"Ei bannattuja IP-osoitteita."} /></div>
             )}
             {bannedIps.map((ban) => (
               <div key={ban.ip} className={styles.bannedIpRow}>
@@ -2934,9 +2881,7 @@ function BansPanel({
                   type="button"
                   className={styles.ghostBtn}
                   onClick={() => onUnbanIp(ban.ip)}
-                >
-                  Unban
-                </button>
+                ><UiText text={"Unban"} /></button>
               </div>
             ))}
           </div>
@@ -2944,13 +2889,13 @@ function BansPanel({
 
         <div className={styles.banColumn}>
           <div className={styles.banColumnHead}>
-            <strong>Bännätyt käyttäjät</strong>
+            <strong><UiText text={"Bännätyt käyttäjät"} /></strong>
             <span>{bannedUsers.length}</span>
           </div>
 
           <div className={styles.list}>
             {bannedUsers.length === 0 && !usersLoading && (
-              <div className={styles.empty}>Ei bannattuja käyttäjiä.</div>
+              <div className={styles.empty}><UiText text={"Ei bannattuja käyttäjiä."} /></div>
             )}
             {bannedUsers.map((user) => (
               <div key={user.id} className={styles.bannedUserRow}>
@@ -2965,9 +2910,7 @@ function BansPanel({
                   type="button"
                   className={styles.ghostBtn}
                   onClick={() => onUnbanUser(user)}
-                >
-                  Poista banni
-                </button>
+                ><UiText text={"Poista banni"} /></button>
               </div>
             ))}
           </div>
@@ -3075,7 +3018,7 @@ function ConfirmDialogs({
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         {state.kind === "view-profile" && (
           <>
-            <h3>Profiilin tarkat tiedot</h3>
+            <h3><UiText text={"Profiilin tarkat tiedot"} /></h3>
             <p>{state.user.email || state.user.id}</p>
             <div className={styles.profileDetailsGrid}>
               {profileDetailRows.map(([label, value]) => (
@@ -3086,39 +3029,32 @@ function ConfirmDialogs({
               ))}
             </div>
             <div className={styles.modalActions}>
-              <button type="button" className={styles.ghostBtn} onClick={onClose}>Sulje</button>
+              <button type="button" className={styles.ghostBtn} onClick={onClose}><UiText text={"Sulje"} /></button>
             </div>
           </>
         )}
 
         {state.kind === "delete-listing" && (
           <>
-            <h3>Poista ilmoitus?</h3>
-            <p>
-              Tätä ei voi perua. Ilmoitus &quot;{state.listing.title || "Nimetön ilmoitus"}&quot;
-              poistetaan lopullisesti ja kirjataan poistettujen lokiin.
-            </p>
+            <h3><UiText text={"Poista ilmoitus?"} /></h3>
+            <p><UiText text={"Tätä ei voi perua. Ilmoitus \""} />{state.listing.title || "Nimetön ilmoitus"}<UiText text={"\" poistetaan lopullisesti ja kirjataan poistettujen lokiin."} /></p>
             <div className={styles.modalActions}>
-              <button type="button" className={styles.ghostBtn} onClick={onClose}>Peruuta</button>
+              <button type="button" className={styles.ghostBtn} onClick={onClose}><UiText text={"Peruuta"} /></button>
               <button type="button" className={styles.dangerBtn} onClick={() => onDeleteListing(state.listing)}>
-                <Trash2 size={14} /> Poista pysyvästi
-              </button>
+                <Trash2 size={14} /><UiText text={" Poista pysyvästi"} /></button>
             </div>
           </>
         )}
 
         {state.kind === "delete-user" && (
           <>
-            <h3>Poista käyttäjä?</h3>
-            <p>
-              Tätä ei voi perua. Käyttäjä {state.user.email || state.user.id.slice(0, 8)}
-              {" "}poistetaan kokonaan – kaikki ilmoitukset ja viestit häviävät.
-            </p>
+            <h3><UiText text={"Poista käyttäjä?"} /></h3>
+            <p><UiText text={"Tätä ei voi perua. Käyttäjä "} />{state.user.email || state.user.id.slice(0, 8)}
+              {" "}<UiText text={"poistetaan kokonaan – kaikki ilmoitukset ja viestit häviävät."} /></p>
             <div className={styles.modalActions}>
-              <button type="button" className={styles.ghostBtn} onClick={onClose}>Peruuta</button>
+              <button type="button" className={styles.ghostBtn} onClick={onClose}><UiText text={"Peruuta"} /></button>
               <button type="button" className={styles.dangerBtn} onClick={() => onDeleteUser(state.user)}>
-                <Trash2 size={14} /> Poista käyttäjä
-              </button>
+                <Trash2 size={14} /><UiText text={" Poista käyttäjä"} /></button>
             </div>
           </>
         )}
@@ -3126,31 +3062,23 @@ function ConfirmDialogs({
 
         {state.kind === "ban-user" && (
           <>
-            <h3>Bannaa käyttäjä</h3>
-            <p>Käyttäjä ei voi luoda ilmoituksia bannin aikana.</p>
-            <label>
-              Syy (valinnainen)
-              <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} />
+            <h3><UiText text={"Bannaa käyttäjä"} /></h3>
+            <p><UiText text={"Käyttäjä ei voi luoda ilmoituksia bannin aikana."} /></p>
+            <label><UiText text={"Syy (valinnainen)"} /><textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} />
             </label>
             <div className={styles.modalActions}>
-              <button type="button" className={styles.ghostBtn} onClick={onClose}>Peruuta</button>
+              <button type="button" className={styles.ghostBtn} onClick={onClose}><UiText text={"Peruuta"} /></button>
               <button type="button" className={styles.dangerBtn} onClick={() => onBanUser(state.user, reason || undefined)}>
-                <Ban size={14} /> Bannaa
-              </button>
+                <Ban size={14} /><UiText text={" Bannaa"} /></button>
             </div>
           </>
         )}
 
         {state.kind === "verify-phone" && (
           <>
-            <h3>Vahvista puhelinnumero</h3>
-            <p>
-              Nollataan {state.user.email || "käyttäjän"} vahvistuslaskuri ja merkitään
-              numero vahvistetuksi (ohittaa 2× rajan).
-            </p>
-            <label>
-              Puhelinnumero (jätä tyhjäksi pitääksesi nykyisen)
-              <input
+            <h3><UiText text={"Vahvista puhelinnumero"} /></h3>
+            <p><UiText text={"Nollataan "} />{state.user.email || "käyttäjän"}<UiText text={" vahvistuslaskuri ja merkitään numero vahvistetuksi (ohittaa 2× rajan)."} /></p>
+            <label><UiText text={"Puhelinnumero (jätä tyhjäksi pitääksesi nykyisen)"} /><input
                 type="tel"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -3160,31 +3088,30 @@ function ConfirmDialogs({
               />
             </label>
             <div className={styles.modalActions}>
-              <button type="button" className={styles.ghostBtn} onClick={onClose}>Peruuta</button>
+              <button type="button" className={styles.ghostBtn} onClick={onClose}><UiText text={"Peruuta"} /></button>
               <button type="button" className={styles.primaryBtn} onClick={() => onVerifyPhone(state.user, phone.trim() || undefined)}>
-                <BadgeCheck size={14} /> Vahvista
-              </button>
+                <BadgeCheck size={14} /><UiText text={" Vahvista"} /></button>
             </div>
           </>
         )}
 
         {state.kind === "edit-profile" && (
           <>
-            <h3>Muokkaa profiilia</h3>
+            <h3><UiText text={"Muokkaa profiilia"} /></h3>
             <p>{state.user.email}</p>
-            <label>Etunimi <input value={editFirst} onChange={(e) => setEditFirst(e.target.value)} /></label>
-            <label>Sukunimi <input value={editLast} onChange={(e) => setEditLast(e.target.value)} /></label>
-            <label>Koko nimi <input value={editFull} onChange={(e) => setEditFull(e.target.value)} /></label>
-            <label>Kaupunki <input value={editCity} onChange={(e) => setEditCity(e.target.value)} /></label>
-            <label>Maa <input value={editCountry} onChange={(e) => setEditCountry(e.target.value)} /></label>
+            <label><UiText text={"Etunimi "} /><input value={editFirst} onChange={(e) => setEditFirst(e.target.value)} /></label>
+            <label><UiText text={"Sukunimi "} /><input value={editLast} onChange={(e) => setEditLast(e.target.value)} /></label>
+            <label><UiText text={"Koko nimi "} /><input value={editFull} onChange={(e) => setEditFull(e.target.value)} /></label>
+            <label><UiText text={"Kaupunki "} /><input value={editCity} onChange={(e) => setEditCity(e.target.value)} /></label>
+            <label><UiText text={"Maa "} /><input value={editCountry} onChange={(e) => setEditCountry(e.target.value)} /></label>
             {state.user.account_type === "company" && (
               <>
-                <label>Yrityksen nimi <input value={editCompanyName} onChange={(e) => setEditCompanyName(e.target.value)} /></label>
-                <label>Y-tunnus <input value={editBusinessId} onChange={(e) => setEditBusinessId(e.target.value)} placeholder="esim. 1234567-8" /></label>
+                <label><UiText text={"Yrityksen nimi "} /><input value={editCompanyName} onChange={(e) => setEditCompanyName(e.target.value)} /></label>
+                <label><UiText text={"Y-tunnus "} /><input value={editBusinessId} onChange={(e) => setEditBusinessId(e.target.value)} placeholder="esim. 1234567-8" /></label>
               </>
             )}
             <div className={styles.modalActions}>
-              <button type="button" className={styles.ghostBtn} onClick={onClose}>Peruuta</button>
+              <button type="button" className={styles.ghostBtn} onClick={onClose}><UiText text={"Peruuta"} /></button>
               <button
                 type="button"
                 className={styles.primaryBtn}
@@ -3201,31 +3128,25 @@ function ConfirmDialogs({
                   }
                   onUpdateProfile(state.user, updates);
                 }}
-              >
-                Tallenna
-              </button>
+              ><UiText text={"Tallenna"} /></button>
             </div>
           </>
         )}
 
         {state.kind === "ban-ip" && (
           <>
-            <h3>Bannaa IP-osoite</h3>
+            <h3><UiText text={"Bannaa IP-osoite"} /></h3>
             <p>
               {state.contextUserName
                 ? `Bannataan käyttäjän ${state.contextUserName} viimeisin IP.`
                 : "Bannattu IP ei voi seurata vierailuja tai (jos sovellus tukee) luoda sisältöä."}
             </p>
-            <label>
-              IP-osoite
-              <input value={ipAddress} onChange={(e) => setIpAddress(e.target.value)} placeholder="esim. 192.168.1.1" />
+            <label><UiText text={"IP-osoite"} /><input value={ipAddress} onChange={(e) => setIpAddress(e.target.value)} placeholder="esim. 192.168.1.1" />
             </label>
-            <label>
-              Syy (valinnainen)
-              <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={2} />
+            <label><UiText text={"Syy (valinnainen)"} /><textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={2} />
             </label>
             <div className={styles.modalActions}>
-              <button type="button" className={styles.ghostBtn} onClick={onClose}>Peruuta</button>
+              <button type="button" className={styles.ghostBtn} onClick={onClose}><UiText text={"Peruuta"} /></button>
               <button
                 type="button"
                 className={styles.dangerBtn}
@@ -3235,8 +3156,7 @@ function ConfirmDialogs({
                   onBanIp(ip, reason || undefined);
                 }}
               >
-                <Ban size={14} /> Bannaa IP
-              </button>
+                <Ban size={14} /><UiText text={" Bannaa IP"} /></button>
             </div>
           </>
         )}

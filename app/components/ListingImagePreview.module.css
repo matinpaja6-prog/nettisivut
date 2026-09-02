@@ -1,0 +1,43 @@
+.dialog {
+  --preview-surface: #101d29;
+  --preview-text: #f4f8fc;
+  --preview-line: #425565;
+  --preview-image-height: calc(100dvh - 128px);
+  box-sizing: border-box;
+  width: max-content;
+  min-width: min(340px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 12px;
+  border: 1px solid var(--preview-line);
+  border-radius: 16px;
+  background: var(--preview-surface);
+  color: var(--preview-text);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 28%);
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+.dialog::backdrop { background: rgb(3 9 16 / 94%); }
+.toolbar { display: flex; align-items: center; gap: 12px; padding-bottom: 10px; min-width: 0; }
+.caption { flex: 1; min-width: 0; max-width: 65ch; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; font-weight: 700; }
+.counter { margin-left: auto; white-space: nowrap; font-size: 13px; }
+.close, .arrow { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 44px; height: 44px; padding: 0; border: 1px solid var(--preview-line); border-radius: 10px; background: var(--preview-surface); color: var(--preview-text); cursor: pointer; }
+.close:hover, .arrow:hover { border-color: #ff7a1a; }
+.close:focus-visible, .arrow:focus-visible { outline: 3px solid #ff7a1a; outline-offset: 2px; }
+.frame { position: relative; display: grid; place-items: center; min-width: 0; overflow: hidden; border-radius: 9px; }
+.frame .photo { display: block; width: auto; height: auto; max-width: min(calc(100vw - 58px), 1440px); max-height: var(--preview-image-height); border-radius: 9px; object-fit: contain; object-position: center; }
+.arrow { position: absolute; top: 50%; transform: translateY(-50%); border-radius: 50%; box-shadow: 0 4px 16px rgb(0 0 0 / 18%); }
+.previous { left: 10px; }
+.next { right: 10px; }
+:global(html[data-theme="light"]) .dialog { --preview-surface: #fff; --preview-text: #172b38; --preview-line: #c8d3da; box-shadow: 0 20px 70px rgb(28 46 58 / 20%); }
+:global(html[data-theme="light"]) .dialog::backdrop { background: rgb(231 237 241 / 97%); }
+@media (max-width: 720px) {
+  .dialog { --preview-image-height: calc(100dvh - 116px); padding: 8px; max-width: calc(100vw - 16px); min-width: min(300px, calc(100vw - 16px)); border-radius: 12px; }
+  .toolbar { gap: 8px; padding-bottom: 8px; }
+  .caption { font-size: 12px; }
+  .counter { font-size: 12px; }
+  .frame .photo { max-width: calc(100vw - 34px); }
+  .previous { left: 6px; }
+  .next { right: 6px; }
+}

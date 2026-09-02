@@ -3,9 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { isLocale, useLanguage } from "@/lib/i18n";
-import { translateLocalizedPath } from "@/lib/routes";
 import { supabase } from "@/lib/supabase";
 
 const LOCALES = [
@@ -54,7 +52,6 @@ function Flag({ iso }: { iso: string }) {
 }
 
 export default function LanguageSwitcher() {
-  const router = useRouter();
   const { activeLocale, setLocale, t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -116,13 +113,7 @@ export default function LanguageSwitcher() {
       });
     }
     setOpen(false);
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      url.searchParams.delete("lang");
-      url.pathname = translateLocalizedPath(url.pathname, code);
-      router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
-      router.refresh();
-    }
+
   }
 
   function openDropdown() {

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/lib/navigation";
 import { useEffect, useRef, useState } from "react";
 import { NAVIGATION_START_EVENT } from "@/lib/go-back";
 

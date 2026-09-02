@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { listingLocales, type ListingLocale } from "@/lib/listing-translations";
+import { validTechnicalTranslation } from "@/lib/part-glossary";
 import type { ListingTranslations } from "@/lib/listings";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
@@ -72,6 +73,12 @@ function normalizeTranslations(
         : fallback[locale];
   }
 
+  for (const locale of listingLocales) {
+    const item = translations[locale];
+    if (!item) continue;
+    if (!validTechnicalTranslation(input.title, item.title || "", locale, input.sourceLanguage)) item.title = input.title;
+    if (!validTechnicalTranslation(input.description, item.description || "", locale, input.sourceLanguage)) item.description = input.description;
+  }
   translations[input.sourceLanguage] = {
     title: input.title,
     description: input.description
@@ -179,22 +186,12 @@ export async function POST(request: Request) {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    const translations = preserveTranslationMetadata(emptyTranslations(input), existingTranslations);
-    const saved = await saveListingTranslations({
-      listingId,
-      sellerId: callerAuth.user.id,
-      sourceLanguage: input.sourceLanguage,
-      translations
-    });
-    return NextResponse.json({
-      translations,
-      saved,
-      warning: "OPENAI_API_KEY puuttuu, joten käytettiin alkuperäistä tekstiä."
-    });
+    return NextResponse.json({ translations: existingTranslations || {}, saved: false, warning: "Käännöspalvelua ei ole määritetty. Alkuperäinen teksti säilytetään." });
   }
 
   const prompt = [
-    "Translate this marketplace listing into all requested languages.",
+    "Translate this vehicle and spare-parts marketplace listing into all requested languages.",
+    "Finnish kaasutin/kaasuttimet and the typo kassutin mean carburetor (förgasare / forgasser), never water bottle. Do not invent product facts.",
     "Preserve brand names, model names, part numbers, measurements, sizes, prices and abbreviations.",
     "Return only valid JSON with keys fi, en, sv, no. Each value must contain title and description.",
     `Source language: ${languageNames[input.sourceLanguage]}`,
@@ -203,6 +200,7 @@ export async function POST(request: Request) {
   ].join("\n");
 
   const response = await fetch("https://api.openai.com/v1/responses", {
+    signal: AbortSignal.timeout(20000),
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -213,21 +211,10 @@ export async function POST(request: Request) {
       input: prompt,
       text: { format: { type: "json_object" } }
     })
-  });
+  }).catch(() => null);
 
-  if (!response.ok) {
-    const translations = preserveTranslationMetadata(emptyTranslations(input), existingTranslations);
-    const saved = await saveListingTranslations({
-      listingId,
-      sellerId: callerAuth.user.id,
-      sourceLanguage: input.sourceLanguage,
-      translations
-    });
-    return NextResponse.json({
-      translations,
-      saved,
-      warning: "Käännöspalvelu ei vastannut, joten käytettiin alkuperäistä tekstiä."
-    });
+  if (!response?.ok) {
+    return NextResponse.json({ translations: existingTranslations || {}, saved: false, warning: "Käännös epäonnistui. Tallennettuja tekstejä ei muutettu." }, { status: 503 });
   }
 
   const data = await response.json();
@@ -245,6 +232,7 @@ export async function POST(request: Request) {
     parsed = null;
   }
 
+  if (!parsed) return NextResponse.json({ error: "Virheellinen käännösvastaus, alkuperäinen säilytetty." }, { status: 502 });
   const translations = preserveTranslationMetadata(
     normalizeTranslations(input, parsed),
     existingTranslations

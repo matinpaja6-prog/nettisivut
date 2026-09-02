@@ -5,6 +5,10 @@ import {
   listingPath,
   localizedPathFromCanonical,
   normalizeRouteLocale,
+  localeFromPath,
+  stripLocalePrefix,
+  hasLocalePrefix,
+  isUnlocalizedPath,
   pagePath
 } from "@/lib/routes";
 
@@ -238,7 +242,7 @@ function isSensitivePath(pathname: string) {
 function listingRouteIdentifier(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
   const isLegacyListingRoute = segments.length === 2 && PUBLIC_LISTING_SEGMENTS.has(segments[0]);
-  const isSeoListingRoute = segments.length === 3 && ![
+  const isSeoListingRoute = (segments.length === 3 || segments.length === 4) && ![
     "api",
     "admin",
     "en",
@@ -378,6 +382,14 @@ async function isIpBanned(ip: string) {
 export async function middleware(request: NextRequest) {
   const { hostname, pathname } = request.nextUrl;
   const method = request.method.toUpperCase();
+  const locale = localeFromPath(pathname);
+  const canonicalPath = canonicalPathFromLocalized(pathname);
+  if (hasLocalePrefix(pathname) && isUnlocalizedPath(stripLocalePrefix(pathname))) {
+    return applySecurityHeaders(new NextResponse(null, { status: 404 }));
+  }
+  const documentRequestHeaders = new Headers(request.headers);
+  documentRequestHeaders.set("x-maskines-locale", locale);
+  documentRequestHeaders.set("x-maskines-pathname", pathname);
 
   if (!ALLOWED_HTTP_METHODS.has(method)) {
     const response = new NextResponse(null, { status: 405 });
@@ -441,8 +453,8 @@ export async function middleware(request: NextRequest) {
   const isAdminRecoveryRoute =
     pathname === "/admin" ||
     pathname.startsWith("/admin/") ||
-    pathname === "/auth" ||
-    pathname.startsWith("/auth/") ||
+    canonicalPath === "/auth" ||
+    canonicalPath.startsWith("/auth/") ||
     pathname === "/api/admin" ||
     pathname.startsWith("/api/admin/");
 
@@ -461,14 +473,13 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  const listingIdentifier = listingRouteIdentifier(pathname);
+  const listingIdentifier = listingRouteIdentifier(stripLocalePrefix(pathname));
   if (listingIdentifier) {
     const listing = await publicListingForRoute(listingIdentifier);
     if (listing === false) {
       return removedListingResponse();
     }
     if (listing) {
-      const locale = normalizeRouteLocale(request.cookies.get("locale")?.value);
       const canonicalListingPath = listingPath(listing, locale);
       if (pathname !== canonicalListingPath) {
         const redirectUrl = request.nextUrl.clone();
@@ -479,10 +490,9 @@ export async function middleware(request: NextRequest) {
   }
 
   if (
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/auth")
+    pathname.startsWith("/admin")
   ) {
-    return applyDocumentHeaders(NextResponse.next(), { noIndex: true });
+    return applyDocumentHeaders(NextResponse.next({ request: { headers: documentRequestHeaders } }), { noIndex: true });
   }
 
   if (pathname.startsWith("/api")) {
@@ -531,8 +541,6 @@ export async function middleware(request: NextRequest) {
     return applySecurityHeaders(response);
   }
 
-  const locale = normalizeRouteLocale(request.cookies.get("locale")?.value);
-  const canonicalPath = canonicalPathFromLocalized(pathname);
   const localizedPath = localizedPathFromCanonical(canonicalPath, locale);
   const noIndex = shouldNoIndex(canonicalPath);
   // Listing visibility can change at any moment. Never let a CDN serve a
@@ -541,19 +549,28 @@ export async function middleware(request: NextRequest) {
   // into a permanent 410 response.
   const noStore = Boolean(listingIdentifier);
 
-  if (pathname === canonicalPath && localizedPath !== pathname) {
+  const queryLocale = request.nextUrl.searchParams.get("lang");
+  if (queryLocale && ["fi", "en", "sv", "no"].includes(queryLocale)) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.searchParams.delete("lang");
+    redirectUrl.pathname = localizedPathFromCanonical(canonicalPath, normalizeRouteLocale(queryLocale));
+    return applyDocumentHeaders(NextResponse.redirect(redirectUrl), { noIndex, noStore: true });
+  }
+  // These collection routes have their own translated taxonomy segments.
+  const nativeCollection = /^\/(?:en\/(?:parts|vehicles)|sv\/(?:reservdelar|fordon)|no\/(?:reservedeler|kjoretoy))\/.+/.test(pathname);
+  if (!nativeCollection && localizedPath !== pathname) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = localizedPath;
     return applyDocumentHeaders(NextResponse.redirect(redirectUrl), { noIndex, noStore });
   }
 
-  if (canonicalPath !== pathname) {
+  if (!nativeCollection && canonicalPath !== pathname) {
     const rewriteUrl = request.nextUrl.clone();
     rewriteUrl.pathname = canonicalPath;
-    return applyDocumentHeaders(NextResponse.rewrite(rewriteUrl), { noIndex, noStore });
+    return applyDocumentHeaders(NextResponse.rewrite(rewriteUrl, { request: { headers: documentRequestHeaders } }), { noIndex, noStore });
   }
 
-  return applyDocumentHeaders(NextResponse.next(), { noIndex, noStore });
+  return applyDocumentHeaders(NextResponse.next({ request: { headers: documentRequestHeaders } }), { noIndex, noStore });
 }
 
 export const config = {

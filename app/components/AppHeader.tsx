@@ -1,4 +1,5 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 /**
  * ============================================================================
@@ -21,7 +22,7 @@
  * Logon ja värit voi vaihtaa muokkaamalla `lib/branding.ts`.
  */
 
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Bell, MessageSquare, Search, User as UserIcon, ChevronDown } from "lucide-react";
@@ -151,7 +152,7 @@ export default function AppHeader({
                 onSearchChange?.(e.target.value);
               }}
             />
-            <kbd className={styles.kbd}>CTRL K</kbd>
+            <kbd className={styles.kbd}><UiText text={"CTRL K"} /></kbd>
           </form>
         )}
 
@@ -183,9 +184,7 @@ export default function AppHeader({
               <ChevronDown size={14} className={styles.userPillChevron} />
             </Link>
           ) : (
-            <Link href={pagePath("auth", locale)} className={styles.loginBtn}>
-              Kirjaudu
-            </Link>
+            <Link href={pagePath("auth", locale)} className={styles.loginBtn}><UiText text={"Kirjaudu"} /></Link>
           )}
         </div>
       </div>

@@ -1,8 +1,10 @@
 "use client";
+import "@/app/styles/generated/profile.css";
+import UiText from "@/app/components/UiText";
 
 import { FormEvent, PointerEvent, useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Link from "@/app/components/LocalizedLink";
+import { useRouter } from "@/lib/navigation";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { sanitizePhoneInput } from "@/lib/phone-input";
 import { pagePath, profilePath } from "@/lib/routes";
@@ -2258,7 +2260,7 @@ export default function ProfilePage() {
             </div>
             <div className="pf-sidebar-progress">
               <div>
-                <span>Profiilin täyttöaste</span>
+                <span><UiText text={"Profiilin täyttöaste"} /></span>
                 <strong>{profileCompletion}%</strong>
               </div>
               <span className="pf-sidebar-progress-track">
@@ -2286,9 +2288,7 @@ export default function ProfilePage() {
                 className="pf-nav-item pf-nav-danger pf-nav-button"
                 onClick={openDeleteModal}
               >
-                <Trash2 size={19} />
-                Poista tili
-              </button>
+                <Trash2 size={19} /><UiText text={"Poista tili"} /></button>
             )}
           </nav>
         </aside>
@@ -2785,8 +2785,8 @@ export default function ProfilePage() {
                 <div className="pf-section-head">
                   <Home size={17} />
                   <div>
-                    <h2>Osoitetiedot</h2>
-                    <p>Hallitse osoitetietojasi.</p>
+                    <h2><UiText text={"Osoitetiedot"} /></h2>
+                    <p><UiText text={"Hallitse osoitetietojasi."} /></p>
                   </div>
                 </div>
                 <div className="pf-info-rows pf-address-rows pf-card-body">
@@ -2888,9 +2888,7 @@ export default function ProfilePage() {
                     <span className="pf-info-row-icon">
                       <KeyRound size={16} />
                     </span>
-                    <span className="pf-info-label pf-mfa-label">
-                      Kaksivaiheinen tunnistus
-                      <small className={`pf-mfa-label-state${mfaMethod ? " is-enabled" : ""}`}>
+                    <span className="pf-info-label pf-mfa-label"><UiText text={"Kaksivaiheinen tunnistus"} /><small className={`pf-mfa-label-state${mfaMethod ? " is-enabled" : ""}`}>
                         {mfaMethod === "totp"
                           ? "Authenticator käytössä"
                           : mfaMethod === "email"
@@ -2947,8 +2945,7 @@ export default function ProfilePage() {
                   {profileText.saveChanges}
                 </button>
                 {profile.updated_at && (
-                  <span className="pf-last-updated">
-                    Viimeksi päivitetty {formatProfileUpdatedAt(profile.updated_at)}
+                  <span className="pf-last-updated"><UiText text={"Viimeksi päivitetty "} />{formatProfileUpdatedAt(profile.updated_at)}
                   </span>
                 )}
                 {status && <span className="pf-status">{status}</span>}
@@ -2988,7 +2985,7 @@ export default function ProfilePage() {
             {companyVerifyClientSecret ? (
               <div className="pf-company-verify-payment-view">
                 <header className="pf-company-verify-payment-head">
-                  <span className="pf-company-verify-payment-mark">M</span>
+                  <span className="pf-company-verify-payment-mark"><UiText text={"M"} /></span>
                   <div>
                     <span className="pf-company-verify-kicker"><ShieldCheck size={14} /> {companyVerifyText.secureCheckout}</span>
                     <h2 id="company-verify-title">{companyVerifyText.finishTitle}</h2>
@@ -3042,7 +3039,7 @@ export default function ProfilePage() {
                     <div className="pf-modal-icon">
                       <ShieldCheck size={24} />
                     </div>
-                    <span className="pf-company-verify-kicker"><BadgeCheck size={14} /> Maskines Verified</span>
+                    <span className="pf-company-verify-kicker"><BadgeCheck size={14} /><UiText text={" Maskines Verified"} /></span>
                   </div>
                   <h2 id="company-verify-title">{companyVerifyText.title}</h2>
                   <p>{companyVerifyText.description}</p>
@@ -3082,7 +3079,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="pf-company-verify-price">
                       <div className="pf-company-verify-price-copy">
-                        <span>Maskines Verified</span>
+                        <span><UiText text={"Maskines Verified"} /></span>
                         <strong>{companyVerifyText.verificationTitle}</strong>
                         <small>{companyVerifyText.allFeatures}</small>
                       </div>
@@ -3158,9 +3155,7 @@ export default function ProfilePage() {
               disabled={passwordSending}
               onClick={closePasswordChange}
               aria-label="Sulje"
-            >
-              ×
-            </button>
+            ><UiText text={"×"} /></button>
             <div className="pf-modal-icon">
               {passwordChangeStep === "code" ? <Mail size={23} /> : <LockKeyhole size={23} />}
             </div>
@@ -3172,12 +3167,11 @@ export default function ProfilePage() {
                   void verifyPasswordCode();
                 }}
               >
-                <h2 id="password-change-title">Syötä sähköpostiin lähetetty koodi</h2>
-                <p>
-                  Lähetimme kuusinumeroisen vahvistuskoodin osoitteeseen <strong>{user?.email || profile?.email}</strong>.
+                <h2 id="password-change-title"><UiText text={"Syötä sähköpostiin lähetetty koodi"} /></h2>
+                <p><UiText text={"Lähetimme kuusinumeroisen vahvistuskoodin osoitteeseen "} /><strong>{user?.email || profile?.email}</strong>.
                 </p>
                 <label className="pf-password-field">
-                  <span>Vahvistuskoodi</span>
+                  <span><UiText text={"Vahvistuskoodi"} /></span>
                   <input
                     autoFocus
                     autoComplete="one-time-code"
@@ -3190,9 +3184,7 @@ export default function ProfilePage() {
                   />
                 </label>
                 <div className="pf-password-actions">
-                  <button type="button" className="pf-inline-btn secondary" onClick={() => void handlePasswordReset()} disabled={passwordSending}>
-                    Lähetä uusi koodi
-                  </button>
+                  <button type="button" className="pf-inline-btn secondary" onClick={() => void handlePasswordReset()} disabled={passwordSending}><UiText text={"Lähetä uusi koodi"} /></button>
                   <button type="submit" className="pf-inline-btn verify" disabled={passwordSending || passwordCode.length !== 6}>
                     {passwordSending ? "Vahvistetaan..." : "Jatka"}
                   </button>
@@ -3205,10 +3197,10 @@ export default function ProfilePage() {
                   void saveNewPassword();
                 }}
               >
-                <h2 id="password-change-title">Kirjoita uusi salasana</h2>
-                <p>Kirjoita uusi salasana kaksi kertaa. Salasanassa pitää olla vähintään 8 merkkiä.</p>
+                <h2 id="password-change-title"><UiText text={"Kirjoita uusi salasana"} /></h2>
+                <p><UiText text={"Kirjoita uusi salasana kaksi kertaa. Salasanassa pitää olla vähintään 8 merkkiä."} /></p>
                 <label className="pf-password-field">
-                  <span>Uusi salasana</span>
+                  <span><UiText text={"Uusi salasana"} /></span>
                   <div className="pf-password-input-wrap">
                     <input
                       autoFocus
@@ -3230,7 +3222,7 @@ export default function ProfilePage() {
                   </div>
                 </label>
                 <label className="pf-password-field">
-                  <span>Uusi salasana uudelleen</span>
+                  <span><UiText text={"Uusi salasana uudelleen"} /></span>
                   <div className="pf-password-input-wrap">
                     <input
                       type={showConfirmNewPassword ? "text" : "password"}
@@ -3251,9 +3243,7 @@ export default function ProfilePage() {
                   </div>
                 </label>
                 <div className="pf-password-actions">
-                  <button type="button" className="pf-inline-btn secondary" onClick={closePasswordChange} disabled={passwordSending}>
-                    Peruuta
-                  </button>
+                  <button type="button" className="pf-inline-btn secondary" onClick={closePasswordChange} disabled={passwordSending}><UiText text={"Peruuta"} /></button>
                   <button type="submit" className="pf-inline-btn verify" disabled={passwordSending || newPassword.length < 8 || confirmNewPassword.length < 8}>
                     {passwordSending ? "Tallennetaan..." : "Tallenna salasana"}
                   </button>
@@ -3288,32 +3278,27 @@ export default function ProfilePage() {
               disabled={mfaSaving}
               onClick={() => void closeMfaSetup()}
               aria-label="Sulje"
-            >
-              ×
-            </button>
+            ><UiText text={"×"} /></button>
 
             {mfaSetupStep === "choose" ? (
               <>
                 <div className="pf-modal-icon"><ShieldCheck size={23} /></div>
-                <h2 id="mfa-setup-title">Kaksivaiheinen tunnistus</h2>
-                <p>
-                  Valitse kirjautumisen toinen vahvistustapa. Toiminto on vapaaehtoinen
-                  ja sen voi poistaa käytöstä milloin tahansa.
-                </p>
+                <h2 id="mfa-setup-title"><UiText text={"Kaksivaiheinen tunnistus"} /></h2>
+                <p><UiText text={"Valitse kirjautumisen toinen vahvistustapa. Toiminto on vapaaehtoinen ja sen voi poistaa käytöstä milloin tahansa."} /></p>
                 <div className="pf-mfa-options">
                   <button type="button" onClick={() => void beginTotpEnrollment()} disabled={mfaSaving}>
                     <span className="pf-mfa-option-icon"><QrCode size={25} /></span>
                     <span>
-                      <strong>Authenticator-sovellus</strong>
-                      <small>Skannaa QR-koodi Google Authenticatorilla tai vastaavalla sovelluksella.</small>
+                      <strong><UiText text={"Authenticator-sovellus"} /></strong>
+                      <small><UiText text={"Skannaa QR-koodi Google Authenticatorilla tai vastaavalla sovelluksella."} /></small>
                     </span>
                     <ArrowRight className="pf-mfa-option-arrow" size={18} />
                   </button>
                   <button type="button" onClick={() => void enableEmailMfa()} disabled={mfaSaving}>
                     <span className="pf-mfa-option-icon"><Mail size={25} /></span>
                     <span>
-                      <strong>Sähköpostikoodi</strong>
-                      <small>Saat kuusinumeroisen koodin sähköpostiisi jokaisella kirjautumiskerralla.</small>
+                      <strong><UiText text={"Sähköpostikoodi"} /></strong>
+                      <small><UiText text={"Saat kuusinumeroisen koodin sähköpostiisi jokaisella kirjautumiskerralla."} /></small>
                     </span>
                     <ArrowRight className="pf-mfa-option-arrow" size={18} />
                   </button>
@@ -3324,27 +3309,25 @@ export default function ProfilePage() {
                     className="pf-mfa-disable"
                     onClick={() => void disableMfa()}
                     disabled={mfaSaving}
-                  >
-                    Poista kaksivaiheinen tunnistus käytöstä
-                  </button>
+                  ><UiText text={"Poista kaksivaiheinen tunnistus käytöstä"} /></button>
                 )}
               </>
             ) : (
               <>
                 <div className="pf-modal-icon"><QrCode size={23} /></div>
-                <h2 id="mfa-setup-title">Yhdistä Authenticator</h2>
-                <p>Skannaa QR-koodi ja anna sovelluksen näyttämä kuusinumeroinen koodi.</p>
+                <h2 id="mfa-setup-title"><UiText text={"Yhdistä Authenticator"} /></h2>
+                <p><UiText text={"Skannaa QR-koodi ja anna sovelluksen näyttämä kuusinumeroinen koodi."} /></p>
                 {mfaEnrollment && (
                   <>
                     <div className="pf-mfa-qr">
                       <img src={mfaEnrollment.qrCode} alt="Authenticator QR-koodi" />
                     </div>
                     <div className="pf-mfa-secret">
-                      <span>Manuaalinen avain</span>
+                      <span><UiText text={"Manuaalinen avain"} /></span>
                       <code>{mfaEnrollment.secret}</code>
                     </div>
                     <label className="pf-mfa-code-field">
-                      <span>Vahvistuskoodi</span>
+                      <span><UiText text={"Vahvistuskoodi"} /></span>
                       <input
                         autoComplete="one-time-code"
                         inputMode="numeric"
@@ -3356,9 +3339,7 @@ export default function ProfilePage() {
                       />
                     </label>
                     <div className="pf-avatar-crop-actions">
-                      <button type="button" className="pf-inline-btn secondary" onClick={() => void closeMfaSetup()} disabled={mfaSaving}>
-                        Peruuta
-                      </button>
+                      <button type="button" className="pf-inline-btn secondary" onClick={() => void closeMfaSetup()} disabled={mfaSaving}><UiText text={"Peruuta"} /></button>
                       <button type="button" className="pf-inline-btn verify" onClick={() => void verifyTotpEnrollment()} disabled={mfaSaving || mfaCode.length !== 6}>
                         {mfaSaving ? "Vahvistetaan..." : "Vahvista ja ota käyttöön"}
                       </button>
@@ -3382,15 +3363,15 @@ export default function ProfilePage() {
           }}
         >
           <div className="pf-phone-modal pf-email-change-modal" role="dialog" aria-modal="true" aria-labelledby="email-change-title">
-            <button type="button" className="pf-modal-close" disabled={emailSaving} onClick={cancelEmailEdit} aria-label="Sulje">×</button>
+            <button type="button" className="pf-modal-close" disabled={emailSaving} onClick={cancelEmailEdit} aria-label="Sulje"><UiText text={"×"} /></button>
             <div className="pf-modal-icon"><Mail size={22} /></div>
-            <h2 id="email-change-title">Vaihda sähköpostiosoite</h2>
+            <h2 id="email-change-title"><UiText text={"Vaihda sähköpostiosoite"} /></h2>
 
             {emailChangeStep === "email" ? (
               <form onSubmit={(event) => { event.preventDefault(); void requestEmailChangeCode(); }}>
-                <p>Anna uusi sähköpostiosoite. Lähetämme siihen kuusinumeroisen vahvistuskoodin.</p>
+                <p><UiText text={"Anna uusi sähköpostiosoite. Lähetämme siihen kuusinumeroisen vahvistuskoodin."} /></p>
                 <label className="pf-email-change-field">
-                  <span>Uusi sähköpostiosoite</span>
+                  <span><UiText text={"Uusi sähköpostiosoite"} /></span>
                   <input
                     type="email"
                     autoComplete="email"
@@ -3401,7 +3382,7 @@ export default function ProfilePage() {
                   />
                 </label>
                 <div className="pf-avatar-crop-actions">
-                  <button type="button" className="pf-inline-btn secondary" onClick={cancelEmailEdit} disabled={emailSaving}>Peruuta</button>
+                  <button type="button" className="pf-inline-btn secondary" onClick={cancelEmailEdit} disabled={emailSaving}><UiText text={"Peruuta"} /></button>
                   <button type="submit" className="pf-inline-btn verify" disabled={emailSaving || !emailDraft.trim()}>
                     {emailSaving ? "Lähetetään..." : "Lähetä vahvistuskoodi"}
                   </button>
@@ -3409,9 +3390,9 @@ export default function ProfilePage() {
               </form>
             ) : (
               <form onSubmit={(event) => { event.preventDefault(); void verifyEmailChangeCode(); }}>
-                <p>Syötä osoitteeseen <strong>{emailDraft}</strong> lähetetty kuusinumeroinen koodi.</p>
+                <p><UiText text={"Syötä osoitteeseen "} /><strong>{emailDraft}</strong><UiText text={" lähetetty kuusinumeroinen koodi."} /></p>
                 <label className="pf-email-change-field">
-                  <span>Vahvistuskoodi</span>
+                  <span><UiText text={"Vahvistuskoodi"} /></span>
                   <input
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -3424,11 +3405,11 @@ export default function ProfilePage() {
                   />
                 </label>
                 <div className="pf-email-change-resend">
-                  <button type="button" onClick={() => { setEmailChangeStep("email"); setEmailCode(""); setEmailStatus(""); }} disabled={emailSaving}>Muuta osoitetta</button>
-                  <button type="button" onClick={() => void requestEmailChangeCode()} disabled={emailSaving}>Lähetä uusi koodi</button>
+                  <button type="button" onClick={() => { setEmailChangeStep("email"); setEmailCode(""); setEmailStatus(""); }} disabled={emailSaving}><UiText text={"Muuta osoitetta"} /></button>
+                  <button type="button" onClick={() => void requestEmailChangeCode()} disabled={emailSaving}><UiText text={"Lähetä uusi koodi"} /></button>
                 </div>
                 <div className="pf-avatar-crop-actions">
-                  <button type="button" className="pf-inline-btn secondary" onClick={cancelEmailEdit} disabled={emailSaving}>Peruuta</button>
+                  <button type="button" className="pf-inline-btn secondary" onClick={cancelEmailEdit} disabled={emailSaving}><UiText text={"Peruuta"} /></button>
                   <button type="submit" className="pf-inline-btn verify" disabled={emailSaving || emailCode.length !== 6}>
                     {emailSaving ? "Vahvistetaan..." : "Vahvista ja vaihda"}
                   </button>
@@ -3463,18 +3444,14 @@ export default function ProfilePage() {
               disabled={phoneSaving}
               onClick={cancelPhoneEdit}
               aria-label="Sulje"
-            >
-              ×
-            </button>
+            ><UiText text={"×"} /></button>
             <div className="pf-modal-icon">
               <Phone size={22} />
             </div>
             <h2 id="phone-verification-title">
               {hasPhoneNumber ? "Vaihda puhelinnumero" : "Lisää puhelinnumero"}
             </h2>
-            <p>
-              Puhelinnumero tallennetaan profiiliisi ilman SMS-vahvistusta.
-            </p>
+            <p><UiText text={"Puhelinnumero tallennetaan profiiliisi ilman SMS-vahvistusta."} /></p>
             <div className="pf-phone-edit">
               <input
                 ref={phoneInputRef}
@@ -3492,17 +3469,13 @@ export default function ProfilePage() {
                 className="pf-inline-btn"
                 disabled={phoneSaving}
                 onClick={saveProfilePhone}
-              >
-                Tallenna
-              </button>
+              ><UiText text={"Tallenna"} /></button>
               <button
                 type="button"
                 className="pf-inline-btn secondary"
                 disabled={phoneSaving}
                 onClick={cancelPhoneEdit}
-              >
-                Peruuta
-              </button>
+              ><UiText text={"Peruuta"} /></button>
             </div>
             {phoneStatus && (
               <span className="pf-phone-status">
@@ -3535,31 +3508,24 @@ export default function ProfilePage() {
               disabled={deleteLoading}
               onClick={closeDeleteModal}
               aria-label="Sulje"
-            >
-              ×
-            </button>
+            ><UiText text={"×"} /></button>
             <div className="pf-delete-modal-icon">
               <Trash2 size={22} />
             </div>
             <h2 id="delete-account-title">
               {deleteFinalConfirm ? "Poistetaanko tili pysyvästi?" : "Tilin poistaminen"}
             </h2>
-            <p>
-              Tämä poistaa tilin pysyvästi. Kysymme vielä viimeisen varmistuksen
-              ennen kuin poisto tehdään.
-            </p>
+            <p><UiText text={"Tämä poistaa tilin pysyvästi. Kysymme vielä viimeisen varmistuksen ennen kuin poisto tehdään."} /></p>
             {deleteFinalConfirm && (
-              <p className="pf-delete-final-copy">
-                Tätä toimintoa ei voi perua. Tilisi, profiilisi ja kirjautumisoikeutesi poistetaan.
-              </p>
+              <p className="pf-delete-final-copy"><UiText text={"Tätä toimintoa ei voi perua. Tilisi, profiilisi ja kirjautumisoikeutesi poistetaan."} /></p>
             )}
             <span className="pf-delete-email">
               {profile.email}
             </span>
             {deleteFinalConfirm && (
               <div className="pf-delete-warning-list">
-                <span>Puhelinnumero varataan 3 kuukaudeksi.</span>
-                <span>Poiston jälkeen tiliä ei voi palauttaa.</span>
+                <span><UiText text={"Puhelinnumero varataan 3 kuukaudeksi."} /></span>
+                <span><UiText text={"Poiston jälkeen tiliä ei voi palauttaa."} /></span>
               </div>
             )}
             <div className="pf-delete-modal-actions">
@@ -3591,9 +3557,7 @@ export default function ProfilePage() {
                 {deleteFinalConfirm ? "Takaisin" : "Peruuta"}
               </button>
             </div>
-            <span className="pf-modal-note pf-delete-note">
-              Jos tilillä on puhelinnumero, sitä ei voi liittää uuteen tiliin 3 kuukauteen poiston jälkeen.
-            </span>
+            <span className="pf-modal-note pf-delete-note"><UiText text={"Jos tilillä on puhelinnumero, sitä ei voi liittää uuteen tiliin 3 kuukauteen poiston jälkeen."} /></span>
             {deleteStatus && (
               <span className="pf-phone-status">
                 {deleteStatus}
@@ -3617,9 +3581,7 @@ export default function ProfilePage() {
               onClick={resetAvatarCrop}
               disabled={avatarUploading}
               aria-label={profileText.close}
-            >
-              ×
-            </button>
+            ><UiText text={"×"} /></button>
             <h2>{profileText.editProfilePhoto}</h2>
             <p>{profileText.avatarCropHelp}</p>
             <div
@@ -3639,7 +3601,7 @@ export default function ProfilePage() {
               />
             </div>
             <label className="pf-avatar-zoom">
-              <span>Zoom</span>
+              <span><UiText text={"Zoom"} /></span>
               <input
                 type="range"
                 min="1"

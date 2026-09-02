@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "@/lib/navigation";
 
 import { canonicalPathFromLocalized } from "@/lib/routes";
 

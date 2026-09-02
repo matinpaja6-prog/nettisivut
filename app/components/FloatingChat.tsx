@@ -1,7 +1,8 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 import {
   Check,
   ChevronLeft,
@@ -163,9 +164,9 @@ function markRead(convId: string, userId?: string | null) {
    COMPONENT
 ====================================================== */
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "@/lib/navigation";
 
-export default function FloatingChat() {
+export default function FloatingChat({ initialOpen = false }: { initialOpen?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const { t, locale } = useLanguage();
@@ -181,7 +182,7 @@ export default function FloatingChat() {
   const isLegalPage =
     canonicalPathname.startsWith("/privacy") ||
     canonicalPathname.startsWith("/terms");
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initialOpen);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [activeConv, setActiveConv] = useState<ConversationSummary | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -249,13 +250,13 @@ export default function FloatingChat() {
   useEffect(() => {
     if (userId) void loadConversations();
     else {
-      setOpen(false);
+      setOpen(initialOpen);
       setActiveConv(null);
       setConversations([]);
       setMessages([]);
       setUnread(0);
     }
-  }, [loadConversations, userId]);
+  }, [initialOpen, loadConversations, userId]);
 
   useEffect(() => {
     if (!userId || conversations.length === 0) return;
@@ -761,7 +762,7 @@ export default function FloatingChat() {
                 {imagePreview && (
                   <div className="fc-image-preview">
                     <img src={imagePreview} alt="" />
-                    <span>Kuva mukana</span>
+                    <span><UiText text={"Kuva mukana"} /></span>
                     <button
                       type="button"
                       aria-label="Poista kuva"
@@ -776,7 +777,7 @@ export default function FloatingChat() {
                 )}
                 {imageLoading && (
                   <div className="fc-image-preview fc-image-loading">
-                    <span>Kuva latautuu...</span>
+                    <span><UiText text={"Kuva latautuu..."} /></span>
                   </div>
                 )}
 

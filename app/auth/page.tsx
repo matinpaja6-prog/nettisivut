@@ -1,8 +1,12 @@
 "use client";
+import "@/app/styles/generated/auth.css";
+import UiText from "@/app/components/UiText";
+import { getStaticTranslation } from "@/lib/ui-translations";
 
 import { FormEvent, MouseEvent as ReactMouseEvent, Suspense, useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "@/app/components/LocalizedLink";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/lib/navigation";
 import PageLoadingFallback from "@/app/components/PageLoadingFallback";
 import MaskinesWordmark from "@/app/components/MaskinesWordmark";
 import TurnstileWidget from "@/app/components/TurnstileWidget";
@@ -403,6 +407,7 @@ function AuthPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { locale, t } = useLanguage();
+  function uiText(text: string) { return getStaticTranslation(locale, text) || text; }
   const pinText = registrationPinText[locale];
   const authPagePath = pagePath("auth", locale);
   const profilePagePath = profileRootPath(locale);
@@ -1601,11 +1606,11 @@ function AuthPageContent() {
           <button
             type="button"
             className="auth-mobile-back-home"
-            aria-label="Takaisin etusivulle"
+            aria-label={uiText("Takaisin etusivulle")}
             onClick={returnToHome}
           >
             <ArrowLeft size={26} aria-hidden="true" />
-            <span>Takaisin etusivulle</span>
+            <span><UiText text={"Takaisin etusivulle"} /></span>
           </button>
         )}
         {recoveryMode ? (
@@ -1650,7 +1655,7 @@ function AuthPageContent() {
               {t.authSavePassword}
             </button>
 
-            <span className="form-note">{status}</span>
+            <span className="form-note"><UiText text={status} /></span>
           </form>
         ) : loginMfaMode ? (
           <form
@@ -1661,8 +1666,8 @@ function AuthPageContent() {
               {loginMfaMode === "totp" ? <ShieldCheck size={28} /> : <Mail size={28} />}
             </div>
             <div className="profile-completion-head">
-              <span className="eyebrow">Kaksivaiheinen tunnistus</span>
-              <h1>Vahvista kirjautuminen</h1>
+              <span className="eyebrow"><UiText text={"Kaksivaiheinen tunnistus"} /></span>
+              <h1><UiText text={"Vahvista kirjautuminen"} /></h1>
               <p>
                 {loginMfaMode === "totp"
                   ? "Anna Authenticator-sovelluksen näyttämä kuusinumeroinen koodi."
@@ -1671,9 +1676,7 @@ function AuthPageContent() {
                     : `Anna osoitteeseen ${loginMfaEmail} lähetetty kuusinumeroinen koodi.`}
               </p>
             </div>
-            <label className="registration-pin-label login-mfa-code-label">
-              Vahvistuskoodi
-              <input
+            <label className="registration-pin-label login-mfa-code-label"><UiText text={"Vahvistuskoodi"} /><input
                 autoFocus
                 required
                 autoComplete="one-time-code"
@@ -1696,8 +1699,7 @@ function AuthPageContent() {
                 disabled={loginMfaSubmitting}
                 onClick={() => void resendLoginEmailCode()}
               >
-                <Mail size={16} /> Lähetä uusi koodi
-              </button>
+                <Mail size={16} /><UiText text={" Lähetä uusi koodi"} /></button>
             )}
             {loginMfaMode === "totp" && (
               <button
@@ -1706,8 +1708,7 @@ function AuthPageContent() {
                 disabled={loginMfaSubmitting}
                 onClick={() => void beginAuthenticatorRecovery()}
               >
-                <Mail size={16} /> Authenticator ei käytettävissä?
-              </button>
+                <Mail size={16} /><UiText text={" Authenticator ei käytettävissä?"} /></button>
             )}
             <button
               className="secondary-button"
@@ -1722,8 +1723,7 @@ function AuthPageContent() {
                 setLoginMfaStatus("");
               }}
             >
-              <ArrowLeft size={16} /> Peruuta
-            </button>
+              <ArrowLeft size={16} /><UiText text={" Peruuta"} /></button>
             {loginMfaStatus && <span className="form-note registration-pin-status">{loginMfaStatus}</span>}
           </form>
         ) : registrationPinPending ? (
@@ -1783,7 +1783,7 @@ function AuthPageContent() {
                 {pinText.edit}
               </button>
             </div>
-            {status && <span className="form-note registration-pin-status">{status}</span>}
+            {status && <span className="form-note registration-pin-status"><UiText text={status} /></span>}
           </form>
         ) : emailPending ? (
           <div className="auth-card simple-card profile-completion-card email-confirm-card">
@@ -1819,10 +1819,10 @@ function AuthPageContent() {
               </div>
             </div>
             <div className="auth-form-head">
-              <h1>{authMode === "login" ? "Tervetuloa takaisin" : "Luo Maskines-tili"}</h1>
-              {sellLoginPrompt && <p>{sellLoginPrompt}</p>}
-              {!sellLoginPrompt && authMode === "login" && <p>Kirjaudu sisään käyttääksesi tiliäsi</p>}
-              {authMode === "register" && <p>Rekisteröidy ja aloita kaupankäynti</p>}
+              <h1><UiText text={authMode === "login" ? "Tervetuloa takaisin" : "Luo Maskines-tili"} /></h1>
+              {sellLoginPrompt && <p><UiText text={sellLoginPrompt} /></p>}
+              {!sellLoginPrompt && authMode === "login" && <p><UiText text={"Kirjaudu sisään käyttääksesi tiliäsi"} /></p>}
+              {authMode === "register" && <p><UiText text={"Rekisteröidy ja aloita kaupankäynti"} /></p>}
             </div>
 
             {authMode === "register" && (
@@ -1832,17 +1832,13 @@ function AuthPageContent() {
                   className={form.account_type === "private" ? "active" : ""}
                   aria-pressed={form.account_type === "private"}
                   onClick={() => setForm({ ...form, account_type: "private" })}
-                >
-                  Yksityinen
-                </button>
+                ><UiText text={"Yksityinen"} /></button>
                 <button
                   type="button"
                   className={form.account_type === "company" ? "active" : ""}
                   aria-pressed={form.account_type === "company"}
                   onClick={() => setForm({ ...form, account_type: "company" })}
-                >
-                  Yritys
-                </button>
+                ><UiText text={"Yritys"} /></button>
               </div>
             )}
 
@@ -1871,7 +1867,7 @@ function AuthPageContent() {
               <span className="auth-input-with-icon auth-password-input">
                 <LockKeyhole size={17} aria-hidden="true" />
                 <input required minLength={authMode === "register" ? 8 : 6} autoComplete={authMode === "login" ? "current-password" : "new-password"} type={showAuthPasswords ? "text" : "password"} value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder={authMode === "register" ? t.authPasswordMinPlaceholder : t.password} />
-                <button type="button" className="auth-password-eye" aria-label={showAuthPasswords ? "Piilota salasana" : "Näytä salasana"} aria-pressed={showAuthPasswords} onClick={() => setShowAuthPasswords((shown) => !shown)}>
+                <button type="button" className="auth-password-eye" aria-label={uiText(showAuthPasswords ? "Piilota salasana" : "Näytä salasana")} aria-pressed={showAuthPasswords} onClick={() => setShowAuthPasswords((shown) => !shown)}>
                   {showAuthPasswords ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </span>
@@ -1921,7 +1917,7 @@ function AuthPageContent() {
                         ? "Tarkistetaan tunnuksia"
                         : "Kirjautuminen epäonnistui"}
                   </strong>
-                  <span>{status}</span>
+                  <span><UiText text={status} /></span>
                 </span>
               </div>
             ) : null}
@@ -1979,15 +1975,9 @@ function AuthPageContent() {
               <>
                 <div className="privacy-checkbox-row register-privacy-row">
                   <input id="register-privacy-accept" type="checkbox" checked={privacyAccepted} onChange={(e) => setPrivacyAccepted(e.target.checked)} />
-                  <label htmlFor="register-privacy-accept" className="privacy-checkbox-label">
-                    Olen lukenut ja hyväksyn{" "}
-                    <Link href={termsPagePath} target="_blank" rel="noopener noreferrer">
-                      käyttöehdot
-                    </Link>{" "}
-                    ja{" "}
-                    <Link href={privacyPagePath} target="_blank" rel="noopener noreferrer">
-                      tietosuojaselosteen
-                    </Link>
+                  <label htmlFor="register-privacy-accept" className="privacy-checkbox-label"><UiText text={"Olen lukenut ja hyväksyn"} />{" "}
+                    <Link href={termsPagePath} target="_blank" rel="noopener noreferrer"><UiText text={"käyttöehdot"} /></Link>{" "}<UiText text={"ja"} />{" "}
+                    <Link href={privacyPagePath} target="_blank" rel="noopener noreferrer"><UiText text={"tietosuojaselosteen"} /></Link>
                   </label>
                 </div>
               </>
@@ -2005,13 +1995,13 @@ function AuthPageContent() {
               disabled={authSubmitting || (authMode === "login" && !authCaptchaToken)}
             >
               {authMode === "register" ? <Check size={18} /> : null}
-              {authSubmitting ? "Hetki..." : primaryAuthActionLabel}
+              <UiText text={authSubmitting ? "Hetki..." : primaryAuthActionLabel} />
               {!authSubmitting && <ArrowRight className="auth-submit-arrow" size={20} aria-hidden="true" />}
             </button>
             {!user && (
               <>
             <div className="auth-divider">
-              <span>tai jatka</span>
+              <span><UiText text={"tai jatka"} /></span>
             </div>
             <div className="auth-social-row">
               <button
@@ -2032,7 +2022,7 @@ function AuthPageContent() {
               </>
             )}
             <p className="auth-mode-switch">
-              {authMode === "login" ? "Eikö sinulla ole tiliä?" : "Onko sinulla tili?"}{" "}
+              <UiText text={authMode === "login" ? "Eikö sinulla ole tiliä?" : "Onko sinulla tili?"} />{" "}
               <button
                 type="button"
                 disabled={authSubmitting}
@@ -2048,11 +2038,11 @@ function AuthPageContent() {
               </button>
             </p>
             <div className="auth-benefits" aria-label="Maskines-palvelun edut">
-              <div><ShieldCheck aria-hidden="true" /><span><strong>Turvallinen</strong><small>Tietosi on suojattu</small></span></div>
-              <div><Globe2 aria-hidden="true" /><span><strong>Laaja valikoima</strong><small>Osta ja myy helposti</small></span></div>
-              <div><UsersRound aria-hidden="true" /><span><strong>Kasvava yhteisö</strong><small>Liity käyttäjiimme</small></span></div>
+              <div><ShieldCheck aria-hidden="true" /><span><strong><UiText text={"Turvallinen"} /></strong><small><UiText text={"Tietosi on suojattu"} /></small></span></div>
+              <div><Globe2 aria-hidden="true" /><span><strong><UiText text={"Laaja valikoima"} /></strong><small><UiText text={"Osta ja myy helposti"} /></small></span></div>
+              <div><UsersRound aria-hidden="true" /><span><strong><UiText text={"Kasvava yhteisö"} /></strong><small><UiText text={"Liity käyttäjiimme"} /></small></span></div>
             </div>
-            {authMode !== "login" && status ? <span className="form-note">{status}</span> : null}
+            {authMode !== "login" && status ? <span className="form-note"><UiText text={status} /></span> : null}
           </form>
         ) : (
           <div className="auth-loading" role="status" aria-live="polite" aria-label="Ladataan sivua">
@@ -2109,7 +2099,7 @@ function AuthPageContent() {
               {t.authSendResetLinkBtn}
             </button>
 
-            <span className="form-note">{resetStatus}</span>
+            <span className="form-note"><UiText text={resetStatus} /></span>
           </form>
         </div>
       )}

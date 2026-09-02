@@ -1,7 +1,8 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/lib/navigation";
 import {
   ArrowLeft,
   Bell,
@@ -313,13 +314,13 @@ export default function SearchAlertsPage() {
           <div className="sa-hero-stats" aria-label="Hakuvahdin tilastot">
             <div className="sa-hero-stat">
               <span><Bell size={18} /></span>
-              <small>Hakuvahteja</small>
+              <small><UiText text={"Hakuvahteja"} /></small>
               <strong>{activeCount}</strong>
-              <em>aktiivista</em>
+              <em><UiText text={"aktiivista"} /></em>
             </div>
             <div className="sa-hero-stat">
               <span><Zap size={19} /></span>
-              <small>Ilmoitukset</small>
+              <small><UiText text={"Ilmoitukset"} /></small>
               <strong>{unreadNotificationCount > 0 ? unreadNotificationCount : "Päällä"}</strong>
               <em>{unreadNotificationCount > 0 ? "uutta" : "valmiina"}</em>
             </div>
@@ -363,12 +364,12 @@ export default function SearchAlertsPage() {
               </div>
               {form.category && (formCategories[form.category] ?? []).length > 0 && (
                 <div className="sa-field">
-                  <label>Alakategoria</label>
+                  <label><UiText text={"Alakategoria"} /></label>
                   <select
                     value={form.subcategory}
                     onChange={e => updateFormField("subcategory", e.target.value)}
                   >
-                    <option value="">Kaikki</option>
+                    <option value=""><UiText text={"Kaikki"} /></option>
                     {(formCategories[form.category] ?? []).map(s => (
                       <option key={s} value={s}>{s}</option>
                     ))}
@@ -462,16 +463,14 @@ export default function SearchAlertsPage() {
           <div className="sa-saved-head">
             <div className="sa-saved-search"><Search size={24} /></div>
             <div>
-              <h2>Tallennetut hakuehdot</h2>
-              <p>Hallinnoi tallennettuja hakuehtojasi ja saat ilmoitukset niistä.</p>
+              <h2><UiText text={"Tallennetut hakuehdot"} /></h2>
+              <p><UiText text={"Hallinnoi tallennettuja hakuehtojasi ja saat ilmoitukset niistä."} /></p>
             </div>
             <button
               className="sa-add-condition"
               onClick={() => { setShowForm(true); setError(""); }}
             >
-              <Plus size={18} />
-              Lisää hakuvahti
-            </button>
+              <Plus size={18} /><UiText text={"Lisää hakuvahti"} /></button>
           </div>
 
           <div className="sa-saved-workspace">
@@ -482,7 +481,7 @@ export default function SearchAlertsPage() {
                 onClick={() => { setShowForm(true); setError(""); }}
               >
                 <Search size={20} />
-                <span>Kaikki vahdit</span>
+                <span><UiText text={"Kaikki vahdit"} /></span>
               </button>
             </nav>
 
@@ -492,14 +491,12 @@ export default function SearchAlertsPage() {
               ) : alerts.length === 0 ? (
                 <div className="sa-empty">
                   <div className="sa-empty-icon"><BellOff size={36} /></div>
-                  <h3>Ei hakuvahteja vielä</h3>
-                  <p>Luo ensimmäinen hakuvahti, niin ilmoitamme kun sopiva ilmoitus vastaa hakuehtojasi.</p>
+                  <h3><UiText text={"Ei hakuvahteja vielä"} /></h3>
+                  <p><UiText text={"Luo ensimmäinen hakuvahti, niin ilmoitamme kun sopiva ilmoitus vastaa hakuehtojasi."} /></p>
                   <button
                     className="sa-empty-btn"
                     onClick={() => { setShowForm(true); setError(""); }}
-                  >
-                    Luo ensimmäinen hakuvahti
-                  </button>
+                  ><UiText text={"Luo ensimmäinen hakuvahti"} /></button>
                 </div>
               ) : (
                 alerts.map(alert => {
@@ -523,8 +520,8 @@ export default function SearchAlertsPage() {
                           : alert.year_min ? `alkaen ${alert.year_min}` : `asti ${alert.year_max}`}
                       </span>
                     )}
-                    {alert.query && <span className="sa-tag sa-tag-gray">Haku: {alert.query}</span>}
-                    {alert.max_price != null && <span className="sa-tag sa-tag-green">max {alert.max_price} €</span>}
+                    {alert.query && <span className="sa-tag sa-tag-gray"><UiText text={"Haku: "} />{alert.query}</span>}
+                    {alert.max_price != null && <span className="sa-tag sa-tag-green"><UiText text={"max "} />{alert.max_price} €</span>}
                   </div>
                 </div>
                 {notifsForAlert(alert.id).length > 0 && (
@@ -595,9 +592,9 @@ export default function SearchAlertsPage() {
                       </div>
                       {editForm.category && (editCategories[editForm.category] ?? []).length > 0 && (
                         <div className="sa-field">
-                          <label>Alakategoria</label>
+                          <label><UiText text={"Alakategoria"} /></label>
                           <select value={editForm.subcategory} onChange={e => setEditForm({...editForm, subcategory: e.target.value})}>
-                            <option value="">Kaikki</option>
+                            <option value=""><UiText text={"Kaikki"} /></option>
                             {(editCategories[editForm.category] ?? []).map(s => (
                               <option key={s} value={s}>{s}</option>
                             ))}
@@ -611,7 +608,7 @@ export default function SearchAlertsPage() {
                             value={editForm.brand}
                             onChange={e => setEditForm({...editForm, brand: e.target.value})}
                           >
-                            <option value="">— Kaikki merkit —</option>
+                            <option value=""><UiText text={"— Kaikki merkit —"} /></option>
                             {vehicleBrands[editForm.vehicle_type].filter((b) => b !== "Kaikki").map(b => <option key={b} value={b}>{b}</option>)}
                           </select>
                         ) : (

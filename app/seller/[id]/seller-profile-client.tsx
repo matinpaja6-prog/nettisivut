@@ -1,15 +1,18 @@
 "use client";
+import "@/app/styles/generated/seller.css";
+import UiText from "@/app/components/UiText";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Link from "@/app/components/LocalizedLink";
+import { useRouter } from "@/lib/navigation";
 import homeStyles from "../../page.module.css";
 import { ArrowDownWideNarrow, ArrowRight, Bell, Bookmark, Building2, CalendarDays, Check, ChevronDown, ChevronRight, ChevronUp, CircleX, Clock3, Cog, CreditCard, Crosshair, ExternalLink, Globe2, Heart, LayoutGrid, List, MapPin, MessageCircle, PackageCheck, Palette, Phone, RotateCcw, Search, Shield, ShoppingBag, ShoppingCart, SlidersHorizontal, Star, Store, Tag, TrendingDown, TrendingUp, Truck, UserCheck, UserPlus, Users, X } from "lucide-react";
 import { formatPrice, isVehicleListing, normalizeVehicleType, type Listing } from "@/lib/listings";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
 import { generatedUiTranslations } from "@/lib/generated-ui-translations";
 import { commerceUiTranslations } from "@/lib/commerce-ui-translations";
+import { marketplaceCopy, storefrontPaymentCopy } from "@/lib/marketplace-copy";
 import { getLocalizedListingText } from "@/lib/listing-translations";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 import { calculateSellerLevel } from "@/lib/seller-level";
@@ -157,15 +160,14 @@ function ProfileDesktopFilterPanel({
     <div className={homeStyles.desktopFullFilterPanel} role="dialog" aria-modal="true" aria-labelledby={dialogTitleId}>
       <header className={homeStyles.desktopFullFilterTopbar}>
         <div className={homeStyles.desktopFullHeading}>
-          <strong id={dialogTitleId}>Kaikki hakuehdot</strong>
+          <strong id={dialogTitleId}><UiText text={"Kaikki hakuehdot"} /></strong>
           <small>{subtitle}</small>
         </div>
         <button type="button" className={homeStyles.desktopSaveSearch} onClick={onSave}>
           <Bookmark size={17} aria-hidden="true" />
           {saved ? "Haku tallennettu" : "Tallenna haku"}
         </button>
-        <button type="button" className={homeStyles.desktopFullSearchButton} onClick={onApply}>
-          Hae ({resultCount.toLocaleString("fi-FI")})
+        <button type="button" className={homeStyles.desktopFullSearchButton} onClick={onApply}><UiText text={"Hae ("} />{resultCount.toLocaleString("fi-FI")})
         </button>
         <button type="button" className={homeStyles.desktopFullClose} aria-label="Sulje kaikki hakuehdot" onClick={onClose}>
           <X size={25} aria-hidden="true" />
@@ -173,12 +175,12 @@ function ProfileDesktopFilterPanel({
       </header>
 
       <div className={homeStyles.desktopFullUtilityRow}>
-        <div><span className={premiumStyles.profileFilterScopeText}>Vain tämän profiilin myynnissä olevat tuotteet</span></div>
-        <button type="button" onClick={onClear}>Tyhjennä</button>
+        <div><span className={premiumStyles.profileFilterScopeText}><UiText text={"Vain tämän profiilin myynnissä olevat tuotteet"} /></span></div>
+        <button type="button" onClick={onClear}><UiText text={"Tyhjennä"} /></button>
       </div>
 
       <section className={homeStyles.desktopMarketplaceChooser} aria-label="Valitse ilmoitustyyppi">
-        <span>Mitä etsit?</span>
+        <span><UiText text={"Mitä etsit?"} /></span>
         <div style={{ gridTemplateColumns: `repeat(${Math.max(1, choices.length)}, minmax(0, 1fr))` }}>
           {choices.map((choice) => (
             <button
@@ -268,7 +270,7 @@ function ProfileDesktopCategoryStep({
       <select aria-label={title} disabled={!enabled} value={enabled ? value : ""} onChange={(event) => onChange(event.target.value)}>
         {!enabled
           ? <option value="">{disabledLabel}</option>
-          : <><option value="">Kaikki</option>{options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</>}
+          : <><option value=""><UiText text={"Kaikki"} /></option>{options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</>}
       </select>
     </div>
   );
@@ -2563,7 +2565,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     : profile?.company_verified_at
       ? new Intl.DateTimeFormat("fi-FI", { day: "numeric", month: "long", year: "numeric" }).format(new Date(profile.company_verified_at))
       : "";
-  const companyInventoryCount = commerceProducts.reduce((sum, product) => sum + product.stock_quantity, 0) + inquiryListingCount;
   const companyCoverImage = storefront?.banner_image_url?.trim() || "";
   const hasSaleProducts = commerceProducts.some((product) => activeSalePrice(product) < product.price_cents);
   const addCommerceProduct = (product: PublicProduct) => {
@@ -3155,7 +3156,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             </div>
           </div>}
           {sellerFilterOptions.vehicleSubtypes.length > 0 && <div className={homeStyles.desktopFullBox}>
-            <h3>Ajoneuvotyypin tarkennus</h3>
+            <h3><UiText text={"Ajoneuvotyypin tarkennus"} /></h3>
             <div className={homeStyles.desktopFullFieldGrid}>
               <ProfileDesktopSelect label="Tyyppi" value={vehicleSubtypeFilter} allLabel="Kaikki tyypit" options={sellerFilterOptions.vehicleSubtypes} onChange={setVehicleSubtypeFilter} />
             </div>
@@ -3188,7 +3189,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
         </section>}
 
         <section id="seller-desktop-filter-technical" className={homeStyles.desktopFullSection}>
-          <header><h2>Mitat ja tekniset tiedot</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          <header><h2><UiText text={"Mitat ja tekniset tiedot"} /></h2><ChevronUp size={20} aria-hidden="true" /></header>
           <div className={homeStyles.desktopFullBox}>
             <div className={homeStyles.desktopFullFieldGrid}>
               <ProfileDesktopSelect label="Merkki" value={brandFilter} allLabel="Kaikki merkit" options={sellerFilterOptions.brands} onChange={(value) => { setBrandFilter(value); setModelFilter(""); }} />
@@ -3196,11 +3197,11 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               <ProfileDesktopSelect label="Moottoritilavuus (cm³)" value={engineCcFilter} allLabel="Kaikki koot" options={sellerFilterOptions.engineCcs} onChange={setEngineCcFilter} />
               {sellerListingMode === "parts" && <ProfileDesktopSelect label="Moottori" value={engineModelFilter} allLabel="Kaikki moottorit" options={sellerFilterOptions.engineModels} onChange={setEngineModelFilter} />}
               {sellerFilterOptions.years.length > 0 && <label className={homeStyles.desktopFullField}>
-                <span>Vuosimalli</span>
+                <span><UiText text={"Vuosimalli"} /></span>
                 <div className={premiumStyles.profileDesktopRangePair}>
-                  <select value={yearMinFilter} aria-label="Vuosimallin minimi" onChange={(event) => setYearMinFilter(event.target.value)}><option value="">Minimi</option>{sellerFilterOptions.years.map((year) => <option key={`desktop-min-${year}`} value={year}>{year}</option>)}</select>
+                  <select value={yearMinFilter} aria-label="Vuosimallin minimi" onChange={(event) => setYearMinFilter(event.target.value)}><option value=""><UiText text={"Minimi"} /></option>{sellerFilterOptions.years.map((year) => <option key={`desktop-min-${year}`} value={year}>{year}</option>)}</select>
                   <i aria-hidden="true">–</i>
-                  <select value={yearMaxFilter} aria-label="Vuosimallin maksimi" onChange={(event) => setYearMaxFilter(event.target.value)}><option value="">Maksimi</option>{sellerFilterOptions.years.map((year) => <option key={`desktop-max-${year}`} value={year}>{year}</option>)}</select>
+                  <select value={yearMaxFilter} aria-label="Vuosimallin maksimi" onChange={(event) => setYearMaxFilter(event.target.value)}><option value=""><UiText text={"Maksimi"} /></option>{sellerFilterOptions.years.map((year) => <option key={`desktop-max-${year}`} value={year}>{year}</option>)}</select>
                 </div>
               </label>}
               {sellerListingMode === "vehicles" && <>
@@ -3213,7 +3214,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
         </section>
 
         {sellerListingMode !== "parts" && sellerFilterOptions.colors.length > 0 && <section id="seller-desktop-filter-colors" className={homeStyles.desktopFullSection}>
-          <header><h2>Värisävy</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          <header><h2><UiText text={"Värisävy"} /></h2><ChevronUp size={20} aria-hidden="true" /></header>
           <div className={`${homeStyles.desktopFullBox} ${homeStyles.desktopColorOptions}`}>
             {sellerFilterOptions.colors.map((color) => {
               const selected = vehicleColorsFilter.includes(color);
@@ -3224,11 +3225,11 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
         </section>}
 
         <section id="seller-desktop-filter-other" className={homeStyles.desktopFullSection}>
-          <header><h2>Hinta ja järjestys</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          <header><h2><UiText text={"Hinta ja järjestys"} /></h2><ChevronUp size={20} aria-hidden="true" /></header>
           <div className={homeStyles.desktopFullBox}>
             <div className={homeStyles.desktopFullFieldGrid}>
               <label className={homeStyles.desktopFullField}>
-                <span>Hintaväli (€)</span>
+                <span><UiText text={"Hintaväli (€)"} /></span>
                 <div className={premiumStyles.profileDesktopRangePair}>
                   <input inputMode="numeric" value={vehiclePriceMinFilter} placeholder="Minimi" aria-label="Hinnan minimi" onChange={(event) => setVehiclePriceMinFilter(event.target.value.replace(/\D/g, ""))} />
                   <i aria-hidden="true">–</i>
@@ -3236,13 +3237,13 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 </div>
               </label>
               <label className={homeStyles.desktopFullField}>
-                <span>Järjestä</span>
+                <span><UiText text={"Järjestä"} /></span>
                 <select value={listingSort} onChange={(event) => setListingSort(event.target.value as ListingSort)}>
-                  <option value="relevance">Osuvimmat ensin</option>
-                  <option value="newest">Uusimmat ensin</option>
-                  <option value="oldest">Vanhimmat ensin</option>
-                  <option value="priceAsc">Edullisin ensin</option>
-                  <option value="priceDesc">Kallein ensin</option>
+                  <option value="relevance"><UiText text={"Osuvimmat ensin"} /></option>
+                  <option value="newest"><UiText text={"Uusimmat ensin"} /></option>
+                  <option value="oldest"><UiText text={"Vanhimmat ensin"} /></option>
+                  <option value="priceAsc"><UiText text={"Edullisin ensin"} /></option>
+                  <option value="priceDesc"><UiText text={"Kallein ensin"} /></option>
                 </select>
               </label>
             </div>
@@ -3336,7 +3337,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             </div>
           </div>}
           {storefrontVehicleSubtypes.length > 0 && <div className={homeStyles.desktopFullBox}>
-            <h3>Ajoneuvotyypin tarkennus</h3>
+            <h3><UiText text={"Ajoneuvotyypin tarkennus"} /></h3>
             <div className={homeStyles.desktopFullFieldGrid}>
               <ProfileDesktopSelect label="Tyyppi" value={storefrontVehicleSubtype} allLabel="Kaikki tyypit" options={storefrontVehicleSubtypes} onChange={(value) => { setStorefrontVehicleSubtype(value); setStorefrontBrand(""); setStorefrontModel(""); }} />
             </div>
@@ -3370,17 +3371,17 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
         </section>}
 
         <section id="storefront-desktop-filter-technical" className={homeStyles.desktopFullSection}>
-          <header><h2>Mitat ja tekniset tiedot</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          <header><h2><UiText text={"Mitat ja tekniset tiedot"} /></h2><ChevronUp size={20} aria-hidden="true" /></header>
           <div className={homeStyles.desktopFullBox}>
             <div className={homeStyles.desktopFullFieldGrid}>
               <ProfileDesktopSelect label="Merkki" value={storefrontBrand} allLabel="Kaikki merkit" options={storefrontBrands} onChange={(value) => { setStorefrontBrand(value); setStorefrontModel(""); }} />
               <ProfileDesktopSelect label="Malli" value={storefrontModel} allLabel="Kaikki mallit" options={storefrontModels} onChange={setStorefrontModel} />
               {storefrontTechnicalOptions.years.length > 0 && <label className={homeStyles.desktopFullField}>
-                <span>Vuosimalli</span>
+                <span><UiText text={"Vuosimalli"} /></span>
                 <div className={premiumStyles.profileDesktopRangePair}>
-                  <select value={storefrontYearMin} aria-label="Vuosimallin minimi" onChange={(event) => setStorefrontYearMin(event.target.value)}><option value="">Minimi</option>{storefrontTechnicalOptions.years.map((year) => <option key={`storefront-desktop-min-${year}`} value={year}>{year}</option>)}</select>
+                  <select value={storefrontYearMin} aria-label="Vuosimallin minimi" onChange={(event) => setStorefrontYearMin(event.target.value)}><option value=""><UiText text={"Minimi"} /></option>{storefrontTechnicalOptions.years.map((year) => <option key={`storefront-desktop-min-${year}`} value={year}>{year}</option>)}</select>
                   <i aria-hidden="true">–</i>
-                  <select value={storefrontYearMax} aria-label="Vuosimallin maksimi" onChange={(event) => setStorefrontYearMax(event.target.value)}><option value="">Maksimi</option>{storefrontTechnicalOptions.years.map((year) => <option key={`storefront-desktop-max-${year}`} value={year}>{year}</option>)}</select>
+                  <select value={storefrontYearMax} aria-label="Vuosimallin maksimi" onChange={(event) => setStorefrontYearMax(event.target.value)}><option value=""><UiText text={"Maksimi"} /></option>{storefrontTechnicalOptions.years.map((year) => <option key={`storefront-desktop-max-${year}`} value={year}>{year}</option>)}</select>
                 </div>
               </label>}
               <ProfileDesktopSelect label="Moottoritilavuus (cm³)" value={storefrontEngineCc} allLabel="Kaikki koot" options={storefrontTechnicalOptions.engineCcs} onChange={setStorefrontEngineCc} />
@@ -3390,11 +3391,11 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
         </section>
 
         <section id="storefront-desktop-filter-other" className={homeStyles.desktopFullSection}>
-          <header><h2>Hinta, toimitus ja järjestys</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          <header><h2><UiText text={"Hinta, toimitus ja järjestys"} /></h2><ChevronUp size={20} aria-hidden="true" /></header>
           <div className={homeStyles.desktopFullBox}>
             <div className={homeStyles.desktopFullFieldGrid}>
               <label className={homeStyles.desktopFullField}>
-                <span>Hintaväli (€)</span>
+                <span><UiText text={"Hintaväli (€)"} /></span>
                 <div className={premiumStyles.profileDesktopRangePair}>
                   <input inputMode="numeric" value={storefrontPriceMin} placeholder="Minimi" aria-label="Hinnan minimi" onChange={(event) => setStorefrontPriceMin(event.target.value.replace(/\D/g, ""))} />
                   <i aria-hidden="true">–</i>
@@ -3402,11 +3403,11 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 </div>
               </label>
               {(storefrontDeliveryOptions.pickup > 0 || storefrontDeliveryOptions.posti > 0) && <label className={homeStyles.desktopFullField}>
-                <span>Toimitustapa</span>
-                <select value={storefrontDelivery} onChange={(event) => setStorefrontDelivery(event.target.value as typeof storefrontDelivery)}><option value="all">Kaikki toimitustavat</option>{storefrontDeliveryOptions.pickup > 0 && <option value="pickup">Nouto</option>}{storefrontDeliveryOptions.posti > 0 && <option value="posti">Posti</option>}</select>
+                <span><UiText text={"Toimitustapa"} /></span>
+                <select value={storefrontDelivery} onChange={(event) => setStorefrontDelivery(event.target.value as typeof storefrontDelivery)}><option value="all"><UiText text={"Kaikki toimitustavat"} /></option>{storefrontDeliveryOptions.pickup > 0 && <option value="pickup"><UiText text={"Nouto"} /></option>}{storefrontDeliveryOptions.posti > 0 && <option value="posti"><UiText text={"Posti"} /></option>}</select>
               </label>}
               <label className={homeStyles.desktopFullField}>
-                <span>Järjestä</span>
+                <span><UiText text={"Järjestä"} /></span>
                 <select value={storefrontSort} onChange={(event) => setStorefrontSort(event.target.value as StorefrontSort)}>{storefrontSortOptions.map((option) => <option key={`storefront-desktop-sort-${option.value}`} value={option.value}>{option.label}</option>)}</select>
               </label>
             </div>
@@ -3530,9 +3531,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
           {currentUserId === resolvedSellerId && isCompany && (
             <div className="seller-ref-follow-row">
               <Link className="seller-ref-follow-button" href="/yritys">
-                <Cog size={15} />
-                Muokkaa yrityssivua
-              </Link>
+                <Cog size={15} /><UiText text={"Muokkaa yrityssivua"} /></Link>
             </div>
           )}
 
@@ -3705,8 +3704,8 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               </header>
               <section className={`${commerceStyles.companyTrustStrip} ${commerceStyles.companyTrustStripTop}`} aria-label={sft("Kaupankäynnin edut")}>
                 <div><Truck size={22} /><span><strong>{sft("Joustava toimitus")}</strong><small>{sft("Nouto tai toimitus tuotteen mukaan")}</small></span></div>
-                <div><CreditCard size={22} /><span><strong>{sft("Turvallinen maksaminen")}</strong><small>{sft("Maksu suojatun kassapalvelun kautta")}</small></span></div>
-                <div><PackageCheck size={22} /><span><strong>{sft("Ajantasainen varasto")}</strong><small>{companyInventoryCount} {sft("kappaletta saatavilla")}</small></span></div>
+                <div><CreditCard size={22} /><span><strong>{marketplaceCopy[locale].paymentTitle}</strong><small>{storefrontPaymentCopy(locale, immediatePurchaseCount, inquiryListingCount)}</small></span></div>
+                <div><PackageCheck size={22} /><span><strong>{storefrontItemViews.length} · {marketplaceCopy[locale].inventoryTitle}</strong><small>{marketplaceCopy[locale].inventoryHint}</small></span></div>
               </section>
               {companyPromoEnabled && <div
                 className={`${commerceStyles.companyFreeShippingBanner}${companyPromoImage ? ` ${commerceStyles.companyFreeShippingBannerWithImage}` : ""}`}
@@ -3916,19 +3915,19 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                           <Link className={commerceStyles.companyProductImage} href={itemHref}>
                             {product.image_urls?.[0] ? <img src={product.image_urls[0]} alt={product.name} loading="lazy" /> : listing ? <img src={listingImageSrc(listing, index)} alt={product.name} loading="lazy" /> : <span><ShoppingBag size={44} /></span>}
                           </Link>
-                          {activeSaleDiscountPercent(product) > 0 && <span className={commerceStyles.companyProductSaleBadge}>ALE −{activeSaleDiscountPercent(product)} %</span>}
+                          {activeSaleDiscountPercent(product) > 0 && <span className={commerceStyles.companyProductSaleBadge}><UiText text={"ALE −"} />{activeSaleDiscountPercent(product)} %</span>}
                           <button type="button" className={isSaved ? commerceStyles.companyProductFavoriteActive : commerceStyles.companyProductFavorite} aria-label={isSaved ? "Poista suosikeista" : "Lisää suosikkeihin"} aria-pressed={isSaved} onClick={() => toggleSavedCommerceProduct(product.id)}><Heart size={19} fill={isSaved ? "currentColor" : "none"} /></button>
                         </div>
                         <div className={commerceStyles.companyProductBody}>
                           <div className={commerceStyles.companyProductEyebrow}>
                             <span>{item.category}</span>
-                            {product.stock_quantity > 3 && <span>Varastossa</span>}
+                            {product.stock_quantity > 3 && <span><UiText text={"Varastossa"} /></span>}
                           </div>
                           <Link href={itemHref}><h3>{product.name}</h3></Link>
                           {(item.brand || item.model || item.year) && <p className={commerceStyles.companyProductFitment}>{[item.brand, item.model, item.year].filter(Boolean).join(" · ")}</p>}
-                          <div className={commerceStyles.companyProductPrice}>{activeSalePrice(product) < product.price_cents && <del>{formatFromEur(product.price_cents / 100)}</del>}<strong>{formatFromEur(activeSalePrice(product) / 100)}</strong>{Number(product.vat_rate) > 0 && <small>Sis. ALV {product.vat_rate}%</small>}</div>
+                          <div className={commerceStyles.companyProductPrice}>{activeSalePrice(product) < product.price_cents && <del>{formatFromEur(product.price_cents / 100)}</del>}<strong>{formatFromEur(activeSalePrice(product) / 100)}</strong>{Number(product.vat_rate) > 0 && <small><UiText text={"Sis. ALV "} />{product.vat_rate}%</small>}</div>
                           <div className={commerceStyles.companyProductActions}>
-                            <button type="button" onClick={() => addCommerceProduct(product)}><strong>Lisää ostoskoriin</strong><span><ShoppingCart size={18} /></span></button>
+                            <button type="button" onClick={() => addCommerceProduct(product)}><strong><UiText text={"Lisää ostoskoriin"} /></strong><span><ShoppingCart size={18} /></span></button>
                           </div>
                         </div>
                       </article>
@@ -3965,49 +3964,49 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               <div className={commerceStyles.companyDetailsLayout}>
               <div className={commerceStyles.companyDetailsPrimary}>
               <header className={commerceStyles.companyDetailsHeader}>
-                <div><h2>Yrityksen tiedot</h2><p>Kaikki tärkeät tiedot yrityksestämme.</p></div>
-                {currentUserId === resolvedSellerId && <Link className={commerceStyles.companyDetailsEditAction} href="/yritys?tab=appearance#yrityssivun-tekstit"><Cog size={16} /> Muokkaa tietoja</Link>}
+                <div><h2><UiText text={"Yrityksen tiedot"} /></h2><p><UiText text={"Kaikki tärkeät tiedot yrityksestämme."} /></p></div>
+                {currentUserId === resolvedSellerId && <Link className={commerceStyles.companyDetailsEditAction} href="/yritys?tab=appearance#yrityssivun-tekstit"><Cog size={16} /><UiText text={" Muokkaa tietoja"} /></Link>}
               </header>
               <section className={commerceStyles.companyDetailsGrid}>
                 <article className={commerceStyles.companyDetailsAboutCard}>
-                  <h3>Tietoa yrityksestä</h3>
+                  <h3><UiText text={"Tietoa yrityksestä"} /></h3>
                   <p>{storefront?.description?.trim() || profile?.bio?.trim() || `${sellerName} on tuotteisiin ja varaosiin erikoistunut suomalainen yritys. Tarjoamme laajan valikoiman laadukkaita tuotteita sekä asiantuntevaa palvelua yksityisille ja yritysasiakkaille.`}</p>
                   <div className={commerceStyles.companyDetailsFacts}>
-                    {companyFoundedYear && <span><CalendarDays size={18} /><small>Perustettu</small><strong>{companyFoundedYear}</strong></span>}
-                    {(storefront?.business_id || profile?.business_id?.trim()) && <span><Tag size={18} /><small>Y-tunnus</small><strong>{storefront?.business_id || profile?.business_id?.trim()}</strong></span>}
+                    {companyFoundedYear && <span><CalendarDays size={18} /><small><UiText text={"Perustettu"} /></small><strong>{companyFoundedYear}</strong></span>}
+                    {(storefront?.business_id || profile?.business_id?.trim()) && <span><Tag size={18} /><small><UiText text={"Y-tunnus"} /></small><strong>{storefront?.business_id || profile?.business_id?.trim()}</strong></span>}
                   </div>
                 </article>
 
                 <article className={commerceStyles.companyDetailsContactCard} id="yrityksen-yhteystiedot">
-                  <h3>Yhteystiedot</h3>
+                  <h3><UiText text={"Yhteystiedot"} /></h3>
                   <div>
                     <dl>
-                      {companyPublicAddress && <div><dt><MapPin size={16} /> Osoite</dt><dd>{companyPublicAddress}</dd></div>}
-                      {companyPublicPhone && <div><dt><MessageCircle size={16} /> Puhelin</dt><dd><a href={`tel:${companyPublicPhone.replace(/[^\d+]/g, "")}`}>{companyPublicPhone}</a></dd></div>}
-                      {companyPublicEmail && <div><dt><MessageCircle size={16} /> Sähköposti</dt><dd><a href={`mailto:${companyPublicEmail}`}>{companyPublicEmail}</a></dd></div>}
+                      {companyPublicAddress && <div><dt><MapPin size={16} /><UiText text={" Osoite"} /></dt><dd>{companyPublicAddress}</dd></div>}
+                      {companyPublicPhone && <div><dt><MessageCircle size={16} /><UiText text={" Puhelin"} /></dt><dd><a href={`tel:${companyPublicPhone.replace(/[^\d+]/g, "")}`}>{companyPublicPhone}</a></dd></div>}
+                      {companyPublicEmail && <div><dt><MessageCircle size={16} /><UiText text={" Sähköposti"} /></dt><dd><a href={`mailto:${companyPublicEmail}`}>{companyPublicEmail}</a></dd></div>}
                     </dl>
                     <dl>
-                      <div><dt><Clock3 size={16} /> Asiakaspalvelu</dt><dd>Sopimuksen mukaan</dd></div>
-                      {companyWebsite && <div><dt><Globe2 size={16} /> Verkkosivusto</dt><dd><a href={companyWebsite.href} target="_blank" rel="noreferrer">{companyWebsite.label}</a></dd></div>}
-                      <div><dt><MessageCircle size={16} /> Vastausaika</dt><dd>Ota yhteyttä yritykseen</dd></div>
+                      <div><dt><Clock3 size={16} /><UiText text={" Asiakaspalvelu"} /></dt><dd><UiText text={"Sopimuksen mukaan"} /></dd></div>
+                      {companyWebsite && <div><dt><Globe2 size={16} /><UiText text={" Verkkosivusto"} /></dt><dd><a href={companyWebsite.href} target="_blank" rel="noreferrer">{companyWebsite.label}</a></dd></div>}
+                      <div><dt><MessageCircle size={16} /><UiText text={" Vastausaika"} /></dt><dd><UiText text={"Ota yhteyttä yritykseen"} /></dd></div>
                     </dl>
                   </div>
                 </article>
 
                 <article className={commerceStyles.companyDetailsCommerceCard}>
-                  <h3>Toimitus ja maksaminen</h3>
+                  <h3><UiText text={"Toimitus ja maksaminen"} /></h3>
                   <div>
                     <section>
-                      <strong>Toimitustavat</strong>
-                      {storefrontDeliveryOptions.posti > 0 && <span><Check size={15} /> Posti</span>}
-                      {storefrontDeliveryOptions.pickup > 0 && <span><Check size={15} /> Nouto paikan päältä</span>}
-                      {storefrontDeliveryOptions.posti === 0 && storefrontDeliveryOptions.pickup === 0 && <span>Toimitustapa sovitaan tuotekohtaisesti</span>}
+                      <strong><UiText text={"Toimitustavat"} /></strong>
+                      {storefrontDeliveryOptions.posti > 0 && <span><Check size={15} /><UiText text={" Posti"} /></span>}
+                      {storefrontDeliveryOptions.pickup > 0 && <span><Check size={15} /><UiText text={" Nouto paikan päältä"} /></span>}
+                      {storefrontDeliveryOptions.posti === 0 && storefrontDeliveryOptions.pickup === 0 && <span><UiText text={"Toimitustapa sovitaan tuotekohtaisesti"} /></span>}
                     </section>
                     <section>
-                      <strong>Maksutavat</strong>
-                      {commerceProductViews.length > 0 && <span><Check size={15} /> Korttimaksu Maskinesin kautta</span>}
-                      {inquiryListingCount > 0 && <span><Check size={15} /> Maksutapa sovitaan myyjän kanssa</span>}
-                      {commerceProductViews.length === 0 && inquiryListingCount === 0 && <span>Ei maksutapoja ilmoitettu</span>}
+                      <strong><UiText text={"Maksutavat"} /></strong>
+                      {commerceProductViews.length > 0 && <span><Check size={15} /><UiText text={" Korttimaksu Maskinesin kautta"} /></span>}
+                      {inquiryListingCount > 0 && <span><Check size={15} /><UiText text={" Maksutapa sovitaan myyjän kanssa"} /></span>}
+                      {commerceProductViews.length === 0 && inquiryListingCount === 0 && <span><UiText text={"Ei maksutapoja ilmoitettu"} /></span>}
                     </section>
                   </div>
                 </article>
@@ -4020,22 +4019,22 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     <div className={commerceStyles.companyDetailsSidebarLogo}>
                       {showSellerAvatar ? <img src={sellerAvatarUrl} alt={`${sellerName} logo`} onError={() => setAvatarFailed(true)} /> : <strong>{sellerInitial}</strong>}
                     </div>
-                    <div><h3>{sellerName}</h3><span><Shield size={14} /> Vahvistettu yritys</span></div>
+                    <div><h3>{sellerName}</h3><span><Shield size={14} /><UiText text={" Vahvistettu yritys"} /></span></div>
                   </header>
                   <dl>
-                    {(storefront?.city || sellerLocation) && <div><dt><MapPin size={17} /> Sijainti</dt><dd>{storefront?.city || sellerLocation}, {storefront?.country || "FI"}</dd></div>}
-                    {companyFoundedYear && <div><dt><CalendarDays size={17} /> Liittynyt Maskinesiin</dt><dd>{companyFoundedYear}</dd></div>}
-                    {(storefront?.business_id || profile?.business_id?.trim()) && <div><dt><Tag size={17} /> Y-tunnus</dt><dd>{storefront?.business_id || profile?.business_id?.trim()}</dd></div>}
-                    {companyPublicEmail && <div><dt><MessageCircle size={17} /> Sähköposti</dt><dd><a href={`mailto:${companyPublicEmail}`}>{companyPublicEmail}</a></dd></div>}
-                    {companyPublicPhone && <div><dt><Clock3 size={17} /> Puhelin</dt><dd><a href={`tel:${companyPublicPhone.replace(/[^\d+]/g, "")}`}>{companyPublicPhone}</a></dd></div>}
+                    {(storefront?.city || sellerLocation) && <div><dt><MapPin size={17} /><UiText text={" Sijainti"} /></dt><dd>{storefront?.city || sellerLocation}, {storefront?.country || "FI"}</dd></div>}
+                    {companyFoundedYear && <div><dt><CalendarDays size={17} /><UiText text={" Liittynyt Maskinesiin"} /></dt><dd>{companyFoundedYear}</dd></div>}
+                    {(storefront?.business_id || profile?.business_id?.trim()) && <div><dt><Tag size={17} /><UiText text={" Y-tunnus"} /></dt><dd>{storefront?.business_id || profile?.business_id?.trim()}</dd></div>}
+                    {companyPublicEmail && <div><dt><MessageCircle size={17} /><UiText text={" Sähköposti"} /></dt><dd><a href={`mailto:${companyPublicEmail}`}>{companyPublicEmail}</a></dd></div>}
+                    {companyPublicPhone && <div><dt><Clock3 size={17} /><UiText text={" Puhelin"} /></dt><dd><a href={`tel:${companyPublicPhone.replace(/[^\d+]/g, "")}`}>{companyPublicPhone}</a></dd></div>}
                   </dl>
                 </article>
 
                 <article className={commerceStyles.companyDetailsTrustCard}>
-                  <h3>Maskinesin luottamuslupaus</h3>
-                  <span><Shield size={22} /><span><strong>Turvallinen kauppa</strong><small>Kauppasi on suojattu Maskinesin palvelussa.</small></span></span>
-                  <span><MessageCircle size={22} /><span><strong>Suomalainen tuki</strong><small>Asiakaspalvelu palvelee sinua suomeksi.</small></span></span>
-                  <span><PackageCheck size={22} /><span><strong>14 päivän palautusoikeus</strong><small>Palauta tuote helposti 14 päivän sisällä.</small></span></span>
+                  <h3>{marketplaceCopy[locale].tradeTitle}</h3>
+                  <span><Shield size={22} /><span><strong>{marketplaceCopy[locale].protectionTitle}</strong><small>{marketplaceCopy[locale].protection}</small></span></span>
+                  <span><MessageCircle size={22} /><span><strong><UiText text={"Suomalainen tuki"} /></strong><small><UiText text={"Asiakaspalvelu palvelee sinua suomeksi."} /></small></span></span>
+                  <span><PackageCheck size={22} /><span><strong>{marketplaceCopy[locale].returnsTitle}</strong><small>{marketplaceCopy[locale].returns}</small></span></span>
                 </article>
               </aside>
               </div>
@@ -4046,10 +4045,10 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 <main className={commerceStyles.companyReviewMain}>
                   <section className={commerceStyles.companyReviewDashboard} aria-label="Arvostelujen yhteenveto">
                     <div className={commerceStyles.companyReviewOverviewScore}>
-                      <span>Arvostelut yhteensä</span>
+                      <span><UiText text={"Arvostelut yhteensä"} /></span>
                       <strong>{reviews.length ? averageRating.toFixed(1) : "–"}<small>/ 5</small></strong>
                       <div>{renderAverageRatingStars(averageRating, 25)}</div>
-                      <p>{visibleReviewCount} arvostelua</p>
+                      <p>{visibleReviewCount}<UiText text={" arvostelua"} /></p>
                     </div>
                     <div className={commerceStyles.companyReviewBars} aria-label="Arvosanojen jakauma">
                       {[5, 4, 3, 2, 1].map((rating) => {
@@ -4060,38 +4059,38 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     </div>
                   </section>
                   <div className={commerceStyles.companyReviewFilters}>
-                    <label><select aria-label="Järjestä arvostelut" defaultValue="newest"><option value="newest">Uusimmat ensin</option><option value="oldest">Vanhimmat ensin</option><option value="best">Parhaat ensin</option></select><ChevronDown size={14} /></label>
+                    <label><select aria-label="Järjestä arvostelut" defaultValue="newest"><option value="newest"><UiText text={"Uusimmat ensin"} /></option><option value="oldest"><UiText text={"Vanhimmat ensin"} /></option><option value="best"><UiText text={"Parhaat ensin"} /></option></select><ChevronDown size={14} /></label>
                   </div>
                   <div className={commerceStyles.companyReviewList}>
                     {reviews.length ? reviews.map((review) => <article key={review.id}>
-                      <div className={commerceStyles.companyReviewPerson}><span className={commerceStyles.companyReviewAvatar}>{getReviewInitials(review.reviewer_name)}</span><span><strong>{review.reviewer_name}</strong><small><Check size={12} /> Maskines-käyttäjä</small></span></div>
+                      <div className={commerceStyles.companyReviewPerson}><span className={commerceStyles.companyReviewAvatar}>{getReviewInitials(review.reviewer_name)}</span><span><strong>{review.reviewer_name}</strong><small><Check size={12} /><UiText text={" Maskines-käyttäjä"} /></small></span></div>
                       <div className={commerceStyles.companyReviewContent}>
                         <header><span className={commerceStyles.companyReviewStars}>{renderReviewStars(review.rating, 16)}</span><strong>{review.rating >= 5 ? "Kaikki toimi loistavasti" : review.rating >= 4 ? "Hyvä kokemus" : review.rating >= 3 ? "Asiallinen kokemus" : "Kokemus kaupasta"}</strong></header>
                         <p>{review.comment}</p>
                       </div>
                       <time>{formatListingDate(review.created_at, locale)}</time>
-                    </article>) : <div className={commerceStyles.companyReviewEmptyLarge}><Star size={30} /><strong>Ei vielä arvosteluja</strong><p>Ole ensimmäinen, joka kertoo kokemuksensa tästä myyjästä.</p></div>}
+                    </article>) : <div className={commerceStyles.companyReviewEmptyLarge}><Star size={30} /><strong><UiText text={"Ei vielä arvosteluja"} /></strong><p><UiText text={"Ole ensimmäinen, joka kertoo kokemuksensa tästä myyjästä."} /></p></div>}
                   </div>
                 </main>
                 <aside className={commerceStyles.companyReviewSidebar} aria-label="Yrityksen arvostelutiedot">
                   <article className={commerceStyles.companyReviewCompanyCard}>
-                    <header><div className={commerceStyles.companyReviewCompanyLogo}>{showSellerAvatar ? <img src={sellerAvatarUrl} alt={`${sellerName} logo`} /> : <strong>{sellerInitial}</strong>}</div><div><h3>{sellerName}</h3><span><Shield size={13} /> Vahvistettu yritys</span></div></header>
+                    <header><div className={commerceStyles.companyReviewCompanyLogo}>{showSellerAvatar ? <img src={sellerAvatarUrl} alt={`${sellerName} logo`} /> : <strong>{sellerInitial}</strong>}</div><div><h3>{sellerName}</h3><span><Shield size={13} /><UiText text={" Vahvistettu yritys"} /></span></div></header>
                     <dl>
                       {(storefront?.city || sellerLocation) && <div><dt><MapPin size={17} /></dt><dd>{storefront?.city || sellerLocation}, {storefront?.country || "FI"}</dd></div>}
-                      {(storefront?.business_id || profile?.business_id?.trim()) && <div><dt><CalendarDays size={17} /></dt><dd>Y-tunnus: {storefront?.business_id || profile?.business_id?.trim()}</dd></div>}
+                      {(storefront?.business_id || profile?.business_id?.trim()) && <div><dt><CalendarDays size={17} /></dt><dd><UiText text={"Y-tunnus: "} />{storefront?.business_id || profile?.business_id?.trim()}</dd></div>}
                       {companyPublicEmail && <div><dt><MessageCircle size={17} /></dt><dd>{companyPublicEmail}</dd></div>}
                       {companyPublicPhone && <div><dt><Phone size={17} /></dt><dd>{companyPublicPhone}</dd></div>}
                     </dl>
-                    <button type="button" onClick={() => setCompanyStoreView("details")}>Näytä kaikki yrityksen tiedot <ChevronRight size={16} /></button>
+                    <button type="button" onClick={() => setCompanyStoreView("details")}><UiText text={"Näytä kaikki yrityksen tiedot "} /><ChevronRight size={16} /></button>
                   </article>
                   <article className={commerceStyles.companyReviewTrustCard}>
-                    <h3>Arvostelujen luotettavuus</h3>
-                    <span><Shield size={23} /><span><strong>Kaikki kirjautuneet käyttäjät voivat arvostella</strong><small>Arvostelun voi jättää ilman aiempaa ostosta.</small></span></span>
-                    <span><PackageCheck size={23} /><span><strong>Selkeät yhteiset pelisäännöt</strong><small>Epäasialliset tai harhaanjohtavat arvostelut voidaan poistaa.</small></span></span>
-                    <span><UserCheck size={23} /><span><strong>Arvostelut eivät ole nimettömiä</strong><small>Arvostelu näytetään Maskines-käyttäjän nimellä.</small></span></span>
+                    <h3><UiText text={"Arvostelujen luotettavuus"} /></h3>
+                    <span><Shield size={23} /><span><strong><UiText text={"Kaikki kirjautuneet käyttäjät voivat arvostella"} /></strong><small><UiText text={"Arvostelun voi jättää ilman aiempaa ostosta."} /></small></span></span>
+                    <span><PackageCheck size={23} /><span><strong><UiText text={"Selkeät yhteiset pelisäännöt"} /></strong><small><UiText text={"Epäasialliset tai harhaanjohtavat arvostelut voidaan poistaa."} /></small></span></span>
+                    <span><UserCheck size={23} /><span><strong><UiText text={"Arvostelut eivät ole nimettömiä"} /></strong><small><UiText text={"Arvostelu näytetään Maskines-käyttäjän nimellä."} /></small></span></span>
                   </article>
                   <article className={commerceStyles.companyReviewWriteCard}>
-                    <h3>Jaa kokemuksesi</h3><p>Autat muita tekemään parempia päätöksiä. Ostoa ei vaadita.</p><button type="button" onClick={openPublicReviewForm}><Star size={19} /> Kirjoita arvostelu</button>{reviewFeedback && <small className={commerceStyles.companyReviewFeedback}>{reviewFeedback}</small>}
+                    <h3><UiText text={"Jaa kokemuksesi"} /></h3><p><UiText text={"Autat muita tekemään parempia päätöksiä. Ostoa ei vaadita."} /></p><button type="button" onClick={openPublicReviewForm}><Star size={19} /><UiText text={" Kirjoita arvostelu"} /></button>{reviewFeedback && <small className={commerceStyles.companyReviewFeedback}>{reviewFeedback}</small>}
                   </article>
                 </aside>
               </div>
@@ -4099,7 +4098,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
 
             {companyStoreView === "delivery" && <div className={commerceStyles.companyDeliveryView} id="yrityksen-toimitus">
               <header className={commerceStyles.companyDetailsHeader}>
-                <h2>Toimitus ja nouto</h2>
+                <h2><UiText text={"Toimitus ja nouto"} /></h2>
               </header>
               {companyPromoEnabled && <div className={commerceStyles.companyDeliveryBenefit}>
                 <Truck size={24} />
@@ -4109,29 +4108,29 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 </span>
               </div>}
               <section className={commerceStyles.companyDeliveryCards}>
-                <article><span><MapPin size={29} /></span><div><h3>Posti – noutopiste</h3><strong>{storefront?.default_shipping_price_fi_cents == null ? "4,90 €" : formatFromEur(storefront.default_shipping_price_fi_cents / 100)}</strong><dl><div><dt><Clock3 size={13} /> Arvioitu toimitusaika:</dt><dd>2–4 arkipäivää</dd></div><div><dt><Check size={13} /> Seuranta:</dt><dd>Sisältyy</dd></div></dl><p><b>Toimitusehdot:</b> Toimitus yli {companyFreeShippingThreshold} tilauksiin ilmainen.</p></div></article>
-                <article><span><Building2 size={29} /></span><div><h3>Posti – kotiinkuljetus</h3><strong>9,90 €</strong><dl><div><dt><Clock3 size={13} /> Arvioitu toimitusaika:</dt><dd>2–4 arkipäivää</dd></div><div><dt><Check size={13} /> Seuranta:</dt><dd>Sisältyy</dd></div></dl><p><b>Toimitusehdot:</b> Toimitus yli {companyFreeShippingThreshold} tilauksiin ilmainen.</p></div></article>
-                <article><span><Store size={29} /></span><div><h3>Nouto myymälästä</h3><strong>0,00 €</strong><dl><div><dt><Clock3 size={13} /> Arvioitu noutoaika:</dt><dd>1–2 arkipäivää</dd></div><div><dt><Check size={13} /> Seuranta:</dt><dd>Saat ilmoituksen</dd></div></dl><p><b>Toimitusehdot:</b> Tilauksen nouto mahdollinen, kun saat ilmoituksen.</p></div></article>
+                <article><span><MapPin size={29} /></span><div><h3><UiText text={"Posti – noutopiste"} /></h3><strong>{storefront?.default_shipping_price_fi_cents == null ? "4,90 €" : formatFromEur(storefront.default_shipping_price_fi_cents / 100)}</strong><dl><div><dt><Clock3 size={13} /><UiText text={" Arvioitu toimitusaika:"} /></dt><dd><UiText text={"2–4 arkipäivää"} /></dd></div><div><dt><Check size={13} /><UiText text={" Seuranta:"} /></dt><dd><UiText text={"Sisältyy"} /></dd></div></dl><p><b><UiText text={"Toimitusehdot:"} /></b><UiText text={" Toimitus yli "} />{companyFreeShippingThreshold}<UiText text={" tilauksiin ilmainen."} /></p></div></article>
+                <article><span><Building2 size={29} /></span><div><h3><UiText text={"Posti – kotiinkuljetus"} /></h3><strong>9,90 €</strong><dl><div><dt><Clock3 size={13} /><UiText text={" Arvioitu toimitusaika:"} /></dt><dd><UiText text={"2–4 arkipäivää"} /></dd></div><div><dt><Check size={13} /><UiText text={" Seuranta:"} /></dt><dd><UiText text={"Sisältyy"} /></dd></div></dl><p><b><UiText text={"Toimitusehdot:"} /></b><UiText text={" Toimitus yli "} />{companyFreeShippingThreshold}<UiText text={" tilauksiin ilmainen."} /></p></div></article>
+                <article><span><Store size={29} /></span><div><h3><UiText text={"Nouto myymälästä"} /></h3><strong>0,00 €</strong><dl><div><dt><Clock3 size={13} /><UiText text={" Arvioitu noutoaika:"} /></dt><dd><UiText text={"1–2 arkipäivää"} /></dd></div><div><dt><Check size={13} /><UiText text={" Seuranta:"} /></dt><dd><UiText text={"Saat ilmoituksen"} /></dd></div></dl><p><b><UiText text={"Toimitusehdot:"} /></b><UiText text={" Tilauksen nouto mahdollinen, kun saat ilmoituksen."} /></p></div></article>
               </section>
               <section className={commerceStyles.companyDeliveryProcess} aria-label="Toimitusprosessi">
-                <h3>Toimitusprosessi</h3>
+                <h3><UiText text={"Toimitusprosessi"} /></h3>
                 <div>
-                  <span><b>1</b><PackageCheck size={24} /><strong>Tilaus vastaanotettu</strong><small>Vahvistamme tilauksen ja aloitamme käsittelyn.</small></span>
-                  <span><b>2</b><ShoppingBag size={24} /><strong>Pakkaus</strong><small>Tuotteet kerätään ja pakataan huolellisesti.</small></span>
-                  <span><b>3</b><Truck size={24} /><strong>Kuljetuksessa</strong><small>Lähetys siirtyy kuljetukseen ja on matkalla perille.</small></span>
-                  <span><b>4</b><Building2 size={24} /><strong>Perillä</strong><small>Tilauksesi on saapunut perille.</small></span>
+                  <span><b>1</b><PackageCheck size={24} /><strong><UiText text={"Tilaus vastaanotettu"} /></strong><small><UiText text={"Vahvistamme tilauksen ja aloitamme käsittelyn."} /></small></span>
+                  <span><b>2</b><ShoppingBag size={24} /><strong><UiText text={"Pakkaus"} /></strong><small><UiText text={"Tuotteet kerätään ja pakataan huolellisesti."} /></small></span>
+                  <span><b>3</b><Truck size={24} /><strong><UiText text={"Kuljetuksessa"} /></strong><small><UiText text={"Lähetys siirtyy kuljetukseen ja on matkalla perille."} /></small></span>
+                  <span><b>4</b><Building2 size={24} /><strong><UiText text={"Perillä"} /></strong><small><UiText text={"Tilauksesi on saapunut perille."} /></small></span>
                 </div>
               </section>
               <section className={commerceStyles.companyDeliveryInfoGrid}>
-                <article><h3><Globe2 size={17} /> Toimitusalueet</h3><span><small>🇫🇮 Suomi</small><small>🇸🇪 Ruotsi</small></span><p>Toimitamme tällä hetkellä Suomeen ja Ruotsiin.</p></article>
-                <article><h3><Store size={17} /> Nouto myymälästä</h3><strong>{sellerName}</strong><p>{companyPublicAddress || storefront?.city || sellerLocation}</p><dl><div><dt>Ma–Pe</dt><dd>9.00–16.00</dd></div><div><dt>La</dt><dd>Suljettu</dd></div></dl></article>
-                <article><h3><RotateCcw size={17} /> Palautukset</h3><strong>14 päivän palautusoikeus</strong><p>Sinulla on 14 päivän palautusoikeus tuotteen vastaanottamisesta. Tuotteen tulee olla käyttämätön ja alkuperäispakkauksessa.</p><button type="button">Näytä palautusohjeet <ChevronRight size={14} /></button></article>
+                <article><h3><Globe2 size={17} /><UiText text={" Toimitusalueet"} /></h3><span><small><UiText text={"🇫🇮 Suomi"} /></small><small><UiText text={"🇸🇪 Ruotsi"} /></small></span><p><UiText text={"Toimitamme tällä hetkellä Suomeen ja Ruotsiin."} /></p></article>
+                <article><h3><Store size={17} /><UiText text={" Nouto myymälästä"} /></h3><strong>{sellerName}</strong><p>{companyPublicAddress || storefront?.city || sellerLocation}</p><dl><div><dt><UiText text={"Ma–Pe"} /></dt><dd>9.00–16.00</dd></div><div><dt><UiText text={"La"} /></dt><dd><UiText text={"Suljettu"} /></dd></div></dl></article>
+                <article><h3><RotateCcw size={17} />{marketplaceCopy[locale].returnsTitle}</h3><p>{marketplaceCopy[locale].returns}</p><Link href="/terms"><UiText text={"Käyttöehdot"} /><ChevronRight size={14} /></Link></article>
               </section>
               <section className={commerceStyles.companyDeliveryFaq}>
-                <h3>Usein kysytyt kysymykset</h3>
-                <button type="button"><span>Kuinka kauan toimitus kestää?</span><ChevronRight size={16} /></button>
-                <button type="button"><span>Mistä näen seurannan?</span><ChevronRight size={16} /></button>
-                <button type="button"><span>Voinko muuttaa toimitusosoitetta?</span><ChevronRight size={16} /></button>
+                <h3><UiText text={"Usein kysytyt kysymykset"} /></h3>
+                <button type="button"><span><UiText text={"Kuinka kauan toimitus kestää?"} /></span><ChevronRight size={16} /></button>
+                <button type="button"><span><UiText text={"Mistä näen seurannan?"} /></span><ChevronRight size={16} /></button>
+                <button type="button"><span><UiText text={"Voinko muuttaa toimitusosoitetta?"} /></span><ChevronRight size={16} /></button>
               </section>
             </div>}
             </div>
@@ -4173,14 +4172,14 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             />
             <aside className="sp-filter-panel" id="seller-profile-filter-panel" aria-label="Suodata ilmoituksia">
               <div className="sp-filter-panel-head">
-                <strong>Suodata hakua</strong>
+                <strong><UiText text={"Suodata hakua"} /></strong>
                 <button type="button" aria-label="Sulje suodattimet" onClick={() => setSellerFilterPanelOpen(false)}>
                   <CircleX size={20} aria-hidden="true" />
                 </button>
               </div>
 
               <label className="sp-filter-field">
-                <span>Ajoneuvolaji</span>
+                <span><UiText text={"Ajoneuvolaji"} /></span>
                 <SellerFilterSelect
                   value={vehicleTypeFilter}
                   placeholder="Kaikki ajoneuvot"
@@ -4196,7 +4195,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               </label>
 
               <label className="sp-filter-field">
-                <span>Tyyppi</span>
+                <span><UiText text={"Tyyppi"} /></span>
                 <SellerFilterSelect
                   value={vehicleSubtypeFilter}
                   placeholder="Kaikki tyypit"
@@ -4206,7 +4205,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               </label>
 
               <label className="sp-filter-field">
-                <span>Merkki</span>
+                <span><UiText text={"Merkki"} /></span>
                 <SellerFilterSelect
                   value={brandFilter}
                   placeholder="Kaikki merkit"
@@ -4219,7 +4218,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               </label>
 
               <label className="sp-filter-field sp-filter-field-compact">
-                <span>Malli</span>
+                <span><UiText text={"Malli"} /></span>
                 <SellerFilterSelect
                   value={modelFilter}
                   placeholder="Kaikki mallit"
@@ -4229,7 +4228,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               </label>
 
               <div className="sp-filter-field">
-                <span>Vuosimalli</span>
+                <span><UiText text={"Vuosimalli"} /></span>
                 <div className="sp-filter-year-row sp-filter-year-row-inline">
                   <SellerFilterSelect
                     value={yearMinFilter}
@@ -4287,7 +4286,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               </div>
 
               <label className="sp-filter-field">
-                <span>Moottoritilavuus (cm3)</span>
+                <span><UiText text={"Moottoritilavuus (cm3)"} /></span>
                 <SellerFilterSelect
                   value={engineCcFilter}
                   placeholder="Kaikki koot"
@@ -4296,10 +4295,10 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 />
               </label>
 
-              <div className="sp-filter-section-title">Osakategoriointi</div>
+              <div className="sp-filter-section-title"><UiText text={"Osakategoriointi"} /></div>
 
               <label className="sp-filter-field">
-                <span>Pääkategoria</span>
+                <span><UiText text={"Pääkategoria"} /></span>
                 <SellerFilterSelect
                   value={categoryFilter}
                   placeholder="Valitse pääkategoria"
@@ -4314,7 +4313,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               </label>
 
               <label className="sp-filter-field">
-                <span>Alakategoria</span>
+                <span><UiText text={"Alakategoria"} /></span>
                 <SellerFilterSelect
                   value={subcategoryParentFilter}
                   placeholder="Valitse alakategoria"
@@ -4328,7 +4327,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               </label>
 
               <label className="sp-filter-field">
-                <span>Tarkempi osa</span>
+                <span><UiText text={"Tarkempi osa"} /></span>
                 <SellerFilterSelect
                   value={subcategoryFilter}
                   placeholder="Valitse tarkempi osa"
@@ -4346,12 +4345,9 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                   setSellerFilterPanelOpen(false);
                   setSellerListingPage(1);
                 }}
-              >
-                Näytä tulokset ({filteredListings.length})
+              ><UiText text={"Näytä tulokset ("} />{filteredListings.length})
               </button>
-              <button type="button" className="sp-filter-clear" onClick={resetListingFilters}>
-                Tyhjennä hakuehdot
-              </button>
+              <button type="button" className="sp-filter-clear" onClick={resetListingFilters}><UiText text={"Tyhjennä hakuehdot"} /></button>
               </div>
             </aside>
           </>
@@ -4397,9 +4393,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                   <div className="seller-profile-section-actions">
                     {hasAdvancedFilters && (
                       <button type="button" className="seller-profile-reset-filters" onClick={resetListingFilters}>
-                        <RotateCcw size={14} aria-hidden="true" />
-                        Nollaa suodatukset
-                      </button>
+                        <RotateCcw size={14} aria-hidden="true" /><UiText text={"Nollaa suodatukset"} /></button>
                     )}
                     <button
                       type="button"
@@ -4672,10 +4666,10 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
 
                   {sellerListingMode === "parts" && trackMatDimensionsVisible && (
                     <fieldset ref={sellerTrackMatDimensionsRef} className="seller-track-mat-dimensions">
-                      <legend>Telamaton mitat</legend>
+                      <legend><UiText text={"Telamaton mitat"} /></legend>
                       <div className="seller-track-mat-dimension-fields">
                         <label>
-                          <span>Pituus (cm)</span>
+                          <span><UiText text={"Pituus (cm)"} /></span>
                           <input
                             type="text"
                             inputMode="decimal"
@@ -4684,9 +4678,9 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                             placeholder="esim. 345"
                           />
                         </label>
-                        <span aria-hidden="true">×</span>
+                        <span aria-hidden="true"><UiText text={"×"} /></span>
                         <label>
-                          <span>Leveys (cm)</span>
+                          <span><UiText text={"Leveys (cm)"} /></span>
                           <input
                             type="text"
                             inputMode="decimal"
@@ -4695,9 +4689,9 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                             placeholder="esim. 38"
                           />
                         </label>
-                        <span aria-hidden="true">×</span>
+                        <span aria-hidden="true"><UiText text={"×"} /></span>
                         <label>
-                          <span>Jako (cm)</span>
+                          <span><UiText text={"Jako (cm)"} /></span>
                           <input
                             type="text"
                             inputMode="decimal"
@@ -5092,25 +5086,25 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             <form className={premiumStyles.reviewComposer} onSubmit={submitPublicReview}>
               <header>
                 <div>
-                  <span>Arvostele myyjä</span>
+                  <span><UiText text={"Arvostele myyjä"} /></span>
                   <h2>{sellerName}</h2>
                 </div>
                 <button type="button" aria-label="Sulje arvostelulomake" disabled={reviewSubmitPending} onClick={() => setReviewComposerOpen(false)}><X size={22} /></button>
               </header>
               <fieldset>
-                <legend>Arvosana</legend>
+                <legend><UiText text={"Arvosana"} /></legend>
                 <div className={premiumStyles.reviewComposerStars}>
                   {[1, 2, 3, 4, 5].map((rating) => <button type="button" key={rating} aria-label={`${rating} tähteä`} aria-pressed={reviewDraftRating === rating} onClick={() => setReviewDraftRating(rating)}><Star size={28} fill={rating <= reviewDraftRating ? "currentColor" : "none"} /></button>)}
                 </div>
               </fieldset>
               <label>
-                <span>Kerro kokemuksesi</span>
+                <span><UiText text={"Kerro kokemuksesi"} /></span>
                 <textarea value={reviewDraftComment} minLength={2} maxLength={800} required placeholder="Millainen kokemus sinulla oli tästä myyjästä?" onChange={(event) => setReviewDraftComment(event.target.value)} />
                 <small>{reviewDraftComment.length}/800</small>
               </label>
               {reviewFeedback && <p className={premiumStyles.reviewComposerError}>{reviewFeedback}</p>}
               <footer>
-                <button type="button" disabled={reviewSubmitPending} onClick={() => setReviewComposerOpen(false)}>Peruuta</button>
+                <button type="button" disabled={reviewSubmitPending} onClick={() => setReviewComposerOpen(false)}><UiText text={"Peruuta"} /></button>
                 <button type="submit" disabled={reviewSubmitPending || reviewDraftComment.trim().length < 2}>{reviewSubmitPending ? "Tallennetaan…" : "Julkaise arvostelu"}</button>
               </footer>
             </form>
@@ -5145,7 +5139,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                   {renderAverageRatingStars(averageRating, 19)}
                   <span>{visibleReviewCount} {reviewCountLabel}</span>
                 </div>
-                <button type="button" className="seller-review-modal-write" onClick={openPublicReviewForm}><Star size={16} /> Kirjoita arvostelu</button>
+                <button type="button" className="seller-review-modal-write" onClick={openPublicReviewForm}><Star size={16} /><UiText text={" Kirjoita arvostelu"} /></button>
               </div>
 
               <div className="seller-review-modal-list">

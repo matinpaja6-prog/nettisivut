@@ -1,5 +1,6 @@
 import { notFound, permanentRedirect } from "next/navigation";
 
+
 import SellerProfileClient from "@/app/seller/[id]/seller-profile-client";
 import { resolvePublicProfile } from "@/lib/public-profile-route";
 import { profilePath, type RouteLocale } from "@/lib/routes";

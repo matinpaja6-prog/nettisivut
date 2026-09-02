@@ -1,6 +1,7 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 import Image from "next/image";
 import {
   AlertCircle,
@@ -208,9 +209,9 @@ export default function BuyerOrdersPage() {
         <header className={styles.hero}>
           <div className={styles.heroIcon}><ShoppingBag size={30} aria-hidden="true" /></div>
           <div>
-            <span className={styles.eyebrow}>Oma asiakastili</span>
-            <h1>Kaikki tilaukset</h1>
-            <p>Seuraa ostamiesi tuotteiden käsittelyä, toimitusta ja noutovalmiutta yhdestä paikasta.</p>
+            <span className={styles.eyebrow}><UiText text={"Oma asiakastili"} /></span>
+            <h1><UiText text={"Kaikki tilaukset"} /></h1>
+            <p><UiText text={"Seuraa ostamiesi tuotteiden käsittelyä, toimitusta ja noutovalmiutta yhdestä paikasta."} /></p>
           </div>
           {!loading && orders.length > 0 ? (
             <div className={styles.heroTotal}>
@@ -223,45 +224,44 @@ export default function BuyerOrdersPage() {
         <MarketplaceResponsibilityNotice compact />
 
         <nav className={styles.filters} aria-label="Suodata tilauksia">
-          <button type="button" className={filter === "all" ? styles.filterActive : styles.filter} onClick={() => setFilter("all")}>
-            Kaikki <span>{orders.length}</span>
+          <button type="button" className={filter === "all" ? styles.filterActive : styles.filter} onClick={() => setFilter("all")}><UiText text={"Kaikki "} /><span>{orders.length}</span>
           </button>
           <button type="button" className={filter === "open" ? styles.filterActive : styles.filter} onClick={() => setFilter("open")}>
-            <Clock3 size={16} /> Käsittelyssä <span>{openCount}</span>
+            <Clock3 size={16} /><UiText text={" Käsittelyssä "} /><span>{openCount}</span>
           </button>
           <button type="button" className={filter === "delivered" ? styles.filterActive : styles.filter} onClick={() => setFilter("delivered")}>
-            <CheckCircle2 size={16} /> Toimitettu <span>{deliveredCount}</span>
+            <CheckCircle2 size={16} /><UiText text={" Toimitettu "} /><span>{deliveredCount}</span>
           </button>
         </nav>
 
         {loading ? (
           <section className={styles.stateCard} aria-live="polite">
             <span className={styles.spinner} aria-hidden="true" />
-            <div><strong>Haetaan tilauksiasi</strong><p>Tämä kestää tavallisesti vain hetken.</p></div>
+            <div><strong><UiText text={"Haetaan tilauksiasi"} /></strong><p><UiText text={"Tämä kestää tavallisesti vain hetken."} /></p></div>
           </section>
         ) : null}
 
         {!loading && error ? (
           <section className={styles.stateCard} role="alert">
             <span className={styles.stateIconError}><AlertCircle size={27} /></span>
-            <div><strong>Tilausten lataaminen epäonnistui</strong><p>{error}</p></div>
-            <button type="button" className={styles.retryButton} onClick={() => void loadOrders()}><RotateCcw size={16} /> Yritä uudelleen</button>
+            <div><strong><UiText text={"Tilausten lataaminen epäonnistui"} /></strong><p>{error}</p></div>
+            <button type="button" className={styles.retryButton} onClick={() => void loadOrders()}><RotateCcw size={16} /><UiText text={" Yritä uudelleen"} /></button>
           </section>
         ) : null}
 
         {!loading && !error && orders.length === 0 ? (
           <section className={styles.emptyState}>
             <span><PackageCheck size={34} /></span>
-            <h2>Ei vielä tilauksia</h2>
-            <p>Kun ostat Maskinesin yrityskaupoista, tilauksesi ja niiden eteneminen näkyvät täällä.</p>
-            <Link href="/kauppa">Tutustu tuotteisiin</Link>
+            <h2><UiText text={"Ei vielä tilauksia"} /></h2>
+            <p><UiText text={"Kun ostat Maskinesin yrityskaupoista, tilauksesi ja niiden eteneminen näkyvät täällä."} /></p>
+            <Link href="/kauppa"><UiText text={"Tutustu tuotteisiin"} /></Link>
           </section>
         ) : null}
 
         {!loading && !error && orders.length > 0 ? (
           <section className={styles.ordersPanel}>
             <div className={styles.tableHeader} aria-hidden="true">
-              <span>Tilaus</span><span>Tilauspäivä</span><span>Tiedot</span><span>Tila</span><span>Summa</span><span />
+              <span><UiText text={"Tilaus"} /></span><span><UiText text={"Tilauspäivä"} /></span><span><UiText text={"Tiedot"} /></span><span><UiText text={"Tila"} /></span><span><UiText text={"Summa"} /></span><span />
             </div>
 
             <div className={styles.orderList}>
@@ -295,9 +295,9 @@ export default function BuyerOrdersPage() {
                     {expanded ? (
                       <div className={styles.orderDetails} id={`order-${order.id}`}>
                         <div className={styles.detailTopline}>
-                          <div><ReceiptText size={18} /><span><small>Tilaus tehty</small><strong>{orderDateTime(order.created_at)}</strong></span></div>
-                          <div><Box size={18} /><span><small>Myyjä</small><strong>{order.seller_name_snapshot}</strong></span></div>
-                          <div>{order.shipping_method === "posti" ? <Truck size={18} /> : <MapPin size={18} />}<span><small>Toimitustapa</small><strong>{deliverySummary(order)}</strong></span></div>
+                          <div><ReceiptText size={18} /><span><small><UiText text={"Tilaus tehty"} /></small><strong>{orderDateTime(order.created_at)}</strong></span></div>
+                          <div><Box size={18} /><span><small><UiText text={"Myyjä"} /></small><strong>{order.seller_name_snapshot}</strong></span></div>
+                          <div>{order.shipping_method === "posti" ? <Truck size={18} /> : <MapPin size={18} />}<span><small><UiText text={"Toimitustapa"} /></small><strong>{deliverySummary(order)}</strong></span></div>
                         </div>
 
                         {cancelled ? (
@@ -316,7 +316,7 @@ export default function BuyerOrdersPage() {
                         <div className={styles.statusMessage}>
                           {status.tone === "done" ? <CheckCircle2 size={21} /> : status.tone === "attention" ? <AlertCircle size={21} /> : <Clock3 size={21} />}
                           <span><strong>{status.label}</strong><small>{status.description}</small></span>
-                          {trackingUrl ? <a href={trackingUrl} target="_blank" rel="noreferrer nofollow">Seuraa lähetystä <ExternalLink size={14} /></a> : null}
+                          {trackingUrl ? <a href={trackingUrl} target="_blank" rel="noreferrer nofollow"><UiText text={"Seuraa lähetystä "} /><ExternalLink size={14} /></a> : null}
                         </div>
 
                         <div className={styles.products}>
@@ -327,7 +327,7 @@ export default function BuyerOrdersPage() {
                               </div>
                               <div className={styles.productCopy}>
                                 <strong>{item.product_name}</strong>
-                                <small>{item.quantity} kpl · {money(item.unit_price_cents, order.currency)} / kpl</small>
+                                <small>{item.quantity}<UiText text={" kpl · "} />{money(item.unit_price_cents, order.currency)}<UiText text={" / kpl"} /></small>
                               </div>
                               <strong>{money(item.line_total_cents, order.currency)}</strong>
                             </div>
@@ -338,9 +338,9 @@ export default function BuyerOrdersPage() {
                           <div>
                             <span>{order.shipping_method === "posti" ? "Postin noutopiste" : "Noutopaikka"}</span>
                             <strong>{order.shipping_method !== "pickup" ? order.pickup_point_address || "Tarkista osoite tilausvahvistuksesta" : order.order_items[0]?.pickup_address_snapshot || "Sovi noudosta myyjän kanssa"}</strong>
-                            {order.posti_tracking_code ? <small>Seurantatunnus: {order.posti_tracking_code}</small> : null}
+                            {order.posti_tracking_code ? <small><UiText text={"Seurantatunnus: "} />{order.posti_tracking_code}</small> : null}
                           </div>
-                          <div><span>Tilauksen summa</span><strong>{money(order.total_cents, order.currency)}</strong><small>{order.shipping_price_cents ? `Sisältää toimituksen ${money(order.shipping_price_cents, order.currency)}` : "Ei toimitusmaksua"}</small></div>
+                          <div><span><UiText text={"Tilauksen summa"} /></span><strong>{money(order.total_cents, order.currency)}</strong><small>{order.shipping_price_cents ? `Sisältää toimituksen ${money(order.shipping_price_cents, order.currency)}` : "Ei toimitusmaksua"}</small></div>
                         </footer>
                       </div>
                     ) : null}
@@ -350,7 +350,7 @@ export default function BuyerOrdersPage() {
             </div>
 
             {filteredOrders.length === 0 ? (
-              <div className={styles.filterEmpty}><PackageCheck size={24} /><span>Tässä ryhmässä ei ole tilauksia.</span></div>
+              <div className={styles.filterEmpty}><PackageCheck size={24} /><span><UiText text={"Tässä ryhmässä ei ole tilauksia."} /></span></div>
             ) : null}
           </section>
         ) : null}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "@/lib/navigation";
 import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/lib/i18n";
 import { canonicalPathFromLocalized, pagePath } from "@/lib/routes";

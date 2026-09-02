@@ -62,6 +62,8 @@ const data = {
 };
 
 const sitemapDependencies = {
+  "@/lib/seo-collection-policy": { buildSeoCollectionCatalog: () => [] },
+  "@/lib/sitemap-locales": loadModule("lib/sitemap-locales.ts"),
   "@/lib/features": features,
   "@/lib/routes": routes,
   "@/lib/site-url": site,
@@ -79,15 +81,21 @@ const sitemapDependencies = {
 const { default: sitemap } = loadModule("app/sitemap.ts", sitemapDependencies);
 const entries = await sitemap();
 const listingEntries = entries.filter((entry) => entry.priority === 0.8);
-assert.deepEqual(listingEntries.map((entry) => entry.url), [
+assert.deepEqual(listingEntries.filter(entry => !/^\/(en|sv|no)(\/|$)/.test(new URL(entry.url).pathname)).map((entry) => entry.url), [
   canonical,
   "https://maskines.com/lynx/rave-rs/119",
   "https://maskines.com/ilmoitukset/120",
   `https://maskines.com/ilmoitukset/${listing.id}`
 ]);
 assert.equal(new Set(entries.map((entry) => entry.url)).size, entries.length);
+assert.equal(listingEntries.length,16);
+for (const entry of entries) {
+  for (const [language,url] of Object.entries(entry.alternates?.languages || {})) {
+    if (language !== 'x-default') assert.deepEqual(entries.find(item=>item.url===url)?.alternates,entry.alternates);
+  }
+}
 assert.ok(!legacyPattern.test(JSON.stringify(entries)));
-assert.ok(listingEntries.every((entry) => !entry.alternates));
+assert.ok(listingEntries.every((entry) => entry.alternates.languages.en.startsWith("https://maskines.com/en/")));
 assert.ok(!entries.some((entry) => entry.url === "https://maskines.com/yritykset"));
 const restoredSitemap = loadModule("app/sitemap.ts", {
   ...sitemapDependencies,
@@ -99,10 +107,12 @@ assert.equal(listingEntries[0].lastModified.toISOString(), listing.created_at.re
 console.log("PASS sitemap: current URLs only; hidden/sold excluded; images and dates retained");
 
 const metadataModule = loadModule("app/listing/[id]/metadata.ts", {
+  "@/lib/server-listing": { getServerListing: data.getListingById },
   "@/lib/routes": routes,
   "@/lib/site-url": site,
   "@/lib/supabase": data,
-  "next/cache": { unstable_cache: () => async (text) => text },
+  "@/lib/server-locale": { getServerLocale: async () => "fi" },
+  "@/lib/part-glossary": { glossaryTitle: text => text },
   "@/lib/listings": {
     isVehicleListing: () => false,
     formatPrice: (price) => `${price} €`,
@@ -113,7 +123,7 @@ const metadataModule = loadModule("app/listing/[id]/metadata.ts", {
 const props = { params: Promise.resolve({ id: "id118" }) };
 const metadata = await metadataModule.generateListingMetadata(props);
 assert.equal(metadata.alternates.canonical, canonical);
-assert.equal(metadata.alternates.languages, undefined);
+assert.equal(metadata.alternates.languages.en, "/en/lynx/rave-rs/ruiskutusjarjestelmat/118");
 assert.equal(metadata.openGraph.url, canonical);
 assert.equal(metadata.robots.index, true);
 for (const segment of ["ad", "annons", "annonse", "ilmoitus"]) {

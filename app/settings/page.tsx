@@ -3,7 +3,6 @@
 import { Bell, Check, Globe2, Mail, Palette, Volume2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { languageOptions, useLanguage, type Locale, type SupportedLocale } from "@/lib/i18n";
-import { translateLocalizedPath } from "@/lib/routes";
 import { getSafeAuthUser, supabase } from "@/lib/supabase";
 import {
   applyUserTheme,
@@ -257,10 +256,6 @@ export default function SettingsPage() {
 
   function pickLanguage(nextLocale: SupportedLocale) {
     setLocale(nextLocale);
-    const url = new URL(window.location.href);
-    url.searchParams.delete("lang");
-    url.pathname = translateLocalizedPath(url.pathname, nextLocale);
-    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
     setSavedAt(Date.now());
     if (supabase) {
       const client = supabase;

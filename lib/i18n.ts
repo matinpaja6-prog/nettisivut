@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useContext } from "react";
+import { LanguageContext } from "@/app/components/LanguageProvider";
 
 
 export type Locale = "fi" | "en" | "sv" | "no";
@@ -2622,47 +2623,6 @@ export function translateCategory(locale: SupportedLocale, value: string) {
 }
 
 export function useLanguage() {
-  // The first client render must match the server render. Reading the
-  // document or localStorage here made a remembered language (for example
-  // Swedish) render before hydration while the server markup was Finnish.
-  // The layout effect below applies the saved locale immediately afterwards.
-  const [locale, setLocaleState] = useState<SupportedLocale>("fi");
-
-  useLayoutEffect(() => {
-    purgeInvalidLocaleStorage();
-
-    const urlLocale = new URLSearchParams(window.location.search).get("lang");
-    if (isLocale(urlLocale)) {
-      setLocaleState(urlLocale);
-      applyLocale(urlLocale);
-      return;
-    }
-
-    const storedLocale = localStorage.getItem("locale");
-    setLocaleState(normalizeLocale(storedLocale, "fi"));
-  }, []);
-
-  function setLocale(nextLocale: SupportedLocale) {
-    setLocaleState(nextLocale);
-    applyLocale(nextLocale);
-  }
-
-  useEffect(() => {
-    function handleLocaleChange(event: Event) {
-      const nextLocale = (event as CustomEvent<Locale>).detail;
-      if (isLocale(nextLocale)) {
-        setLocaleState(nextLocale);
-      }
-    }
-
-    window.addEventListener("localechange", handleLocaleChange);
-    return () => window.removeEventListener("localechange", handleLocaleChange);
-  }, []);
-
-  return {
-    locale,
-    activeLocale: locale,
-    setLocale,
-    t: translations[locale]
-  };
+  const { locale, setLocale } = useContext(LanguageContext);
+  return { locale, activeLocale: locale, setLocale, t: translations[locale] };
 }

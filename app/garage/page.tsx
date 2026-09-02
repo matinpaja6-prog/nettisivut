@@ -1,7 +1,9 @@
 "use client";
+import "@/app/styles/generated/garage.css";
+import UiText from "@/app/components/UiText";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 import type { User } from "@supabase/supabase-js";
 import {
   CalendarDays,
@@ -467,21 +469,21 @@ export default function GaragePage() {
               <Car size={24} aria-hidden="true" />
               <div>
                 <strong>{vehicles.length}</strong>
-                <span>AJONEUVOA</span>
+                <span><UiText text={"AJONEUVOA"} /></span>
               </div>
             </div>
             <div className="garage-heading-metric">
               <Star size={26} aria-hidden="true" />
               <div>
                 <strong>0</strong>
-                <span>SUOSIKKIA</span>
+                <span><UiText text={"SUOSIKKIA"} /></span>
               </div>
             </div>
             <div className="garage-heading-metric garage-heading-metric-wide">
               <CalendarDays size={26} aria-hidden="true" />
               <div>
                 <strong>{latestUpdatedLabel}</strong>
-                <span>VIIMEKSI PÄIVITETTY</span>
+                <span><UiText text={"VIIMEKSI PÄIVITETTY"} /></span>
               </div>
             </div>
           </div>
@@ -742,13 +744,9 @@ export default function GaragePage() {
                       <div className="garage-parts-panel">
                         <div className="garage-parts-actions">
                           <Link href={vehicleBuyHref(vehicle)} className="garage-parts-action garage-parts-action-secondary">
-                            <Search size={16} />
-                            Osta osia
-                          </Link>
+                            <Search size={16} /><UiText text={"Osta osia"} /></Link>
                           <Link href={vehicleSellHref(vehicle)} className="garage-parts-action garage-parts-action-primary">
-                            <Plus size={16} />
-                              Myy osa tästä ajoneuvosta
-                          </Link>
+                            <Plus size={16} /><UiText text={"Myy osa tästä ajoneuvosta"} /></Link>
                         </div>
                         <div className="garage-parts-header">
                           <h3>

@@ -1,7 +1,8 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 import OptimizedListingImage from "@/app/components/OptimizedListingImage";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 import ListingSalePrice from "@/app/components/ListingSalePrice";
@@ -2425,11 +2426,11 @@ export default function MyListingsPage() {
               </span>
               <div>
                 <div className={styles.statValue}>{displayedStats.listings.toLocaleString("fi-FI")}</div>
-                <div className={styles.statLabel}>Aktiivista ilmoitusta</div>
+                <div className={styles.statLabel}><UiText text={"Aktiivista ilmoitusta"} /></div>
               </div>
             </div>
             <div className={styles.statDelta}>
-              {displayedStats.newListings.toLocaleString("fi-FI")} uutta · {rangeLabel}
+              {displayedStats.newListings.toLocaleString("fi-FI")}<UiText text={" uutta · "} />{rangeLabel}
             </div>
           </div>
 
@@ -2442,12 +2443,11 @@ export default function MyListingsPage() {
                 <div className={styles.statValue}>
                   {displayedStats.soldValue.toLocaleString("fi-FI")} €
                 </div>
-                <div className={styles.statLabel}>Myynti · {rangeLabel}</div>
+                <div className={styles.statLabel}><UiText text={"Myynti · "} />{rangeLabel}</div>
               </div>
             </div>
             <div className={styles.statDelta}>
-              {displayedStats.soldValue.toLocaleString("fi-FI")} € yhteensä
-            </div>
+              {displayedStats.soldValue.toLocaleString("fi-FI")}<UiText text={" € yhteensä"} /></div>
           </div>
 
           <div className={styles.statCard}>
@@ -2457,11 +2457,11 @@ export default function MyListingsPage() {
               </span>
               <div>
                 <div className={styles.statValue}>{displayedStats.views.toLocaleString("fi-FI")}</div>
-                <div className={styles.statLabel}>Katselukerrat</div>
+                <div className={styles.statLabel}><UiText text={"Katselukerrat"} /></div>
               </div>
             </div>
             <div className={styles.statDelta}>
-              {displayedStats.soldCount.toLocaleString("fi-FI")} myyntiä · {rangeLabel}
+              {displayedStats.soldCount.toLocaleString("fi-FI")}<UiText text={" myyntiä · "} />{rangeLabel}
             </div>
           </div>
 
@@ -2474,13 +2474,11 @@ export default function MyListingsPage() {
                 <div className={styles.statValue}>
                   {displayedStats.messages.toLocaleString("fi-FI")}
                 </div>
-                <div className={styles.statLabel}>Viestit</div>
+                <div className={styles.statLabel}><UiText text={"Viestit"} /></div>
               </div>
             </div>
             <div className={styles.statDelta}>
-              {displayedStats.unread.toLocaleString("fi-FI")}{" "}
-              lukematta · {displayedStats.conversations.toLocaleString("fi-FI")} keskustelua
-            </div>
+              {displayedStats.unread.toLocaleString("fi-FI")}{" "}<UiText text={"lukematta · "} />{displayedStats.conversations.toLocaleString("fi-FI")}<UiText text={" keskustelua"} /></div>
           </div>
 
         </div>
@@ -2523,7 +2521,7 @@ export default function MyListingsPage() {
             sortedSoldListings.length === 0 ? (
               <div className={styles.emptyState} data-app-sheet>
                 <Tag size={28} />
-                <span>Myytyjä tuotteita ei ole vielä.</span>
+                <span><UiText text={"Myytyjä tuotteita ei ole vielä."} /></span>
               </div>
             ) : (
               <div className={styles.list}>
@@ -2569,13 +2567,13 @@ export default function MyListingsPage() {
                     </div>
 
                     <div className={styles.priceCell}>
-                      <small>Toteutunut kauppahinta</small>
+                      <small><UiText text={"Toteutunut kauppahinta"} /></small>
                       <span className={styles.price}>{formatPrice(Number(sold.sold_price) || 0)}</span>
                       {Number(sold.price) > 0 && Number(sold.price) !== Number(sold.sold_price) && (
-                        <span className={styles.dateText}>Pyyntihinta {formatPrice(Number(sold.price))}</span>
+                        <span className={styles.dateText}><UiText text={"Pyyntihinta "} />{formatPrice(Number(sold.price))}</span>
                       )}
-                      <span className={`${styles.statusBadge} ${styles.statusSold}`}>Myyty</span>
-                      <span className={styles.dateText}>Myyty {formatDateFi(sold.sold_at)}</span>
+                      <span className={`${styles.statusBadge} ${styles.statusSold}`}><UiText text={"Myyty"} /></span>
+                      <span className={styles.dateText}><UiText text={"Myyty "} />{formatDateFi(sold.sold_at)}</span>
                     </div>
                   </article>
                 ))}
@@ -2778,23 +2776,23 @@ export default function MyListingsPage() {
                           <div className={styles.modernEditTitle}>
                             <span><Edit3 size={22} /></span>
                             <div>
-                              <small>Ilmoituksen hallinta</small>
-                              <h1>Muokkaa ilmoitusta</h1>
-                              <p>Kaikki ilmoituksen tiedot ja myyntitapa yhdessä selkeässä näkymässä.</p>
+                              <small><UiText text={"Ilmoituksen hallinta"} /></small>
+                              <h1><UiText text={"Muokkaa ilmoitusta"} /></h1>
+                              <p><UiText text={"Kaikki ilmoituksen tiedot ja myyntitapa yhdessä selkeässä näkymässä."} /></p>
                             </div>
                           </div>
                           <div className={styles.modernEditHeaderActions}>
-                            <div className={styles.modernEditSaveHint}><Check size={16} /><span><strong>Muutokset ovat hallinnassasi</strong><small>Tallenna vasta, kun kaikki näyttää oikealta.</small></span></div>
+                            <div className={styles.modernEditSaveHint}><Check size={16} /><span><strong><UiText text={"Muutokset ovat hallinnassasi"} /></strong><small><UiText text={"Tallenna vasta, kun kaikki näyttää oikealta."} /></small></span></div>
                           </div>
                         </header>
 
                         <div className={styles.modernEditColumns}>
                           <div className={styles.modernEditColumn}>
                         <div className="own-listing-section">
-                              <span className="own-listing-section-title"><ClipboardList size={18} /> Perustiedot</span>
+                              <span className="own-listing-section-title"><ClipboardList size={18} /><UiText text={" Perustiedot"} /></span>
                               <div className="own-listing-title-fields">
                                 <label className="own-listing-field">
-                                  <span>Otsikko *</span>
+                                  <span><UiText text={"Otsikko *"} /></span>
                                   <input
                                     className="own-listing-title-input"
                                     value={listingForm.title}
@@ -2815,7 +2813,7 @@ export default function MyListingsPage() {
                               {editingRidingGearListing ? (
                                 <div className="own-listing-grid-3">
                                   <label className="own-listing-field">
-                                    <span>Ajovarusteen tyyppi *</span>
+                                    <span><UiText text={"Ajovarusteen tyyppi *"} /></span>
                                     <select
                                       value={listingForm.subcategory}
                                       onChange={(event) => setListingForm((current) => ({
@@ -2826,12 +2824,12 @@ export default function MyListingsPage() {
                                       required
                                       aria-invalid={Boolean(editValidationErrors.subcategory)}
                                     >
-                                      <option value="">Valitse tyyppi</option>
+                                      <option value=""><UiText text={"Valitse tyyppi"} /></option>
                                       {RIDING_GEAR_CATEGORIES.map((value) => <option key={value} value={value}>{value}</option>)}
                                     </select>
                                   </label>
                                   <label className="own-listing-field">
-                                    <span>Merkki *</span>
+                                    <span><UiText text={"Merkki *"} /></span>
                                     <EditablePresetInput
                                       value={listingForm.brand}
                                       options={RIDING_GEAR_BRANDS}
@@ -2843,7 +2841,7 @@ export default function MyListingsPage() {
                                     />
                                   </label>
                                   <label className="own-listing-field">
-                                    <span>Koko *</span>
+                                    <span><UiText text={"Koko *"} /></span>
                                     <EditablePresetInput
                                       value={listingForm.model}
                                       options={RIDING_GEAR_SIZES}
@@ -2855,7 +2853,7 @@ export default function MyListingsPage() {
                                     />
                                   </label>
                                   <label className="own-listing-field">
-                                    <span>Kohderyhmä *</span>
+                                    <span><UiText text={"Kohderyhmä *"} /></span>
                                     <select
                                       value={listingForm.riding_gear_target}
                                       onChange={(event) => setListingForm((current) => ({
@@ -2865,7 +2863,7 @@ export default function MyListingsPage() {
                                       required
                                       aria-invalid={Boolean(editValidationErrors.ridingGearTarget)}
                                     >
-                                      <option value="">Valitse kohderyhmä</option>
+                                      <option value=""><UiText text={"Valitse kohderyhmä"} /></option>
                                       {RIDING_GEAR_TARGETS.map((value) => <option key={value} value={value}>{value}</option>)}
                                     </select>
                                   </label>
@@ -2915,7 +2913,7 @@ export default function MyListingsPage() {
 
                               <div className="own-listing-title-fields">
                                 <label className="own-listing-field own-listing-price-field">
-                                  <span>Hinta *</span>
+                                  <span><UiText text={"Hinta *"} /></span>
                                   <div className="own-listing-price-wrap">
                                     <input
                                       className="own-listing-price-input"
@@ -2939,7 +2937,7 @@ export default function MyListingsPage() {
                                 {!editingVehicleListing && !editingRidingGearListing && (
                                   <>
                                     <label className="own-listing-field">
-                                      <span>Osan tarkka malli</span>
+                                      <span><UiText text={"Osan tarkka malli"} /></span>
                                       <input
                                         className="own-listing-part-input"
                                         value={listingForm.part_model}
@@ -2953,7 +2951,7 @@ export default function MyListingsPage() {
                                       />
                                     </label>
                                     <label className="own-listing-field">
-                                      <span>Varaosanumero</span>
+                                      <span><UiText text={"Varaosanumero"} /></span>
                                       <input
                                         className="own-listing-part-input"
                                         value={listingForm.part_number}
@@ -2975,12 +2973,12 @@ export default function MyListingsPage() {
                           <div className={`own-listing-section ${styles.commerceEditSection}`}>
                             <div className={styles.commerceEditHeading}>
                               <div>
-                                <span className="own-listing-section-title"><MessageCircle size={18} /> Myyntitapa</span>
-                                <strong>Valitse, miten ostaja tekee kaupan</strong>
-                                <small>Valinnan voi vaihtaa myös myöhemmin. Sama ilmoitus säilyy – uutta kopiota ei luoda.</small>
+                                <span className="own-listing-section-title"><MessageCircle size={18} /><UiText text={" Myyntitapa"} /></span>
+                                <strong><UiText text={"Valitse, miten ostaja tekee kaupan"} /></strong>
+                                <small><UiText text={"Valinnan voi vaihtaa myös myöhemmin. Sama ilmoitus säilyy – uutta kopiota ei luoda."} /></small>
                               </div>
                               {commerceEditProduct ? (
-                                <span className={styles.commerceLinkedBadge}>Verkkokauppatuote yhdistetty</span>
+                                <span className={styles.commerceLinkedBadge}><UiText text={"Verkkokauppatuote yhdistetty"} /></span>
                               ) : null}
                             </div>
 
@@ -2995,7 +2993,7 @@ export default function MyListingsPage() {
                                 }}
                               >
                                 <MessageCircle size={22} aria-hidden="true" />
-                                <span><strong>Yhteydenotto</strong><small>Ostaja ottaa sinuun yhteyttä.</small></span>
+                                <span><strong><UiText text={"Yhteydenotto"} /></strong><small><UiText text={"Ostaja ottaa sinuun yhteyttä."} /></small></span>
                                 {!commerceEditSettings.enabled ? <Check size={17} aria-hidden="true" /> : null}
                               </button>
                               <button
@@ -3009,7 +3007,7 @@ export default function MyListingsPage() {
                                 }}
                               >
                                 <CreditCard size={22} aria-hidden="true" />
-                                <span><strong>Maksa verkossa</strong><small>Ostaja maksaa turvallisesti verkossa.</small></span>
+                                <span><strong><UiText text={"Maksa verkossa"} /></strong><small><UiText text={"Ostaja maksaa turvallisesti verkossa."} /></small></span>
                                 {commerceEditSettings.enabled ? <Check size={17} aria-hidden="true" /> : null}
                               </button>
                             </div>
@@ -3017,26 +3015,26 @@ export default function MyListingsPage() {
                             {!commerceEditPaymentReady ? (
                               <div className={styles.commerceReadinessInfo} role="status">
                                 <LockKeyhole size={16} />
-                                <span>{commerceStatusMessage(commerceEditCompany)} Suoraoston voi ottaa käyttöön, kun maksujen vastaanotto on valmis.</span>
+                                <span>{commerceStatusMessage(commerceEditCompany)}<UiText text={" Suoraoston voi ottaa käyttöön, kun maksujen vastaanotto on valmis."} /></span>
                               </div>
                             ) : null}
 
                             {!commerceEditSettings.enabled ? (
                               <div className={styles.commerceContactInfo}>
                                 <LockKeyhole size={16} />
-                                <span>Yhteystietosi ja viestisi jaetaan ostajalle vasta, kun hän ottaa sinuun yhteyttä.</span>
+                                <span><UiText text={"Yhteystietosi ja viestisi jaetaan ostajalle vasta, kun hän ottaa sinuun yhteyttä."} /></span>
                               </div>
                             ) : null}
 
                             {commerceEditSettings.enabled ? (
                               <div className={styles.commerceSettingsPanel}>
                                 <div className={styles.commerceSettingsIntro}>
-                                  <strong>Verkko-oston tiedot</strong>
-                                  <small>Täytä määrä, verokanta ja vähintään yksi toimitustapa.</small>
+                                  <strong><UiText text={"Verkko-oston tiedot"} /></strong>
+                                  <small><UiText text={"Täytä määrä, verokanta ja vähintään yksi toimitustapa."} /></small>
                                 </div>
                                 <div className={styles.commerceFieldsGrid}>
                                   <label className="own-listing-field">
-                                    <span>Määrä (kpl) *</span>
+                                    <span><UiText text={"Määrä (kpl) *"} /></span>
                                     <input
                                       type="number"
                                       min="1"
@@ -3050,7 +3048,7 @@ export default function MyListingsPage() {
                                     />
                                   </label>
                                   <label className="own-listing-field">
-                                    <span>Verokäsittely *</span>
+                                    <span><UiText text={"Verokäsittely *"} /></span>
                                     <select
                                       value={decimalInputNumber(commerceEditSettings.vatRate)}
                                       onChange={(event) => setCommerceEditSettings((current) => ({
@@ -3065,7 +3063,7 @@ export default function MyListingsPage() {
                                 </div>
 
                                 <div className={styles.commerceDeliveryBlock}>
-                                  <span>Toimitustapa *</span>
+                                  <span><UiText text={"Toimitustapa *"} /></span>
                                   <div className={styles.commerceDeliveryChoices}>
                                     <label>
                                       <input
@@ -3075,9 +3073,7 @@ export default function MyListingsPage() {
                                           ...current,
                                           pickupAvailable: event.target.checked
                                         }))}
-                                      />
-                                      Nouto
-                                    </label>
+                                      /><UiText text={"Nouto"} /></label>
                                     <label>
                                       <input
                                         type="checkbox"
@@ -3086,9 +3082,7 @@ export default function MyListingsPage() {
                                           ...current,
                                           shippingAvailable: event.target.checked
                                         }))}
-                                      />
-                                      Kuljetus (Posti)
-                                    </label>
+                                      /><UiText text={"Kuljetus (Posti)"} /></label>
                                   </div>
                                 </div>
 
@@ -3100,7 +3094,7 @@ export default function MyListingsPage() {
                                         const countryName = country === "SE" ? "Ruotsiin" : country === "NO" ? "Norjaan" : "Suomeen";
                                         return (
                                           <label className="own-listing-field" key={country}>
-                                            <span>Postikulut {countryName} (€) *</span>
+                                            <span><UiText text={"Postikulut "} />{countryName} (€) *</span>
                                             <input
                                               type="text"
                                               inputMode="decimal"
@@ -3132,7 +3126,7 @@ export default function MyListingsPage() {
                           </span>
                           <div className="own-listing-grid-3">
                             {!editingVehicleListing && !editingRidingGearListing && <label className="own-listing-field">
-                              <span>Kategoria *</span>
+                              <span><UiText text={"Kategoria *"} /></span>
                               <select
                                 value={listingForm.category}
                                 onChange={(event) =>
@@ -3158,7 +3152,7 @@ export default function MyListingsPage() {
                             </label>}
 
                             {!editingVehicleListing && !editingRidingGearListing && <label className="own-listing-field">
-                              <span>Alakategoria</span>
+                              <span><UiText text={"Alakategoria"} /></span>
                               <select
                                 value={listingForm.subcategory}
                                 onChange={(event) =>
@@ -3185,7 +3179,7 @@ export default function MyListingsPage() {
                             </label>}
 
                             <label className="own-listing-field">
-                              <span>Kunto *</span>
+                              <span><UiText text={"Kunto *"} /></span>
                               <select
                                 value={listingForm.condition}
                                 onChange={(event) =>
@@ -3213,10 +3207,10 @@ export default function MyListingsPage() {
                         </div>
 
                         <div className="own-listing-section">
-                          <span className="own-listing-section-title"><MapPin size={18} /> Sijainti</span>
+                          <span className="own-listing-section-title"><MapPin size={18} /><UiText text={" Sijainti"} /></span>
                           <div className="own-listing-location-pair">
                             <label className="own-listing-field">
-                              <span>Maa *</span>
+                              <span><UiText text={"Maa *"} /></span>
                               <input
                                 className="own-listing-location-input"
                                 value={listingForm.location_country}
@@ -3234,7 +3228,7 @@ export default function MyListingsPage() {
                               />
                             </label>
                             <label className="own-listing-field">
-                              <span>Kaupunki *</span>
+                              <span><UiText text={"Kaupunki *"} /></span>
                               <input
                                 className="own-listing-location-input"
                                 value={listingForm.location_city}
@@ -3259,10 +3253,9 @@ export default function MyListingsPage() {
                           data-invalid={editValidationErrors.images ? "true" : undefined}
                         >
                           <div className={styles.editPhotoHeader}>
-                            <span className="own-listing-section-title"><ImagePlus size={18} /> Kuvat *</span>
+                            <span className="own-listing-section-title"><ImagePlus size={18} /><UiText text={" Kuvat *"} /></span>
                             <span className={styles.editPhotoCount}>
-                              {editImages.length} kuvaa
-                            </span>
+                              {editImages.length}<UiText text={" kuvaa"} /></span>
                           </div>
 
                           <div className={styles.editPhotoBody}>
@@ -3278,8 +3271,8 @@ export default function MyListingsPage() {
                                 }}
                               />
                               <ImagePlus size={19} />
-                              <strong>Lisää kuvia</strong>
-                              <span>Valitse tiedostot</span>
+                              <strong><UiText text={"Lisää kuvia"} /></strong>
+                              <span><UiText text={"Valitse tiedostot"} /></span>
                             </label>
 
                             {editImages.length > 0 ? (
@@ -3306,15 +3299,13 @@ export default function MyListingsPage() {
                                 ))}
                               </div>
                             ) : (
-                              <div className={styles.editPhotoEmpty}>
-                                Ei kuvia lisättynä vielä
-                              </div>
+                              <div className={styles.editPhotoEmpty}><UiText text={"Ei kuvia lisättynä vielä"} /></div>
                             )}
                           </div>
                         </div>
 
                         <label className="own-listing-field own-listing-description-field">
-                          <span><Edit3 size={18} /> Kuvaus *</span>
+                          <span><Edit3 size={18} /><UiText text={" Kuvaus *"} /></span>
                           <textarea
                             value={listingForm.description}
                             onChange={(event) =>
@@ -3339,7 +3330,7 @@ export default function MyListingsPage() {
 
                         {Object.keys(editValidationErrors).length > 0 ? (
                           <div className="own-listing-validation-summary" role="alert" aria-live="assertive">
-                            <strong>Tarkista pakolliset tiedot</strong>
+                            <strong><UiText text={"Tarkista pakolliset tiedot"} /></strong>
                             <ul>
                               {Object.entries(editValidationErrors).map(([field, message]) => (
                                 <li key={field}>{message}</li>
@@ -3425,16 +3416,13 @@ export default function MyListingsPage() {
                             </span>
                             <span>
                               <MessageCircle size={14} />
-                              {messageCounts[listing.id]?.message_count ?? 0} viestiä
-                              {messageCounts[listing.id]?.unread_count
+                              {messageCounts[listing.id]?.message_count ?? 0}<UiText text={" viestiä"} />{messageCounts[listing.id]?.unread_count
                                 ? ` (${messageCounts[listing.id].unread_count} uutta)`
                                 : ""}
                             </span>
                             {listing.is_hidden && (
                               <span style={{ color: "#d88a16" }}>
-                                <EyeOff size={14} />
-                                Piilotettu
-                              </span>
+                                <EyeOff size={14} /><UiText text={"Piilotettu"} /></span>
                             )}
                           </div>
 
@@ -3541,7 +3529,7 @@ export default function MyListingsPage() {
           >
 
             <div className="delete-listing-modal-heading">
-              <span>Poista ilmoitus</span>
+              <span><UiText text={"Poista ilmoitus"} /></span>
               <button
                 type="button"
                 aria-label="Sulje"
@@ -3553,9 +3541,7 @@ export default function MyListingsPage() {
 
             <h2>{deleteTarget.title}</h2>
 
-            <p>
-              Miksi poistat ilmoituksen?
-            </p>
+            <p><UiText text={"Miksi poistat ilmoituksen?"} /></p>
 
             <div className="delete-reason-options">
               <button
@@ -3573,9 +3559,7 @@ export default function MyListingsPage() {
                   }
                 }}
               >
-                <Check size={17} />
-                Sain myytyä
-              </button>
+                <Check size={17} /><UiText text={"Sain myytyä"} /></button>
 
               <button
                 type="button"
@@ -3588,16 +3572,12 @@ export default function MyListingsPage() {
                   setDeleteReason("other")
                 }
               >
-                <Trash2 size={17} />
-                Muu syy
-              </button>
+                <Trash2 size={17} /><UiText text={"Muu syy"} /></button>
             </div>
 
             {deleteReason === "sold" && (
               <div className="delete-sold-price">
-                <label htmlFor="sold-price-input">
-                  Millä hinnalla myit? (€)
-                </label>
+                <label htmlFor="sold-price-input"><UiText text={"Millä hinnalla myit? (€)"} /></label>
                 <input
                   id="sold-price-input"
                   type="number"
@@ -3612,9 +3592,7 @@ export default function MyListingsPage() {
 
             {deleteReason === "sold" && (
               <div className="delete-buyer-select">
-                <label>
-                  Kenelle myit?
-                </label>
+                <label><UiText text={"Kenelle myit?"} /></label>
 
                 <div className="delete-buyer-mode">
                   <button
@@ -3626,9 +3604,7 @@ export default function MyListingsPage() {
                       setPhoneBuyer(null);
                     }}
                   >
-                    <MessageCircle size={16} />
-                    Keskustelu
-                  </button>
+                    <MessageCircle size={16} /><UiText text={"Keskustelu"} /></button>
                   <button
                     type="button"
                     className={buyerSelectionMode === "phone" ? "active" : ""}
@@ -3637,9 +3613,7 @@ export default function MyListingsPage() {
                       setDeleteError("");
                     }}
                   >
-                    <Phone size={16} />
-                    Puhelinnumero
-                  </button>
+                    <Phone size={16} /><UiText text={"Puhelinnumero"} /></button>
                   <button
                     type="button"
                     className={buyerSelectionMode === "other" ? "active" : ""}
@@ -3650,17 +3624,13 @@ export default function MyListingsPage() {
                       setPhoneBuyer(null);
                     }}
                   >
-                    <X size={16} />
-                    Muu
-                  </button>
+                    <X size={16} /><UiText text={"Muu"} /></button>
                 </div>
 
                 {buyerSelectionMode === "conversation" && (
                   <>
                     {deleteLoading ? (
-                      <div className="delete-muted">
-                        Haetaan keskusteluja...
-                      </div>
+                      <div className="delete-muted"><UiText text={"Haetaan keskusteluja..."} /></div>
                     ) : buyerCandidates.length > 0 ? (
                       <select
                         id="sold-buyer"
@@ -3683,9 +3653,7 @@ export default function MyListingsPage() {
                         )}
                       </select>
                     ) : (
-                      <div className="delete-muted">
-                        Tästä ilmoituksesta ei löytynyt ostajan keskustelua. Voit yhdistää ostajan puhelinnumerolla.
-                      </div>
+                      <div className="delete-muted"><UiText text={"Tästä ilmoituksesta ei löytynyt ostajan keskustelua. Voit yhdistää ostajan puhelinnumerolla."} /></div>
                     )}
                   </>
                 )}
@@ -3723,9 +3691,7 @@ export default function MyListingsPage() {
                 )}
 
                 {buyerSelectionMode === "other" && (
-                  <div className="delete-muted">
-                    Ostajaa ei valita eikä arvostelupyyntöä lähetetä. Ilmoitus poistetaan silti myytynä.
-                  </div>
+                  <div className="delete-muted"><UiText text={"Ostajaa ei valita eikä arvostelupyyntöä lähetetä. Ilmoitus poistetaan silti myytynä."} /></div>
                 )}
 
                 {buyerCandidateError && (
@@ -3743,18 +3709,14 @@ export default function MyListingsPage() {
               </div>
             )}
 
-            <div className="delete-muted">
-              Ilmoitukseen liittyvissä keskusteluissa voi viestiä vielä 20 päivää poistamisen jälkeen, minkä jälkeen ne poistuvat automaattisesti.
-            </div>
+            <div className="delete-muted"><UiText text={"Ilmoitukseen liittyvissä keskusteluissa voi viestiä vielä 20 päivää poistamisen jälkeen, minkä jälkeen ne poistuvat automaattisesti."} /></div>
 
             <div className="delete-listing-modal-actions">
               <button
                 type="button"
                 className="secondary-button"
                 onClick={closeDeleteDialog}
-              >
-                Peruuta
-              </button>
+              ><UiText text={"Peruuta"} /></button>
 
               <button
                 type="button"

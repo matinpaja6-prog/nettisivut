@@ -1,0 +1,695 @@
+
+@media (max-width: 620px) {
+  html body main.seller-page {
+    padding-bottom: 104px;
+  }
+  html body .seller-page .sp-wrap {
+    padding: 0;
+  }
+  html body .seller-page .seller-ref-hero {
+    border-radius: 0 0 18px 18px; gap: 18px; padding: 70px 14px 14px;
+  }
+  html body .seller-page .seller-ref-identity {
+    align-items: start; gap: 13px; grid-template-columns: 76px minmax(0, 1fr);
+  }
+  html body .seller-page .seller-ref-avatar {
+    height: 76px; width: 76px;
+  }
+  html body .seller-page .seller-ref-logo {
+    height: 40px; width: 40px;
+  }
+  html body .seller-page .seller-ref-initial {
+    font-size: 16px;
+  }
+  html body .seller-page .seller-ref-copy h1 {
+    font-size: clamp(24px, 8vw, 34px);
+  }
+  html body .seller-page .seller-ref-follow-row {
+    border-radius: 7px; display: block; left: auto; margin: 0; max-width: none; right: 12px;
+    top: 12px; width: auto;
+  }
+  html body .seller-page .seller-ref-follow-button {
+    font-size: 10px; gap: 6px; height: 32px; margin: 0; max-width: none; min-height: 32px;
+    padding: 0 10px; white-space: nowrap; width: auto;
+  }
+  html body .seller-page .seller-ref-follow-button svg {
+    height: 13px; width: 13px;
+  }
+  html body .seller-page .seller-ref-stats, html body .seller-page .seller-ref-hero .seller-ref-stats {
+    height: auto; grid-template-columns: repeat(3, minmax(0, 1fr)); min-height: 0; overflow: hidden;
+  }
+  html body .seller-page .seller-ref-stat, html body .seller-page .seller-ref-stat.is-rating {
+    gap: 4px; grid-template-columns: 1fr; grid-template-rows: 28px auto auto; justify-content: center; justify-items: center; min-height: 96px;
+    padding: 10px 5px; text-align: center;
+  }
+  html body .seller-page .seller-ref-stat > svg {
+    grid-column: 1; grid-row: 1; height: 25px; place-self: center; width: 25px;
+  }
+  html body .seller-page .seller-ref-stat strong {
+    font-size: 23px; grid-column: 1; grid-row: 2; place-self: center;
+  }
+  html body .seller-page .seller-ref-stat > span {
+    font-size: 8.5px; grid-column: 1; grid-row: 3; line-height: 1.2; place-self: start center;
+  }
+  html body .seller-page .seller-ref-stat + .seller-ref-stat {
+    border-left: 1px solid #2a465f; border-top: 0;
+  }
+  html body .seller-page .seller-ref-stats > .seller-ref-stat:nth-child(1) {
+    grid-column: 1; grid-row: 1;
+  }
+  html body .seller-page .seller-ref-stats > .seller-ref-stat:nth-child(2) {
+    grid-column: 2; grid-row: 1;
+  }
+  html body .seller-page .seller-ref-stats > .seller-ref-stat:nth-child(3) {
+    grid-column: 3; grid-row: 1;
+  }
+  html body .seller-page .seller-profile-reference-main {
+    margin: 0 10px;
+  }
+  html body .seller-page .seller-profile-listings-panel {
+    padding: 13px;
+  }
+  html body .seller-page .seller-profile-section-heading {
+    align-items: center; display: grid; gap: 10px 8px; grid-template-columns: minmax(0, 1fr) auto;
+  }
+  html body .seller-page .seller-profile-section-heading h2 {
+    grid-column: 1; grid-row: 1;
+  }
+  html body .seller-page .seller-profile-heading-filter-button {
+    align-items: center; background: #0d2033; border: 1px solid #3b5d77; border-radius: 8px; color: #f5f8fb; cursor: pointer;
+    display: inline-flex; font-size: 10px; font-weight: 900; gap: 6px; grid-column: 2; grid-row: 1;
+    min-height: 32px; padding: 0 9px;
+  }
+  html body .seller-page .seller-profile-heading-filter-button svg {
+    color: var(--mp-orange);
+  }
+  html body .seller-page .seller-profile-section-actions {
+    flex-wrap: wrap; grid-column: 1 / -1; grid-row: 2; justify-content: space-between; width: 100%;
+  }
+  html body .seller-page .seller-profile-section-actions .seller-profile-sort {
+    flex: 1 1 170px; width: auto;
+  }
+  html body .seller-page .seller-profile-section-actions .seller-profile-filter-button {
+    display: none;
+  }
+  html body .seller-page .seller-profile-section-actions .seller-profile-reset-filters {
+    order: 3; width: 100%;
+  }
+  html body .seller-page .seller-profile-section-actions .seller-profile-reviews-button {
+    flex: 1 1 auto; justify-content: center;
+  }
+  html body:has(.seller-page .seller-home-filter-bar.is-open) .bottom-nav, html body:has(.seller-page .seller-home-filter-bar.is-open) .floating-chat, html body:has(.seller-page .seller-home-filter-bar.is-open) .fc-button, html body:has(.seller-page .seller-home-filter-bar.is-open) .rebuilt-chat-button {
+    display: none;
+  }
+  html body .seller-page .seller-home-filter-bar {
+    align-content: start; background: #15171d; border: 1px solid rgba(83, 105, 133, 0.48); border-bottom: 0; border-radius: 20px 20px 0 0; bottom: 0;
+    box-shadow: 0 -24px 46px rgba(0, 0, 0, 0.5); gap: 11px; left: 50%; margin: 0; height: var(--seller-filter-sheet-height, auto); max-height: min(68dvh, 610px);
+    max-width: none; overflow-x: hidden; overflow-y: hidden; padding: 12px 16px 0; right: auto; top: auto;
+    transform: translateX(-50%); width: min(calc(100vw - 12px), 430px); z-index: 9001; overscroll-behavior: contain; transition: max-height 240ms cubic-bezier(0.22, 1, 0.36, 1), height 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  html body .seller-page .seller-home-filter-bar.is-open {
+    display: flex; flex-direction: column;
+  }
+  html body .seller-page .seller-home-filter-bar.is-expanded {
+    max-height: min(90dvh, 820px);
+  }
+  html body .seller-page .seller-home-filter-bar.is-dragging {
+    max-height: none; transition: none;
+  }
+  html body .seller-page .seller-home-filter-backdrop {
+    background: rgba(4, 7, 12, 0.78); z-index: 9000;
+  }
+  html body .seller-page .seller-mobile-filter-drag-handle {
+    align-items: center; background: #15171d; display: flex; flex: 0 0 auto; height: 13px; justify-content: center;
+    margin: -8px 0 4px; order: -2; cursor: grab; position: relative; touch-action: none; user-select: none;
+    width: 100%; z-index: 6;
+  }
+  html body .seller-page .seller-mobile-filter-drag-handle:active {
+    cursor: grabbing;
+  }
+  html body .seller-page .seller-mobile-filter-drag-handle:focus-visible {
+    outline: 2px solid var(--mp-orange); outline-offset: 3px;
+  }
+  html body .seller-page .seller-mobile-filter-drag-handle > span {
+    background: rgba(137, 148, 165, 0.78); border-radius: 999px; display: block; height: 4px; width: 42px;
+  }
+  html body .seller-page .seller-home-search, html body .seller-page .seller-home-filter-actions {
+    grid-column: 1;
+  }
+  html body .seller-page .seller-mobile-filter-content {
+    -webkit-overflow-scrolling: touch; display: flex; flex: 1 1 auto; flex-direction: column; gap: 11px; min-height: 0;
+    overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: 0 2px 12px;
+  }
+  html body .seller-page .seller-home-filter-head {
+    align-items: center; background: #15171d; border: 0; display: grid; flex: 0 0 auto; grid-template-columns: 40px minmax(0, 1fr) 40px;
+    margin: 0 0 8px; order: -1; padding: 0; position: relative; width: 100%; z-index: 5;
+  }
+  html body .seller-page .seller-home-filter-head strong {
+    grid-column: 2; line-height: 1.1; text-align: center;
+  }
+  html body .seller-page .seller-filter-title-desktop {
+    display: none;
+  }
+  html body .seller-page .seller-filter-title-mobile {
+    color: #fff; display: block; font-size: 20px; font-weight: 950;
+  }
+  html body .seller-page .seller-home-filter-head > div {
+    display: contents; position: static; transform: none;
+  }
+  html body .seller-page .seller-home-filter-head .seller-filter-head-reset {
+    display: none;
+  }
+  html body .seller-page .seller-home-filter-head .seller-filter-head-close {
+    align-items: center; background: #101720; border: 1px solid rgba(82, 105, 133, 0.62); border-radius: 999px; color: var(--mp-orange); display: inline-flex;
+    grid-column: 3; height: 38px; justify-content: center; justify-self: end; margin: 0; padding: 0;
+    width: 38px;
+  }
+  html body .seller-page .seller-home-filter-head .seller-filter-head-close svg {
+    height: 18px; width: 18px;
+  }
+  html body .seller-page .seller-home-filter-actions {
+    align-self: center; background: #15171d; border-top: 1px solid rgba(83, 105, 133, 0.36); bottom: auto; box-sizing: border-box; box-shadow: 0 -14px 22px #15171d;
+    flex: 0 0 auto; margin: 4px -16px 0; padding: 12px 16px max(14px, env(safe-area-inset-bottom, 0px)); position: relative; width: calc(100% + 32px); z-index: 5;
+  }
+  html body .seller-page .seller-track-mat-dimension-fields {
+    gap: 5px;
+  }
+  html body .seller-page .seller-track-mat-dimension-fields > span {
+    font-size: 12px; padding-bottom: 13px;
+  }
+  html body .seller-page .seller-track-mat-dimension-fields input {
+    font-size: 11px; padding-inline: 8px;
+  }
+  html body .seller-page .seller-home-filter-years {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  html body .seller-page .seller-home-filter-actions {
+    align-items: stretch; flex-direction: column;
+  }
+  html body .seller-page .seller-home-filter-actions button {
+    width: 100%;
+  }
+  html body .seller-page .seller-listing-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  html body .seller-page .seller-listing-card {
+    grid-template-rows: 112px 1fr; height: 256px; min-height: 256px;
+  }
+  html body .seller-page .seller-listing-image {
+    height: 112px; max-height: 112px; min-height: 112px;
+  }
+  html body .seller-page .seller-listing-meta > span:last-child {
+    display: none;
+  }
+  html body .seller-page .seller-review-modal-backdrop {
+    align-items: flex-end; padding: 0;
+  }
+  html body .seller-page .seller-review-modal {
+    border-bottom: 0; border-radius: 16px 16px 0 0; max-height: 88vh;
+  }
+  html body .seller-page .seller-review-modal-head, html body .seller-page .seller-review-modal-summary, html body .seller-page .seller-review-modal-list {
+    padding-left: 15px; padding-right: 15px;
+  }
+  html body .seller-page .seller-review-modal-list > article > header {
+    grid-template-columns: 34px minmax(0, 1fr);
+  }
+  html body .seller-page .seller-review-modal-list header .seller-review-stars {
+    grid-column: 2;
+  }
+  html body .seller-page .seller-review-modal-list article > p {
+    margin-left: 44px;
+  }
+}
+@media (max-width: 380px) {
+  html body .seller-page .seller-listing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 620px) {
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row {
+    background: transparent; border: 0; box-shadow: none; flex-basis: calc(100vw - 28px); flex-shrink: 0; margin-left: -89px;
+    max-width: none; min-width: calc(100vw - 28px); padding: 0; width: calc(100vw - 28px);
+  }
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row::before, html body .seller-page .seller-ref-copy > .seller-ref-pill-row::after {
+    content: none; display: none;
+  }
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row .seller-ref-business-id {
+    background: transparent; border: 0; border-radius: 0; box-shadow: none; flex: 1 0 100%; gap: 7px;
+    justify-content: center; max-width: 100%; min-height: 24px; overflow: visible; padding: 0;
+  }
+  html body .seller-page .seller-ref-business-id .seller-ref-pill-text {
+    align-items: baseline; display: inline-flex; gap: 3px; min-width: 0;
+  }
+  html body .seller-page .seller-ref-business-id .seller-ref-pill-text small {
+    color: #aebdca; font-size: 10px; font-weight: 800; line-height: 1;
+  }
+  html body .seller-page .seller-ref-business-id .seller-ref-pill-text strong {
+    color: #f4f7fb; font-size: 11px; font-weight: 950; letter-spacing: 0.01em; line-height: 1;
+  }
+  html body .seller-page .seller-ref-business-id::after {
+    flex: 0 0 16px; height: 16px; margin-left: 1px; width: 16px;
+  }
+}
+html body:has(.pf-page) {
+  background: var(--maskines-page-background, var(--site-bg, #181a1d)); background-color: var(--maskines-page-background, var(--site-bg, #181a1d)); background-image: none;
+}
+html body .pf-page {
+  --pf-grey-page: #181a1d; --pf-grey-panel: var(--app-sheet-surface, #0b151f); --pf-grey-panel-raised: var(--app-sheet-surface-raised, #0a1b2a); --pf-grey-field: var(--app-sheet-surface-raised, #081827); --pf-grey-border: var(--app-sheet-border, #263b4e); --pf-grey-border-soft: var(--app-sheet-border, #1d3244);
+  --pf-grey-icon: #aeb6c0; background: var(--maskines-page-background, var(--site-bg, var(--pf-grey-page))); background-color: var(--maskines-page-background, var(--site-bg, var(--pf-grey-page))); background-image: none; color: #f2f3f5;
+}
+html body .pf-page :is( .pf-user-card, .pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section ) {
+  background: var(--pf-grey-panel); background-image: none; border-color: var(--pf-grey-border); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+html body .pf-page :is(.pf-info-card-head, .pf-section-head) {
+  background: var(--pf-grey-panel); background-image: none; border-color: var(--pf-grey-border-soft);
+}
+html body .pf-page :is(.pf-info-title-icon, .pf-section-head > svg) {
+  background: var(--pf-grey-panel-raised); background-image: none; border-color: #484d54; color: var(--pf-grey-icon); box-shadow: none;
+}
+html body .pf-page :is( .pf-info-rows, #julkinen-profiili .pf-public-fields, #osoite .pf-fields ) {
+  background: #191b1e; background-image: none; border-color: var(--pf-grey-border-soft); box-shadow: none;
+}
+html body .pf-page .pf-info-row, html body .pf-page .pf-info-row:nth-child(odd), html body .pf-page .pf-info-row:nth-child(even), html body .pf-page .pf-info-row:hover, html body .pf-page .pf-info-row:focus-within {
+  background: transparent; background-image: none; border-color: var(--pf-grey-border-soft); box-shadow: none;
+}
+html body .pf-page :is( .pf-info-row-icon, #julkinen-profiili .pf-field::before, #osoite .pf-field::before ) {
+  background: #23262a; background-image: none; border-color: #3d4248; color: var(--pf-grey-icon); box-shadow: none;
+}
+html body .pf-page :is( .pf-info-value input, .pf-info-value input:disabled, .pf-info-value > span, .pf-phone-card, .pf-phone-number, .pf-readonly-value, .pf-locked, .pf-field input, .pf-field textarea, #julkinen-profiili .pf-field, #julkinen-profiili .pf-locked, #julkinen-profiili .pf-readonly-value, #julkinen-profiili .pf-public-address-field input, #julkinen-profiili .pf-public-bio-field textarea, #osoite .pf-field, #osoite .pf-field input ) {
+  background: var(--pf-grey-field); background-image: none; border-color: var(--pf-grey-border); box-shadow: none;
+}
+html body .pf-page #osoite .pf-field, html body .pf-page #julkinen-profiili .pf-field {
+  background: transparent;
+}
+html body .pf-page :is(.pf-avatar-action, .pf-inline-btn, .pf-phone-change-btn) {
+  background: #25282c; background-image: none; border-color: #484d54; box-shadow: none; color: #f2f3f5;
+}
+html body .pf-page :is(.pf-avatar-action, .pf-inline-btn, .pf-phone-change-btn):hover {
+  background: #2d3035; border-color: #5a6068;
+}
+html body .pf-page .pf-company-badge, html body .pf-page :is(.pf-info-label, .pf-field label), html body .pf-page :is(.pf-info-card-head p, .pf-section-head p) {
+  color: #aeb4bc;
+}
+html body .pf-page .pf-sidebar-progress-track {
+  background: #30343a;
+}
+html body .pf-page .pf-avatar-action.danger {
+  background: #25282c; border-color: #5f4646; color: #ff9b92;
+}
+html body .pf-page.pf-page {
+  --pf-unified-surface: var(--app-sheet-surface, #0b151f); --pf-unified-surface-hover: var(--app-sheet-surface-raised, #0a1b2a); --pf-unified-line: var(--app-sheet-border, #263b4e); --pf-cool-accent: #ff8a22; --pf-cool-accent-strong: #f36f0b; background: var(--maskines-page-background, var(--site-bg, #181a1d));
+  background-color: var(--maskines-page-background, var(--site-bg, #181a1d)); background-image: none;
+}
+html body .pf-page.pf-page :is( .pf-sidebar, .pf-user-card, .pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section, .pf-insight-card, .pf-info-card-head, .pf-section-head, .pf-info-rows, #julkinen-profiili .pf-public-fields, #osoite .pf-address-rows, .pf-phone-modal, .pf-avatar-crop-modal, .pf-mfa-modal ) {
+  background: var(--pf-unified-surface); background-image: none; border-color: var(--pf-unified-line); box-shadow: none;
+}
+html body .pf-page.pf-page :is( .pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section )::before, html body .pf-page.pf-page .pf-user-card::after, html body .pf-page.pf-page .pf-insight-card::before {
+  display: none;
+}
+html body .pf-page.pf-page :is( .pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section ):hover {
+  border-color: var(--pf-unified-line); box-shadow: none; transform: none;
+}
+html body .pf-page.pf-page :is( .pf-info-row, #julkinen-profiili .pf-field, #julkinen-profiili .pf-field.pf-field-wide, #osoite .pf-field, .pf-phone-card, .pf-readonly-value, .pf-locked, .pf-info-value input, .pf-info-value input:disabled, #julkinen-profiili input, #julkinen-profiili textarea, #osoite input, .pf-mfa-secret, .pf-mfa-code-field input, .company-seller-card, .company-seller-add, .company-seller-empty ) {
+  background: var(--pf-unified-surface); background-image: none; border-color: var(--pf-unified-line); box-shadow: none;
+}
+html body .pf-page.pf-page :is( .pf-info-row, #julkinen-profiili .pf-field, #osoite .pf-field ):hover {
+  background: var(--pf-unified-surface); background-image: none; border-color: var(--pf-unified-line);
+}
+html body .pf-page.pf-page :is( .pf-info-title-icon, .pf-section-head > svg, .pf-info-row-icon, .pf-field-icon, .pf-insight-icon, .pf-mfa-option-icon ) {
+  background-image: none; border-color: #484d54; box-shadow: none;
+}
+html body .pf-page.pf-page #julkinen-profiili .pf-section-head > svg, html body .pf-page.pf-page :is( .pf-info-row, #julkinen-profiili .pf-field ):hover :is(.pf-info-row-icon, .pf-field-icon) {
+  background: var(--pf-unified-surface-hover); background-image: none; border-color: #484d54; box-shadow: none; color: #aeb6c0;
+}
+html body .pf-page.pf-page :is(.pf-avatar, .pf-avatar-upload) {
+  background: var(--pf-unified-surface-hover); background-image: none; border-color: var(--pf-cool-accent); box-shadow: none;
+}
+html body .pf-page.pf-page .pf-avatar-overlay, html body .pf-page.pf-page .company-seller-avatar {
+  background: var(--pf-cool-accent-strong); background-image: none; border-color: #6d8798; box-shadow: none;
+}
+html body .pf-page.pf-page :is(.pf-avatar-action, .pf-inline-btn, .pf-phone-change-btn) {
+  background: var(--pf-unified-surface-hover); background-image: none; border-color: #484d54; box-shadow: none; color: #f2f3f5; filter: none;
+}
+html body .pf-page.pf-page :is(.pf-avatar-action, .pf-inline-btn, .pf-phone-change-btn):hover {
+  background: #2d3035; border-color: #5a6068; color: #ffffff; filter: none;
+}
+html body .pf-page.pf-page :is( .pf-inline-btn.verify, .company-seller-add-btn, .pf-save-btn, .pf-mfa-manage-btn ) {
+  background: var(--pf-cool-accent-strong); background-image: none; border-color: #4f83a4; box-shadow: none; color: #ffffff;
+}
+html body .pf-page.pf-page :is( .pf-inline-btn.verify, .company-seller-add-btn, .pf-save-btn, .pf-mfa-manage-btn ):hover {
+  background: #377698; border-color: #6095b5; filter: none;
+}
+html body .pf-page.pf-page :is( .pf-info-value input:not(:disabled), #julkinen-profiili input, #julkinen-profiili textarea, #osoite input, .pf-mfa-code-field input ):focus {
+  background: var(--pf-unified-surface); border-color: var(--pf-cool-accent); box-shadow: 0 0 0 3px rgba(79, 120, 147, 0.16);
+}
+html body .pf-page.pf-page .pf-nav-item:hover, html body .pf-page.pf-page .pf-nav-active {
+  background: rgba(79, 120, 147, 0.16); background-image: none; border-left-color: var(--pf-cool-accent); color: #f5f7f8;
+}
+html body .pf-page.pf-page .pf-nav-active::after {
+  background: var(--pf-cool-accent); box-shadow: none;
+}
+html body .pf-page.pf-page .pf-logout-button:hover {
+  background: var(--pf-unified-surface-hover); border-color: #5a6068;
+}
+html body .pf-page.pf-page :is(.pf-progress-track > span, .pf-sidebar-progress-track > span) {
+  background: var(--pf-cool-accent); background-image: none; box-shadow: none;
+}
+html body .pf-page.pf-page .pf-completion-ring {
+  background: conic-gradient(var(--pf-cool-accent) var(--profile-progress), #30343a 0); box-shadow: none;
+}
+html body .pf-page.pf-page .pf-completion-ring::before {
+  background: var(--pf-unified-surface);
+}
+html body .pf-page.pf-page .pf-trust-emblem {
+  background: #30343a; background-image: none; border-color: #59616a; box-shadow: none;
+}
+html body .pf-page.pf-page :is(.pf-insight-action, .pf-public-note, .pf-mfa-options > button) {
+  background: var(--pf-unified-surface); background-image: none; border-color: var(--pf-unified-line); box-shadow: none; color: #c8cdd2;
+}
+html body .pf-page.pf-page :is(.pf-insight-action, .pf-mfa-options > button):hover {
+  background: var(--pf-unified-surface-hover); border-color: #5a6068; transform: none;
+}
+html body .pf-page.pf-page .pf-mfa-secret code {
+  color: #b9cbd6;
+}
+html body .pf-page.pf-page :is( .pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section, .pf-insight-card ) {
+  border-color: rgba(255, 132, 31, 0.62);
+}
+html body .pf-page.pf-page :is( .pf-info-title-icon, .pf-section-head > svg, .pf-info-row-icon, .pf-field-icon, .pf-insight-icon, .pf-mfa-option-icon ) {
+  background: var(--pf-unified-surface-hover); border: 1px solid rgba(255, 137, 34, 0.72); color: #ff922f;
+}
+html body .pf-page.pf-page :is( .pf-info-value input, .pf-info-value input:disabled, .pf-info-value > span, .pf-phone-card, .pf-phone-number, .pf-readonly-value, .pf-locked, #julkinen-profiili input, #julkinen-profiili textarea, #osoite input ) {
+  background: var(--pf-unified-surface-hover); border-color: rgba(255, 132, 31, 0.52); color: #f3f4f5;
+}
+html body .pf-page.pf-page :is( .pf-phone-change-btn, .pf-password-reset-btn, .pf-mfa-manage-btn, .pf-company-verify-btn, .pf-save-btn ) {
+  background: linear-gradient(135deg, #ff982d, #ef6508); background-image: linear-gradient(135deg, #ff982d, #ef6508); border-color: #ffad59; box-shadow: 0 10px 24px rgba(239, 101, 8, 0.22); color: #ffffff;
+}
+html body .pf-page.pf-page :is( .pf-phone-change-btn, .pf-password-reset-btn, .pf-mfa-manage-btn, .pf-company-verify-btn, .pf-save-btn ):hover {
+  background: linear-gradient(135deg, #ffa846, #f57716); background-image: linear-gradient(135deg, #ffa846, #f57716); border-color: #ffc17e; color: #ffffff;
+}
+html[data-user-background-tone] body .pf-page.pf-page {
+  background: var(--maskines-page-background, var(--site-bg, #181a1d)); background-color: var(--maskines-page-background, var(--site-bg, #181a1d)); background-image: none;
+}
+@media (max-width: 720px) {
+  html body .pf-page.pf-page .pf-form > :is( #yritys, #tiedot, #julkinen-profiili, #osoite, #tilin-turvallisuus ).pf-aligned-section, html body .pf-page.pf-page .pf-form > :is( #yritys, #tiedot, #julkinen-profiili, #osoite, #tilin-turvallisuus ).pf-aligned-section > :is(.pf-info-card-head, .pf-section-head), html body .pf-page.pf-page .pf-form > :is( #yritys, #tiedot, #julkinen-profiili, #osoite, #tilin-turvallisuus ).pf-aligned-section > .pf-card-body {
+    background: var(--pf-unified-surface); background-color: var(--pf-unified-surface); background-image: none;
+  }
+  html body .pf-page.pf-page .pf-form > :is( #yritys, #tiedot, #osoite, #tilin-turvallisuus ).pf-aligned-section > .pf-card-body > .pf-info-row, html body .pf-page.pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-card-body > .pf-field {
+    background: var(--pf-unified-surface); background-color: var(--pf-unified-surface); background-image: none; border-color: rgba(255, 132, 31, 0.52);
+  }
+  html body .pf-page.pf-page :is( .pf-info-value input, .pf-info-value input:disabled, .pf-info-value > span, .pf-phone-card, .pf-readonly-value, .pf-locked, #julkinen-profiili input, #julkinen-profiili textarea, #osoite input ) {
+    background: var(--pf-unified-surface); background-color: var(--pf-unified-surface); background-image: none; border-color: rgba(255, 132, 31, 0.52);
+  }
+}
+html body .universal-profile-menu-avatar:not(:has(img)), html body .pf-page .pf-avatar:not(:has(img)), html body .seller-page .seller-ref-avatar:not(.has-photo) {
+  background: #25282c; background-image: none; border: 2px solid #ff861d; border-radius: 16%; box-shadow: none; color: #ffffff;
+}
+html body .universal-profile-menu-avatar:not(:has(img)) .profile-avatar-initial, html body .pf-page .pf-avatar:not(:has(img)) > .profile-avatar-initial {
+  align-items: center; background: transparent; border-radius: inherit; color: #ffffff; display: flex; font-style: normal;
+  font-weight: 950; height: 100%; justify-content: center; letter-spacing: -0.04em; line-height: 1; text-transform: uppercase;
+  width: 100%;
+}
+html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-logo {
+  background: #25282c; background-image: none; border: 0; border-radius: inherit; box-shadow: none; height: 100%;
+  width: 100%;
+}
+html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-logo::before, html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-logo::after {
+  content: none; display: none;
+}
+html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-initial {
+  color: #ffffff; font-size: clamp(42px, 5vw, 52px); font-style: normal; font-weight: 950; letter-spacing: -0.05em; line-height: 1;
+}
+html body header.universal-app-topbar .universal-profile-avatar:not(:has(img)) {
+  background: #25282c; background-image: none; border: 2px solid #ff861d; box-shadow: none; color: #ffffff;
+}
+html body header.universal-app-topbar .universal-profile-avatar:not(:has(img)) > .profile-avatar-initial {
+  align-items: center; background: transparent; color: #ffffff; display: flex; height: 100%; justify-content: center;
+  width: 100%;
+}
+html body header.universal-app-topbar .universal-profile-avatar-lock, html body .pf-page .pf-avatar:not(:has(img)) > .pf-avatar-overlay {
+  display: none;
+}
+@media (max-width: 640px) {
+  html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-logo {
+    height: 100%; width: 100%;
+  }
+  html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-initial {
+    font-size: 34px;
+  }
+}
+html body main.listing-detail-page.listing-detail-page {
+  --listing-neutral-page: var(--maskines-page-background, var(--site-bg, #181a1d)); --listing-neutral-card: #062142; --listing-neutral-raised: #25282c; --listing-neutral-line: #3a3e43; background: var(--listing-neutral-page); background-color: var(--listing-neutral-page);
+  background-image: none;
+}
+html body main.listing-detail-page.listing-detail-page :is( .container, .layout, .sidebar ) {
+  background-color: transparent; background-image: none;
+}
+html body main.listing-detail-page.listing-detail-page :is( .main, .seller-card, .seller-card-body, .seller-card-body.seller-card-panel, .contact-card, .description-card, .listing-facts-card, .listing-extra-card ) {
+  background: var(--listing-neutral-card); background-color: var(--listing-neutral-card); background-image: none; border-color: var(--listing-neutral-line); box-shadow: none;
+}
+html body main.listing-detail-page.listing-detail-page :is( .similar-listings-section, .similar-listings-head ) {
+  background: var(--listing-neutral-page); background-color: var(--listing-neutral-page); background-image: none;
+}
+html body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card[data-seller-panel], html body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card[data-seller-panel] > .seller-card-body.seller-card-panel {
+  background: var(--listing-neutral-card); background-color: var(--listing-neutral-card); background-image: none;
+}
+html body main.listing-detail-page.listing-detail-page :is( .seller-card-top, .seller-identity-row, .seller-info, .seller-name-row, .seller-meta-rows, .seller-meta-row, .seller-stats-row, .seller-contact-merged, .title-row, .desktop-image-meta, .price-actions-row ) {
+  background-color: transparent; background-image: none;
+}
+html body main.listing-detail-page.listing-detail-page .image-wrapper {
+  background: #101216; background-color: #101216; background-image: none; border-color: var(--listing-neutral-line);
+}
+html body main.listing-detail-page.listing-detail-page :is( .seller-avatar-detail, .seller-avatar-detail:not(:has(img)) ) {
+  background: var(--listing-neutral-raised); background-color: var(--listing-neutral-raised); background-image: none; border: 2px solid #ff861d; box-shadow: none; color: #ffffff;
+}
+html body main.listing-detail-page.listing-detail-page .seller-avatar-detail:not(:has(img)) {
+  align-items: center; background: var(--listing-neutral-raised); display: flex; justify-content: center;
+}
+html body main.listing-detail-page.listing-detail-page .seller-avatar-initial {
+  background: transparent; color: #ffffff; font-size: 32px; font-weight: 950; line-height: 1;
+}
+html body main.listing-detail-page.listing-detail-page .seller-avatar-detail:not(:has(img)) > * {
+  background: transparent; color: #ffffff;
+}
+@media (max-width: 760px) {
+  html body main.listing-detail-page.listing-detail-page :is( .main, .seller-card, .seller-card-body, .seller-card-body.seller-card-panel, .description-card, .listing-facts-card, .listing-extra-card ) {
+    background: var(--listing-neutral-card); background-color: var(--listing-neutral-card); background-image: none;
+  }
+}
+html body .pf-page.pf-page .pf-phone-change-btn, html body .pf-page.pf-page .pf-phone-change-btn:hover:not(:disabled), html body .pf-page.pf-page .pf-phone-change-btn:focus-visible {
+  background: #ff7a18; background-image: none; border-color: #ff8f33; box-shadow: none; color: #ffffff;
+}
+html body header.universal-app-topbar .language-switcher, html body header.universal-app-topbar.universal-home-topbar .language-switcher {
+  border-color: rgba(255, 122, 26, 0.82);
+}
+html body header.universal-app-topbar .language-switcher:hover, html body header.universal-app-topbar .language-switcher:focus-within, html body header.universal-app-topbar.universal-home-topbar .language-switcher:hover, html body header.universal-app-topbar.universal-home-topbar .language-switcher:focus-within {
+  border-color: #ff8f33;
+}
+html body .pf-modal-backdrop .pf-password-modal .pf-modal-close, html body .pf-modal-backdrop .pf-password-modal .pf-modal-close:hover {
+  background: transparent; border-color: transparent; box-shadow: none; color: #ff7a1a;
+}
+html body .pf-modal-backdrop .pf-password-modal .pf-modal-close:focus-visible {
+  outline: 2px solid rgba(255, 122, 26, 0.7); outline-offset: 2px;
+}
+html body :is( .universal-profile-avatar, .universal-profile-menu-avatar, .pf-page .pf-avatar, .seller-page .seller-ref-avatar, .listing-detail-page .seller-avatar-detail ) {
+  position: relative; isolation: isolate; overflow: hidden;
+}
+html body :is( header.universal-app-topbar .universal-profile-avatar > img, header.universal-app-topbar .universal-profile-menu-avatar > img, .pf-page .pf-avatar > img, .seller-page .seller-ref-avatar.has-photo > img, .listing-detail-page .seller-avatar-detail > img, .listing-detail-page .seller-avatar-img ) {
+  background: transparent; border: 0; border-radius: inherit; box-sizing: border-box; display: block; height: 100%;
+  inset: 0; margin: 0; max-height: none; max-width: none; object-fit: cover; object-position: center center;
+  padding: 0; position: absolute; transform: none; width: 100%;
+}
+html body :is( .universal-profile-avatar, .universal-profile-menu-avatar, .pf-page .pf-avatar, .listing-detail-page .seller-avatar-detail ) > :is(.profile-avatar-initial, .seller-avatar-initial) {
+  align-items: center; background: transparent; border-radius: inherit; display: flex; height: 100%; inset: 0;
+  justify-content: center; margin: 0; padding: 0; position: absolute; width: 100%;
+}
+html body header.universal-app-topbar .rebuilt-profile-button.rebuilt-profile-button .universal-profile-avatar.universal-profile-avatar.no-photo, html body header.universal-app-topbar .universal-profile-menu-avatar.universal-profile-menu-avatar.no-photo {
+  background: #25282c; background-image: none; border: 2px solid #ff861d; box-shadow: none; color: #ffffff;
+}
+html body header.universal-app-topbar :is( .universal-profile-avatar.universal-profile-avatar.no-photo, .universal-profile-menu-avatar.universal-profile-menu-avatar.no-photo ) > .profile-avatar-initial.profile-avatar-initial {
+  align-items: center; background: transparent; color: #ffffff; display: flex; height: 100%; inset: 0;
+  justify-content: center; margin: 0; padding: 0; position: absolute; width: 100%;
+}
+html body header.universal-app-topbar :is( .universal-profile-avatar.universal-profile-avatar.has-photo, .universal-profile-menu-avatar.universal-profile-menu-avatar.has-photo ) > img {
+  background: transparent; border: 0; border-radius: inherit; display: block; height: 100%; inset: 0;
+  margin: 0; object-fit: cover; object-position: center center; padding: 0; position: absolute; width: 100%;
+}
+html body main.page.listing-detail-page.listing-detail-page .description-card.description-card .listing-section-content.listing-section-content > p {
+  background: transparent; background-color: transparent; background-image: none; box-shadow: none; margin: 0; max-width: none;
+  width: 100%;
+}
+.turnstile-widget {
+  max-width: 100%; width: 100%;
+}
+.turnstile-frame {
+  max-width: 100%; overflow: hidden; position: relative; width: 100%;
+}
+.turnstile-container {
+  display: flex; justify-content: center; max-width: 100%; width: 100%;
+}
+.turnstile-frame[data-scaled="true"] .turnstile-container {
+  display: block; left: 50%; max-width: none; position: absolute; top: 0;
+  transform: translateX(-50%) scale(var(--turnstile-scale)); transform-origin: top center; width: 300px;
+}
+@media (max-width: 420px) {
+  html body #listing-seller-card-header.seller-card-top-mobile-safe {
+    align-items: start; display: grid; flex-direction: column; gap: 12px; grid-template-columns: minmax(0, 1fr); justify-items: start;
+  }
+  html body #listing-seller-card-header .seller-type-corner.seller-type-corner, html body #listing-seller-card-header .seller-profile-btn-top.seller-profile-btn-top {
+    margin: 0; max-width: 100%; position: static; width: max-content;
+  }
+  html body #listing-seller-card-header .seller-profile-btn-top.seller-profile-btn-top {
+    align-self: end; justify-self: end;
+  }
+}
+html body main.auth-page.simple-auth-page:has(form.registration-inline-card) .auth-centered {
+  background: #0b151f; background-color: #0b151f; background-image: none;
+}
+html body main.auth-page.simple-auth-page.auth-loading-page {
+  display: grid; min-height: 100dvh; padding: 0; place-items: center;
+}
+html body main.auth-page.simple-auth-page.auth-loading-page .auth-centered {
+  align-items: center; background: transparent; border: 0; box-shadow: none; display: flex; justify-content: center;
+  margin: 0; max-width: none; min-height: 100dvh; padding: 24px; width: 100%;
+}
+html body .simple-auth-page .auth-loading {
+  align-items: center; display: flex; justify-content: center;
+}
+html body .simple-auth-page .auth-loading-spinner {
+  animation: auth-loading-spin 0.75s linear infinite; border: 4px solid rgba(255, 122, 26, 0.22); border-radius: 50%; border-top-color: #ff7a1a; box-shadow: 0 0 18px rgba(255, 122, 26, 0.18); display: block;
+  height: 42px; width: 42px;
+}
+@keyframes auth-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html body .simple-auth-page .auth-loading-spinner {
+    animation-duration: 1.5s;
+  }
+}
+:root {
+  --app-sheet-surface: #0b151f; --app-sheet-surface-raised: color-mix(in srgb, var(--app-sheet-surface) 78%, #31506a 22%); --app-sheet-border: color-mix(in srgb, var(--app-sheet-surface) 58%, #6f879b 42%); --site-card: var(--app-sheet-surface); --listing-card-bg: var(--app-sheet-surface);
+}
+html body [data-app-sheet] {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body [data-listing-card="true"] {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body main[data-home-page] :is( [data-home-results-search], [data-home-sell-callout], [data-home-benefits], [data-home-filter-rail] ) {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body :is( [class*="featuredPanel"], [class*="filtersCard"], [class*="categoryPanel"], [class*="vehicleCategoryPanel"], [class*="recoCard"] ) {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body .help-page :is( .help-topic-card, .help-column, .help-guide-item, .help-faq-item, .help-support ) {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body main.help-page .help-topic-grid .help-topic-card, html body main.help-page .help-topic-grid .help-topic-card[data-active="true"] {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body main.sa-page .sa-saved-panel .sa-saved-workspace .sa-list .sa-empty {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body .pf-page.pf-page :is( .pf-sidebar, .pf-user-card, .pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section, .pf-insight-card, .pf-info-card-head, .pf-section-head, .pf-info-rows, #julkinen-profiili .pf-public-fields, #osoite .pf-address-rows, .pf-save-bar, .pf-phone-modal, .pf-avatar-crop-modal, .pf-mfa-modal ) {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body .pf-page.pf-page :is( .pf-info-title-icon, .pf-section-head > svg, .pf-info-row-icon, .pf-field-icon, .pf-insight-icon, .pf-mfa-option-icon, .pf-avatar, .pf-avatar-upload ) {
+  background: var(--app-sheet-surface-raised); background-color: var(--app-sheet-surface-raised); background-image: none;
+}
+html body main.listing-detail-page.listing-detail-page :is( .main, .seller-card, .seller-card-body, .seller-card-body.seller-card-panel, .contact-card, .description-card, .listing-facts-card, .listing-extra-card ), html body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card[data-seller-panel], html body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card[data-seller-panel] > .seller-card-body.seller-card-panel {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body main.page.listing-detail-page.listing-detail-page .container.container .layout.layout .main.main, html body main.page.listing-detail-page.listing-detail-page .container.container .layout.layout .main.main :is( .title-row.title-row, .desktop-image-meta.desktop-image-meta, .price-actions-row.price-actions-row, .description-card.description-card, .listing-section-toggle.listing-section-toggle, .listing-section-content.listing-section-content, .listing-fact-grid.listing-fact-grid, .listing-fact-grid.listing-fact-grid span ) {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body .messages-page :is( .messages-desktop-shell, .messages-stat-card, .messages-state-card, .messages-empty, .messages-login-panel, .conversation-card, .messages-info-card ) {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body .garage-page :is( .garage-heading, .garage-toolbar, .garage-form, .garage-vehicle-wrap, .garage-vehicle-card, .garage-parts-panel, .garage-part-card, .garage-empty, .garage-login-prompt ), html body .followed-page :is( .followed-hero, .followed-loading, .followed-toolbar, .followed-tabs, .followed-card, .followed-empty, .followed-error ), html body .sa-page :is( .sa-hero, .sa-form-card, .sa-saved-panel, .sa-saved-workspace, .sa-card, .sa-edit-panel, .sa-empty ) {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body .settings-page-responsive :is( #settings-language, #settings-notifications, #settings-background ), html body .sell-page-responsive :is( [class*="modeCard"], [class*="Panel"], [class*="priceSuggestionCard"], [class*="vehicleTypeCard"] ) {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body .seller-page :is( .seller-profile-card, .seller-section-card, .review-card, .company-seller-card, .selected-company-seller-card, [class*="seller-card"], [class*="profile-card"], [class*="seller-panel"], [class*="profile-panel"], [class*="seller-ref-card"], [class*="seller-ref-panel"] ) {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body main.auth-page.seller-page.seller-page :is( .seller-ref-hero.seller-ref-hero, .seller-ref-stats.seller-ref-stats, .seller-profile-listings-panel.seller-profile-listings-panel, .seller-tab-loading-placeholder.seller-tab-loading-placeholder, .sp-filter-panel.sp-filter-panel, .sp-empty.sp-empty ) {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body main.auth-page.seller-page.seller-page :is( .seller-ref-hero.seller-ref-hero, .seller-profile-listings-panel.seller-profile-listings-panel ) {
+  box-shadow: none;
+}
+html body :is( .info-card, .info-section, .about-showcase-card, .contact-form-card, .help-topic-card, .help-column, .help-guide-item, .help-faq-item, .help-support, .simple-card, .profile-ready-card, .own-listings-panel, .seller-listing-card, .own-listing-card ) {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+html body .saved-page :is(.saved-hero, .saved-empty) {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border-color: var(--app-sheet-border);
+}
+@media (max-width: 720px) {
+  html body .pf-page.pf-page .pf-form > :is( #yritys, #tiedot, #julkinen-profiili, #osoite, #tilin-turvallisuus ).pf-aligned-section, html body .pf-page.pf-page .pf-form > :is( #yritys, #tiedot, #julkinen-profiili, #osoite, #tilin-turvallisuus ).pf-aligned-section > :is(.pf-info-card-head, .pf-section-head, .pf-card-body) {
+    background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none;
+  }
+}
+html body main.pf-page.pf-page {
+  background: radial-gradient(900px 520px at 48% -180px, rgba(30, 74, 108, 0.14), transparent 72%), #080f17; background-color: #080f17; color: #f5f8fb;
+}
+html body main.pf-page.pf-page .pf-sidebar {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border: 1px solid var(--app-sheet-border); border-radius: 14px; box-shadow: 0 22px 54px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  overflow: hidden;
+}
+html body main.pf-page.pf-page .pf-user-card {
+  background: radial-gradient(180px 120px at 12% 0%, rgba(255, 122, 24, 0.075), transparent 74%), var(--app-sheet-surface); border-bottom-color: var(--app-sheet-border);
+}
+html body main.pf-page.pf-page :is( .pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section, .pf-insight-card ) {
+  background: var(--app-sheet-surface); background-color: var(--app-sheet-surface); background-image: none; border: 1px solid var(--app-sheet-border); border-radius: 14px; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  overflow: hidden; transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+html body main.pf-page.pf-page :is( .pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section, .pf-insight-card ):hover {
+  border-color: #35546d; box-shadow: 0 24px 56px rgba(0, 0, 0, 0.24), 0 0 0 1px rgba(255, 122, 24, 0.025), inset 0 1px 0 rgba(255, 255, 255, 0.035); transform: translateY(-1px);
+}
+html body main.pf-page.pf-page :is(.pf-info-card-head, .pf-section-head) {
+  background: linear-gradient(90deg, rgba(255, 122, 24, 0.035), transparent 46%); background-color: var(--app-sheet-surface); border-color: var(--app-sheet-border);
+}
+html body main.pf-page.pf-page :is( .pf-info-title-icon, .pf-section-head > svg, .pf-info-row-icon, .pf-field-icon, .pf-insight-icon, .pf-mfa-option-icon ) {
+  background: var(--app-sheet-surface-raised); background-color: var(--app-sheet-surface-raised); background-image: none; border: 1px solid rgba(255, 122, 24, 0.78); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045); color: #9eb1c3;
+}
+html body main.pf-page.pf-page :is( .pf-info-row, #julkinen-profiili .pf-field, #osoite .pf-field ) {
+  background: transparent; background-image: none; border-bottom-color: #213648;
+}
+html body main.pf-page.pf-page :is( .pf-info-row, #julkinen-profiili .pf-field, #osoite .pf-field ):hover {
+  background: rgba(20, 37, 54, 0.58); border-color: #2d475d;
+}
+html body main.pf-page.pf-page :is(.pf-info-card-head h2, .pf-section-head h2, .pf-user-name) {
+  color: #f5f8fb;
+}
+html body main.pf-page.pf-page :is( .pf-info-card-head p, .pf-section-head p, .pf-info-label, .pf-field label, .pf-company-badge, .pf-last-updated ) {
+  color: #8fa2b5;
+}
+html body main.pf-page.pf-page .pf-nav-item {
+  border-bottom-color: #213648; color: #91a4b6; transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+html body main.pf-page.pf-page .pf-nav-item > svg:first-child {
+  color: #8fa2b5;
+}
+html body main.pf-page.pf-page .pf-nav-item:hover, html body main.pf-page.pf-page .pf-nav-active {
+  background: #142536; background-color: #142536; background-image: none; border-left-color: #ff7a18; color: #f5f8fb;
+}
+html body main.pf-page.pf-page .pf-nav-active::after {
+  background: #ff7a18; box-shadow: 0 0 12px rgba(255, 122, 24, 0.42);
+}
+html body main.pf-page.pf-page :is(.pf-avatar, .pf-avatar-upload) {
+  background: #102437; background-color: #102437; background-image: none; border-color: #ff7a18; box-shadow: 0 0 0 4px rgba(255, 122, 24, 0.08), 0 12px 26px rgba(0, 0, 0, 0.26);
+}
+html body main.pf-page.pf-page .pf-sidebar-progress-track {
+  background: #1d3244;
+}
+html body main.pf-page.pf-page .pf-sidebar-progress-track > span {
+  background: linear-gradient(90deg, #ff6a0a, #ff982f); box-shadow: 0 0 10px rgba(255, 122, 24, 0.28);
+}
+html body main.pf-page.pf-page :is( .pf-phone-change-btn, .pf-password-reset-btn, .pf-mfa-manage-btn, .pf-company-verify-btn, .pf-save-btn, .company-seller-add-btn ) {
+  background: linear-gradient(135deg, #ff8f26, #f26508); background-image: linear-gradient(135deg, #ff8f26, #f26508); border-color: #ffab59; box-shadow: 0 10px 22px rgba(242, 101, 8, 0.22); color: #ffffff;
+}

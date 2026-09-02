@@ -1,4 +1,5 @@
 "use client";
+import UiText from "@/app/components/UiText";
 import { useState, useEffect, useId, useRef, type ReactNode, type RefObject } from "react";
 import {
   displayCategoryForVehicle,
@@ -2981,14 +2982,14 @@ export default function CategoryDrawer({
             <>
               {false && vehicle && (
                 <section className="cd-inline-vehicle-panel" aria-label="Ajoneuvon tiedot">
-                  <div className="cd-step-hint">Merkki, malli, vuosimalli ja moottori</div>
+                  <div className="cd-step-hint"><UiText text={"Merkki, malli, vuosimalli ja moottori"} /></div>
               <div
                 className="cd-vehicle-detail-grid"
                 onClickCapture={closeVehicleTypeMenus}
                 onFocusCapture={closeVehicleTypeMenus}
               >
                     <div className="cd-detail-field">
-                      <label className="cd-field-label">Merkki</label>
+                      <label className="cd-field-label"><UiText text={"Merkki"} /></label>
                       <select
                         className="cd-cc-select"
                         value={brand}
@@ -3000,7 +3001,7 @@ export default function CategoryDrawer({
                           setEngineModelOther("");
                         }}
                       >
-                        <option value="">Kaikki merkit</option>
+                        <option value=""><UiText text={"Kaikki merkit"} /></option>
                         {brandOptions.map((b) => (
                           <option key={b} value={b}>{b}</option>
                         ))}
@@ -3008,7 +3009,7 @@ export default function CategoryDrawer({
                     </div>
 
                     <div className="cd-detail-field">
-                      <label className="cd-field-label">Malli</label>
+                      <label className="cd-field-label"><UiText text={"Malli"} /></label>
                       <select
                         className="cd-cc-select"
                         value={model}
@@ -3027,13 +3028,13 @@ export default function CategoryDrawer({
                     </div>
 
                     <div className="cd-detail-field">
-                      <label className="cd-field-label">Vuosimalli</label>
+                      <label className="cd-field-label"><UiText text={"Vuosimalli"} /></label>
                       <select
                         className="cd-cc-select"
                         value={year}
                         onChange={e => setYear(e.target.value)}
                       >
-                        <option value="">Kaikki vuodet</option>
+                        <option value=""><UiText text={"Kaikki vuodet"} /></option>
                         {YEAR_OPTIONS.map((yearOption) => (
                           <option key={yearOption} value={yearOption}>{yearOption}</option>
                         ))}
@@ -3041,7 +3042,7 @@ export default function CategoryDrawer({
                     </div>
 
                     <div className="cd-detail-field">
-                      <label className="cd-field-label">Moottorin koko</label>
+                      <label className="cd-field-label"><UiText text={"Moottorin koko"} /></label>
                       <select
                         className="cd-cc-select"
                         value={engineCc}
@@ -3049,7 +3050,7 @@ export default function CategoryDrawer({
                       >
                         <option value="">{t.all}</option>
                         {(vehicle ? (CC_OPTIONS[vehicle] ?? CC_OPTIONS[getCategoryVehicleKey(vehicle)] ?? DEFAULT_CC_OPTIONS) : DEFAULT_CC_OPTIONS).map((cc: string) => (
-                          <option key={cc} value={cc}>{cc} cc</option>
+                          <option key={cc} value={cc}>{cc}<UiText text={" cc"} /></option>
                         ))}
                         <option value="muu">{t.sellOtherOption}</option>
                       </select>
@@ -3065,7 +3066,7 @@ export default function CategoryDrawer({
                     </div>
 
                     <div className="cd-detail-field">
-                      <label className="cd-field-label">Moottori</label>
+                      <label className="cd-field-label"><UiText text={"Moottori"} /></label>
                       <select
                         className="cd-cc-select"
                         value={engineModel}
@@ -3090,7 +3091,7 @@ export default function CategoryDrawer({
 
                   </div>
                   <div className="cd-inline-actions">
-                    <button className="cd-apply" type="button" onClick={apply}>Näytä tulokset</button>
+                    <button className="cd-apply" type="button" onClick={apply}><UiText text={"Näytä tulokset"} /></button>
                     <button
                       className="cd-reset"
                       type="button"
@@ -3104,9 +3105,7 @@ export default function CategoryDrawer({
                         setEngineModel("");
                         setEngineModelOther("");
                       }}
-                    >
-                      Tyhjennä
-                    </button>
+                    ><UiText text={"Tyhjennä"} /></button>
                   </div>
                 </section>
               )}

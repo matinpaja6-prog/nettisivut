@@ -1,0 +1,855 @@
+
+@media (min-width: 721px) and (max-width: 1280px) {
+  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation .universal-home-primary-nav {
+    display: flex; flex: 0 1 auto; align-items: center; justify-content: center; min-width: 0; width: fit-content;
+    max-width: 100%; margin-inline: auto; gap: clamp(10px, 1.2vw, 18px); overflow: hidden;
+  }
+  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation .universal-home-primary-nav > * {
+    display: inline-flex; flex: 0 0 auto; margin: 0; padding-inline: 0; white-space: nowrap;
+  }
+  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation .universal-home-primary-nav > :nth-child(3) {
+    display: none;
+  }
+}
+@media (min-width: 721px) and (max-width: 1080px) {
+  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation .universal-home-primary-nav > :nth-child(2) {
+    display: none;
+  }
+}
+@media (min-width: 721px) and (max-width: 960px) {
+  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation .universal-home-primary-nav > :nth-child(1) {
+    display: none;
+  }
+}
+@media (min-width: 721px) and (max-width: 860px) {
+  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation .universal-home-primary-nav > :nth-child(4) {
+    display: none;
+  }
+  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation .universal-home-primary-nav > :nth-child(5) {
+    display: inline-flex;
+  }
+}
+@media (min-width: 1281px) and (max-width: 1500px) {
+  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation {
+    display: flex; flex: 1 1 auto; align-items: center; min-width: 0;
+  }
+  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation .universal-home-primary-nav {
+    display: flex; flex: 0 1 auto; align-items: center; justify-content: center; width: fit-content; max-width: 100%;
+    margin-inline: auto; gap: clamp(12px, 1.2vw, 20px); overflow: hidden;
+  }
+  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation .universal-home-primary-nav > * {
+    flex: 0 0 auto; margin: 0; padding-inline: 0; white-space: nowrap;
+  }
+  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation .universal-home-primary-nav > :nth-child(3) {
+    display: none;
+  }
+}
+@media (min-width: 721px) and (max-width: 1280px) {
+  html body header.universal-app-topbar.universal-app-topbar {
+    position: relative; display: flex; flex-flow: row nowrap; align-items: center; justify-content: space-between; width: 100%;
+    height: 74px; min-height: 74px; max-height: 74px; padding: 0 clamp(12px, 1.7vw, 24px); gap: clamp(10px, 1.4vw, 18px); overflow: hidden;
+  }
+  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation {
+    position: static; inset: auto; order: 1; display: flex; flex: 1 1 auto; flex-flow: row nowrap;
+    align-items: center; width: auto; min-width: 0; height: 100%; margin: 0; transform: none;
+  }
+  html body header.universal-app-topbar.universal-app-topbar .universal-topbar-actions {
+    position: static; inset: auto; order: 2; display: flex; flex: 0 0 auto; flex-flow: row nowrap;
+    align-items: center; align-self: center; width: auto; min-width: max-content; height: auto; margin: 0;
+    transform: none;
+  }
+  html body header.universal-app-topbar.universal-app-topbar .universal-page-back-button, html body header.universal-app-topbar.universal-app-topbar .universal-home-brand, html body header.universal-app-topbar.universal-app-topbar .universal-home-primary-nav, html body header.universal-app-topbar.universal-app-topbar .universal-topbar-actions > * {
+    align-self: center;
+  }
+}
+@media (min-width: 721px) and (max-width: 1040px) {
+  html body header.universal-app-topbar.universal-app-topbar .rebuilt-profile-button {
+    width: 46px; min-width: 46px; max-width: 46px; padding-inline: 4px;
+  }
+  html body header.universal-app-topbar.universal-app-topbar .rebuilt-profile-button-copy, html body header.universal-app-topbar.universal-app-topbar .rebuilt-profile-chevron {
+    display: none;
+  }
+}
+html body main.listing-detail-page .sidebar, html body main.listing-detail-page .seller-card, html body main.listing-detail-page .seller-card-body, html body main.listing-detail-page .seller-card-panel, html body main.listing-detail-page .seller-info, html body main.listing-detail-page .seller-name-row, html body main.listing-detail-page .seller-meta-rows, html body main.listing-detail-page .seller-meta-row {
+  box-sizing: border-box; min-width: 0; max-width: 100%;
+}
+html body main.listing-detail-page .seller-card, html body main.listing-detail-page .seller-card-body, html body main.listing-detail-page .seller-card-panel {
+  width: 100%;
+}
+html body main.listing-detail-page .seller-card *, html body main.listing-detail-page .seller-card strong, html body main.listing-detail-page .seller-card span, html body main.listing-detail-page .seller-card a {
+  writing-mode: horizontal-tb; text-orientation: mixed; word-break: normal; overflow-wrap: break-word; hyphens: none;
+}
+@media (min-width: 761px) and (max-width: 1280px) {
+  html body main.listing-detail-page section.layout {
+    display: grid; grid-template-columns: minmax(0, 780px); justify-content: center; width: 100%; max-width: 780px;
+  }
+  html body main.listing-detail-page aside.sidebar {
+    position: static; width: 100%; max-width: 780px;
+  }
+  html body main.listing-detail-page .seller-card-body.seller-card-panel {
+    padding: clamp(20px, 3vw, 30px);
+  }
+  html body main.listing-detail-page .seller-identity-row {
+    grid-template-columns: clamp(76px, 10vw, 102px) minmax(0, 1fr);
+  }
+}
+@media (max-width: 760px) {
+  html body main.listing-detail-page .seller-card-body.seller-card-panel {
+    padding: 18px 16px;
+  }
+  html body main.listing-detail-page .seller-card-top {
+    display: flex; flex-wrap: wrap; gap: 10px;
+  }
+  html body main.listing-detail-page .seller-identity-row {
+    display: grid; grid-template-columns: 68px minmax(0, 1fr); gap: 14px;
+  }
+  html body main.listing-detail-page .seller-meta-row {
+    display: grid; grid-template-columns: 20px minmax(72px, auto) minmax(0, 1fr); align-items: start; gap: 8px;
+  }
+}
+@media (min-width: 1024px) and (hover: hover) {
+  html body main.page.listing-detail-page.listing-detail-page .container.container {
+    width: 100%; max-width: 1240px; padding-inline: clamp(18px, 2.2vw, 28px);
+  }
+  html body main.page.listing-detail-page.listing-detail-page section.layout.layout.layout {
+    display: grid; grid-template-columns: minmax(0, 1fr) clamp(340px, 31vw, 390px); align-items: start; justify-content: center; gap: clamp(16px, 2vw, 24px); width: 100%;
+    max-width: 1188px;
+  }
+  html body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar.sidebar {
+    position: sticky; top: 94px; align-self: start; width: 100%; min-width: 340px; max-width: 390px;
+    margin: 0;
+  }
+  html body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar.sidebar .seller-card {
+    width: 100%; min-width: 0; max-width: none;
+  }
+}
+:root {
+  --rs-page-gutter: clamp(14px, 2.4vw, 32px); --rs-content-max: 1280px; --rs-topbar-height: 76px;
+}
+html, body {
+  width: 100%;
+}
+body main, body main > *, body main section, body main article, body main aside, body main form, body main fieldset {
+  box-sizing: border-box; min-width: 0;
+}
+body img, body video, body canvas {
+  max-width: 100%;
+}
+body input, body select, body textarea, body button {
+  max-width: 100%;
+}
+:where( .garage-container, .followed-container, .saved-container, .help-shell, .privacy-shell, .terms-shell ) {
+  box-sizing: border-box; width: min(calc(100% - (2 * var(--rs-page-gutter))), var(--rs-content-max)); max-width: 100%; margin-inline: auto;
+}
+:where( .admin-page, .about-showcase-page, .auth-page, .followed-page, .garage-page, .help-page, .listing-index-page, .messages-page, .my-listings-page, .pf-page, .privacy-page, .profile-workspace, .sa-page, .saved-page, .sell-page-responsive, .settings-page-responsive, .terms-page ) {
+  box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0;
+}
+@media (min-width: 721px) {
+  html body :is(#rs-never, header.universal-app-topbar) {
+    position: relative; display: flex; flex-flow: row nowrap; align-items: center; justify-content: space-between; width: 100%;
+    height: var(--rs-topbar-height); min-height: var(--rs-topbar-height); max-height: var(--rs-topbar-height); padding: 0 var(--rs-page-gutter); gap: clamp(10px, 1.3vw, 20px); overflow: hidden;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .universal-home-navigation {
+    position: static; inset: auto; order: 1; display: flex; flex: 1 1 auto; flex-flow: row nowrap;
+    align-items: center; width: auto; min-width: 0; max-width: none; height: 100%; margin: 0;
+    gap: clamp(10px, 1.5vw, 24px); transform: none; overflow: hidden;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .universal-page-back-button {
+    position: static; flex: 0 0 46px; width: 46px; min-width: 46px; height: 46px; margin: 0;
+    transform: none;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .universal-home-brand {
+    display: flex; flex: 0 0 clamp(112px, 12vw, 190px); align-items: center; width: clamp(112px, 12vw, 190px); min-width: 112px; max-width: 190px;
+    margin: 0; overflow: visible;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .universal-home-brand-copy {
+    display: flex; width: max-content; min-width: max-content; white-space: nowrap; overflow: visible;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .universal-home-primary-nav {
+    display: flex; flex: 0 1 auto; align-items: center; justify-content: center; width: fit-content; min-width: 0;
+    max-width: 100%; margin-inline: auto; gap: clamp(10px, 1.15vw, 20px); overflow: hidden;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .universal-home-primary-nav > * {
+    display: inline-flex; flex: 0 0 auto; align-items: center; margin: 0; padding-inline: 2px; white-space: nowrap;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .universal-topbar-actions {
+    position: static; inset: auto; order: 2; display: flex; flex: 0 0 auto; flex-flow: row nowrap;
+    align-items: center; align-self: center; justify-content: flex-end; width: auto; min-width: max-content; max-width: none;
+    height: auto; margin: 0; gap: clamp(7px, 0.8vw, 12px); transform: none;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .universal-create-button {
+    display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: auto; min-width: 148px;
+    height: 46px; padding: 7px 14px 7px 8px; gap: 10px; overflow: hidden;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .universal-create-button strong {
+    display: inline; width: auto; white-space: nowrap;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .universal-create-plus {
+    position: relative; display: grid; flex: 0 0 28px; place-items: center; width: 28px; height: 28px;
+    margin: 0; padding: 0; transform: none;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .universal-create-plus > svg {
+    position: absolute; top: 50%; left: 50%; width: 14px; height: 14px; margin: 0;
+    transform: translate(-50%, -50%);
+  }
+}
+@media (min-width: 1501px) {
+  html body :is(#rs-never, header.universal-app-topbar) .universal-home-primary-nav > * {
+    display: inline-flex;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1500px) {
+  html body :is(#rs-never, header.universal-app-topbar) .universal-home-primary-nav > :nth-child(3) {
+    display: none;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1180px) {
+  html body :is(#rs-never, header.universal-app-topbar) .rebuilt-profile-button {
+    width: 46px; min-width: 46px; max-width: 46px; padding-inline: 4px;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .rebuilt-profile-button-copy, html body :is(#rs-never, header.universal-app-topbar) .rebuilt-profile-chevron {
+    display: none;
+  }
+}
+@media (min-width: 900px) and (max-width: 1023px) {
+  html body :is(#rs-never, header.universal-app-topbar) .universal-home-primary-nav > :nth-child(-n + 3) {
+    display: none;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .rebuilt-profile-button {
+    width: 46px; min-width: 46px; max-width: 46px; padding-inline: 4px;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .rebuilt-profile-button-copy, html body :is(#rs-never, header.universal-app-topbar) .rebuilt-profile-chevron {
+    display: none;
+  }
+}
+@media (min-width: 721px) and (max-width: 899px) {
+  html body :is(#rs-never, header.universal-app-topbar) .universal-home-primary-nav > :not(:nth-child(5)) {
+    display: none;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .rebuilt-profile-button {
+    width: 44px; min-width: 44px; max-width: 44px; padding-inline: 3px;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .rebuilt-profile-button-copy, html body :is(#rs-never, header.universal-app-topbar) .rebuilt-profile-chevron {
+    display: none;
+  }
+}
+@media (max-width: 720px) {
+  :root {
+    --rs-page-gutter: 12px; --rs-topbar-height: 70px;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) {
+    width: 100%; min-width: 0; max-width: 100%; min-height: var(--rs-topbar-height); overflow: hidden;
+  }
+  html body :is(#rs-never, header.universal-app-topbar) .universal-home-primary-nav {
+    display: none;
+  }
+}
+html body :is(#rs-never, main.listing-detail-page) :is(#rs-layout, [data-listing-layout]) {
+  container-type: inline-size; box-sizing: border-box; width: 100%; min-width: 0; margin-inline: auto;
+}
+html body :is(#rs-never, main.listing-detail-page) :is(#rs-sidebar, [data-listing-seller-sidebar]) {
+  box-sizing: border-box; min-width: 0;
+}
+html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) {
+  box-sizing: border-box; width: 100%; min-width: 0; max-width: none;
+}
+html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) *, html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) strong, html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) span, html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) a {
+  min-width: 0; writing-mode: horizontal-tb; text-orientation: mixed; word-break: normal; overflow-wrap: break-word; hyphens: none;
+}
+html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-card-top {
+  display: flex; flex-flow: row wrap; align-items: center; justify-content: space-between; gap: 10px;
+}
+html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-identity-row {
+  display: grid; grid-template-columns: clamp(72px, 8vw, 96px) minmax(0, 1fr); align-items: center; gap: clamp(14px, 2vw, 22px);
+}
+html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-name-row strong {
+  font-size: clamp(20px, 2.1vw, 26px); line-height: 1.12;
+}
+html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-meta-row {
+  display: grid; grid-template-columns: 20px max-content minmax(0, 1fr); align-items: start; gap: 8px;
+}
+html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-meta-row > svg {
+  margin-top: 2px;
+}
+html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-stats-row {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
+}
+html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-contact-merged, html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-contact-merged > * {
+  width: 100%; min-width: 0;
+}
+@media (min-width: 1000px) {
+  html body :is(#rs-never, main.listing-detail-page) > .container {
+    box-sizing: border-box; width: min(calc(100% - (2 * var(--rs-page-gutter))), 1240px); max-width: 1240px; margin-inline: auto; padding-inline: 0;
+  }
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-layout, [data-listing-layout]) {
+    display: grid; grid-template-columns: minmax(0, 1fr) clamp(340px, 31vw, 390px); align-items: start; justify-content: center; gap: clamp(16px, 2vw, 24px); max-width: 1188px;
+  }
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-sidebar, [data-listing-seller-sidebar]) {
+    position: sticky; top: calc(var(--rs-topbar-height) + 18px); align-self: start; width: 100%; min-width: 340px; max-width: 390px;
+    margin: 0;
+  }
+}
+@media (max-width: 999px) {
+  html body :is(#rs-never, main.listing-detail-page) > .container {
+    box-sizing: border-box; width: 100%; max-width: 860px; margin-inline: auto; padding-inline: var(--rs-page-gutter);
+  }
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-layout, [data-listing-layout]) {
+    display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; max-width: 820px;
+  }
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-sidebar, [data-listing-seller-sidebar]) {
+    position: static; width: 100%; min-width: 0; max-width: none; margin: 0;
+  }
+}
+@media (max-width: 520px) {
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-card-top {
+    flex-flow: row nowrap; gap: 6px;
+  }
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-type-corner {
+    flex: 0 1 auto; font-size: 14px; gap: 6px; white-space: nowrap;
+  }
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-type-corner svg {
+    width: 14px; height: 14px;
+  }
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-profile-btn-top {
+    flex: 0 0 auto; width: auto; max-width: none; margin: 0 0 0 auto; padding: 0; gap: 4px;
+    font-size: 12px; white-space: nowrap;
+  }
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-profile-btn-top svg {
+    width: 14px; height: 14px;
+  }
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-card-body {
+    padding: 18px 16px;
+  }
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-identity-row {
+    grid-template-columns: 64px minmax(0, 1fr); gap: 12px;
+  }
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-meta-row {
+    grid-template-columns: 18px minmax(70px, auto) minmax(0, 1fr); font-size: 14px;
+  }
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-stats-row {
+    gap: 8px;
+  }
+}
+.sell-page-responsive, .settings-page-responsive, .listing-index-page {
+  padding-inline: var(--rs-page-gutter);
+}
+.sell-page-responsive > section, .settings-page-responsive > div, .listing-index-page > div {
+  box-sizing: border-box; width: min(100%, 1180px); max-width: 100%; margin-inline: auto;
+}
+@media (min-width: 721px) and (max-width: 1100px) {
+  .messages-desktop-shell {
+    box-sizing: border-box; width: calc(100% - (2 * var(--rs-page-gutter))); max-width: 1040px; margin-inline: auto; grid-template-columns: minmax(270px, 36%) minmax(0, 1fr);
+  }
+  :where(.garage-grid, .followed-grid, .saved-grid) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 720px) {
+  .sell-page-responsive, .settings-page-responsive, .listing-index-page {
+    padding-inline: 0;
+  }
+  :where(.garage-grid, .followed-grid, .saved-grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  :where(.privacy-shell, .terms-shell, .help-shell) {
+    width: calc(100% - 24px);
+  }
+}
+html:has([data-home-background-region]), html body:has([data-home-background-region]) {
+  overflow-x: clip;
+}
+html body main:has([data-home-background-region]) {
+  box-sizing: border-box; width: 100%; max-width: none; margin-inline: 0; padding-inline: 0; overflow: visible;
+}
+html body :is(#rs-home-region, [data-home-background-region]) {
+  box-sizing: border-box; position: relative; left: auto; width: 100vw; min-width: 100vw; max-width: none;
+  margin-right: calc(50% - 50vw); margin-left: calc(50% - 50vw); padding: 0; overflow: visible;
+}
+html body :is(#rs-home-container, [data-home-background-container]), html body :is(#rs-home-hero, [data-home-hero]), html body :is(#rs-home-layout, [data-home-layout]), html body :is(#rs-home-results, [data-home-results-mode]) {
+  box-sizing: border-box; width: 100%; min-width: 0; max-width: none; margin-inline: 0; padding-inline: 0;
+  overflow: visible;
+}
+html body :is(#rs-home-showcase, [data-home-intro-showcase]) {
+  box-sizing: border-box; width: 100%; min-width: 0; max-width: none; margin: 0; border-radius: 0;
+  overflow: hidden;
+}
+html body :is(#rs-home-art, [data-home-hero-art]), html body :is(#rs-home-art, [data-home-hero-art]) img {
+  width: 100%; max-width: none;
+}
+html body :is(#rs-home-art, [data-home-hero-art]) img {
+  height: 100%; object-fit: cover; object-position: center;
+}
+html body :is(#rs-home-list, [data-home-results-list]) {
+  box-sizing: border-box; padding-bottom: clamp(32px, 4vw, 64px);
+}
+@media (min-width: 801px) {
+  html body :is(#rs-home-showcase, [data-home-intro-showcase]) {
+    height: clamp(520px, 60vh, 620px); min-height: 520px;
+  }
+  html body :is(#rs-home-copy, [data-home-hero-copy]) {
+    box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; height: 100%;
+    min-height: 0; padding-top: clamp(40px, 6vh, 68px); padding-bottom: clamp(40px, 6vh, 68px); overflow: visible;
+  }
+  html body :is(#rs-home-headline, [data-home-headline]) {
+    font-size: clamp(48px, 3.8vw, 64px); line-height: 1.04;
+  }
+  html body :is(#rs-home-layout, [data-home-layout]) {
+    display: grid; grid-template-columns: minmax(0, 1fr) clamp(360px, 22vw, 430px); column-gap: clamp(20px, 2vw, 32px); align-items: start;
+  }
+  html body :is(#rs-home-results, [data-home-results-mode]) {
+    display: contents;
+  }
+  html body :is(#rs-home-showcase, [data-home-intro-showcase]) {
+    grid-column: 1 / -1; grid-row: 1;
+  }
+  html body :is(#rs-home-search, [data-home-results-search]) {
+    grid-column: 1; grid-row: 2; box-sizing: border-box; width: calc(100% - var(--rs-page-gutter)); max-width: none; margin-right: 0;
+    margin-left: var(--rs-page-gutter);
+  }
+  html body :is(#rs-home-sell, [data-home-sell-callout]) {
+    grid-column: 1; grid-row: 3; box-sizing: border-box; width: calc(100% - var(--rs-page-gutter)); max-width: none; margin-right: 0;
+    margin-left: var(--rs-page-gutter);
+  }
+  html body :is(#rs-home-benefits, [data-home-benefits]) {
+    grid-column: 1; grid-row: 4; box-sizing: border-box; width: calc(100% - var(--rs-page-gutter)); max-width: none; margin-right: 0;
+    margin-left: var(--rs-page-gutter);
+  }
+  html body :is(#rs-home-list, [data-home-results-list]) {
+    grid-column: 1; grid-row: 5; box-sizing: border-box; width: calc(100% - var(--rs-page-gutter)); max-width: none; margin-right: 0;
+    margin-left: var(--rs-page-gutter);
+  }
+  html body :is(#rs-home-filter, [data-home-filter-rail][data-home-filter-sheet="false"]) {
+    display: block; visibility: visible; position: sticky !important; top: 14px !important; grid-column: 2;
+    align-self: start; box-sizing: border-box; width: calc(100% - var(--rs-page-gutter)); min-width: 360px; max-width: 430px; height: auto;
+    max-height: calc(100dvh - 96px); margin: 0 var(--rs-page-gutter) 0 0; opacity: 1; overflow-x: hidden; overflow-y: auto;
+    overscroll-behavior: contain; pointer-events: auto; scrollbar-gutter: stable; scrollbar-width: thin; transform: none; z-index: 20;
+  }
+  html body main:not([data-home-filtered-results="true"]) :is(#rs-home-filter, [data-home-filter-rail][data-home-filter-sheet="false"]) {
+    grid-row: 2 / span 4;
+  }
+  html body main[data-home-filtered-results="true"] :is(#rs-home-filter, [data-home-filter-rail][data-home-filter-sheet="false"]) {
+    grid-row: 1;
+  }
+  html body :is(#rs-home-filter, [data-home-filter-rail][data-home-filter-sheet="false"]) :where(button:not([class*="heroRailHeaderClear"]), input:not([type="range"]), select) {
+    min-height: 38px;
+  }
+  html body :is(#rs-brand-copy, header.universal-app-topbar .universal-home-brand-copy) {
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: center; width: max-content; min-width: max-content;
+    gap: 2px; line-height: 1;
+  }
+  html body :is(#rs-brand-copy, header.universal-app-topbar .universal-home-brand-copy) strong, html body :is(#rs-brand-copy, header.universal-app-topbar .universal-home-brand-copy) small {
+    display: block; width: max-content; margin: 0;
+  }
+  html body :is(#rs-brand-copy, header.universal-app-topbar .universal-home-brand-copy) small {
+    line-height: 1; letter-spacing: 0.18em;
+  }
+}
+@media (min-width: 1600px) {
+  html body :is(#rs-home-region, [data-home-background-region]) {
+    margin-left: 0; margin-right: 0;
+  }
+  html body :is(#rs-home-layout, [data-home-layout]) {
+    grid-template-columns: minmax(24px, 1fr) minmax(0, 1240px) 24px 400px minmax(24px, 1fr); column-gap: 0;
+  }
+  html body :is(#rs-home-showcase, [data-home-intro-showcase]) {
+    grid-column: 1 / -1;
+  }
+  html body :is(#rs-home-search, [data-home-results-search]), html body :is(#rs-home-sell, [data-home-sell-callout]), html body :is(#rs-home-benefits, [data-home-benefits]), html body :is(#rs-home-list, [data-home-results-list]) {
+    grid-column: 2; width: 100%; margin-inline: 0;
+  }
+  html body :is(#rs-home-filter, [data-home-filter-rail][data-home-filter-sheet="false"]) {
+    grid-column: 4; width: 400px; min-width: 400px; max-width: 400px; margin: 0;
+  }
+}
+html body main:has([data-listing-layout]) {
+  width: 100%; max-width: none; overflow-x: clip;
+}
+html body main:has([data-listing-layout]) > :is(#rs-listing-container-final, [data-listing-layout], :has(> [data-listing-layout])) {
+  box-sizing: border-box; width: min(calc(100% - (2 * var(--rs-page-gutter))), 1240px); max-width: 1240px; margin-inline: auto;
+}
+html body :is(#rs-seller-final, [data-seller-panel]), html body :is(#rs-seller-final, [data-seller-panel]) * {
+  box-sizing: border-box; min-width: 0; writing-mode: horizontal-tb; text-orientation: mixed; word-break: normal; hyphens: none;
+}
+html body :is(#rs-seller-final, [data-seller-panel]) :where(strong, span, a) {
+  overflow-wrap: break-word;
+}
+html body :is(#rs-seller-final, [data-seller-panel]) .seller-identity-row {
+  display: grid; grid-template-columns: clamp(76px, 7vw, 96px) minmax(0, 1fr); align-items: center; gap: clamp(14px, 1.8vw, 22px);
+}
+html body :is(#rs-seller-final, [data-seller-panel]) .seller-name-row strong {
+  display: block; width: 100%; font-size: clamp(20px, 2vw, 26px); line-height: 1.12;
+}
+html body :is(#rs-seller-final, [data-seller-panel]) .seller-meta-row {
+  display: grid; grid-template-columns: 20px max-content minmax(0, 1fr); align-items: start; gap: 8px;
+}
+html body :is(#rs-seller-final, [data-seller-panel]) .seller-stats-row {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
+}
+@media (min-width: 1024px) {
+  html body :is(#rs-listing-layout-final, [data-listing-layout]) {
+    display: grid; grid-template-columns: minmax(0, 1fr) clamp(340px, 30vw, 390px); align-items: start; gap: clamp(18px, 2vw, 24px); width: 100%; max-width: none;
+  }
+  html body :is(#rs-seller-sidebar-final, [data-listing-seller-sidebar]) {
+    position: static; align-self: start; width: 100%; min-width: 340px; max-width: 390px; margin: 0;
+  }
+  html body :is(#rs-seller-final, [data-seller-panel]) {
+    width: 100%; min-width: 340px; max-width: 390px;
+  }
+}
+@media (max-width: 1023px) {
+  html body :is(#rs-listing-layout-final, [data-listing-layout]) {
+    display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; width: 100%; max-width: none;
+  }
+  html body :is(#rs-seller-sidebar-final, [data-listing-seller-sidebar]), html body :is(#rs-seller-final, [data-seller-panel]) {
+    position: static; width: 100%; min-width: 0; max-width: none; margin: 0;
+  }
+}
+@media (min-width: 801px) {
+  html body :is( #rs-desktop-home-link, header.universal-app-topbar nav.universal-home-primary-nav > a[href="/"] ) {
+    display: inline-flex; visibility: visible; align-items: center; opacity: 1; pointer-events: auto;
+  }
+}
+@media (min-width: 801px) and (max-width: 1199px) {
+  html body :is(#rs-home-benefits-mid, [data-home-benefits]) {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: calc(100% - var(--rs-page-gutter)); height: auto;
+  }
+  html body :is(#rs-home-benefits-mid, [data-home-benefits]) > span {
+    box-sizing: border-box; display: grid; grid-template-columns: 38px minmax(0, 1fr); align-items: center; gap: 8px; min-width: 0;
+    min-height: 72px; padding: 8px 9px;
+  }
+  html body :is(#rs-home-benefits-mid, [data-home-benefits]) > span > :last-child {
+    align-self: center; min-width: 0; overflow-wrap: normal; transform: translateY(3px); word-break: normal;
+  }
+  html body :is(#rs-home-benefits-mid, [data-home-benefits]) > span strong {
+    font-size: clamp(11px, 1.15vw, 14px); line-height: 1.08;
+  }
+  html body :is(#rs-home-benefits-mid, [data-home-benefits]) > span small {
+    font-size: clamp(9px, 0.85vw, 11px); line-height: 1.15;
+  }
+}
+@media (max-width: 760px) {
+  html {
+    overscroll-behavior-y: none;
+  }
+  body {
+    overscroll-behavior-y: auto;
+  }
+  html body .bottom-nav.bottom-nav-main {
+    -webkit-backface-visibility: hidden; -webkit-transform: translate3d(0, 0, 0); backface-visibility: hidden; bottom: 0; contain: layout paint style; left: 0;
+    margin: 0; max-width: none; min-height: calc(62px + env(safe-area-inset-bottom)); padding-bottom: calc(9px + env(safe-area-inset-bottom)); position: fixed; right: 0;
+    top: auto; transform: translate3d(0, 0, 0); width: auto; will-change: transform;
+  }
+  html body:has(> .bottom-nav.bottom-nav-main) {
+    padding-bottom: calc(62px + env(safe-area-inset-bottom));
+  }
+}
+html body header.universal-app-topbar.universal-auth-topbar .universal-home-primary-nav {
+  display: none;
+}
+html body header.universal-app-topbar.universal-app-topbar .universal-language-wrap, html body header.universal-app-topbar.universal-app-topbar .universal-language-wrap > [data-global-language-menu] {
+  align-items: center; display: inline-flex; flex: 0 0 auto; pointer-events: auto; visibility: visible;
+}
+html body header.universal-app-topbar.universal-app-topbar .universal-language-wrap .language-switcher {
+  align-items: center; display: inline-flex; height: 42px; justify-content: center; min-height: 42px; min-width: 42px;
+  opacity: 1; pointer-events: auto; visibility: visible; width: 42px;
+}
+html body header.universal-app-topbar.universal-auth-topbar .universal-topbar-actions {
+  align-items: center; display: flex; height: 44px; justify-content: flex-end; margin: 0; pointer-events: auto;
+  position: absolute; right: max(12px, env(safe-area-inset-right)); top: 50%; transform: translateY(-50%); width: auto; z-index: 2147483001;
+}
+html body header.universal-app-topbar.universal-auth-topbar .universal-language-wrap, html body header.universal-app-topbar.universal-auth-topbar .universal-language-wrap > [data-global-language-menu] {
+  align-items: center; display: inline-flex; pointer-events: auto;
+}
+.auth-mobile-back-home {
+  display: none;
+}
+@media (max-width: 760px) {
+  html body header.universal-app-topbar.universal-auth-topbar {
+    pointer-events: none;
+  }
+  html body header.universal-app-topbar.universal-auth-topbar .universal-topbar-actions, html body header.universal-app-topbar.universal-auth-topbar .language-switcher {
+    pointer-events: auto;
+  }
+  html body header.universal-app-topbar.universal-auth-topbar .universal-page-back-button {
+    display: none;
+  }
+  html body .auth-mobile-back-home {
+    align-items: center; background: transparent; border: 0; box-shadow: none; color: #ff7a1a; cursor: pointer;
+    display: inline-flex; height: 48px; justify-content: center; margin: 0; min-height: 48px; min-width: 48px;
+    padding: 0; position: fixed; top: max(8px, env(safe-area-inset-top)); touch-action: manipulation; width: 48px; z-index: 2147483000;
+  }
+  html body .auth-mobile-back-home > svg {
+    display: block; filter: drop-shadow(0 0 7px rgba(255, 122, 26, 0.28)); height: 26px; stroke-width: 2.8; width: 26px;
+  }
+}
+@media (min-width: 761px) {
+  html body header.universal-app-topbar.universal-app-topbar .universal-language-wrap {
+    margin-left: 0; order: 999;
+  }
+}
+@media (max-width: 760px) {
+  html body header.universal-app-topbar.universal-app-topbar .universal-language-wrap {
+    left: auto; margin: 0; order: -999; position: static; right: auto; top: auto;
+    transform: none; z-index: auto;
+  }
+  html body header.universal-app-topbar.universal-app-topbar .universal-topbar-actions {
+    column-gap: 8px;
+  }
+  html body .auth-mobile-back-home {
+    left: max(8px, env(safe-area-inset-left));
+  }
+}
+html body:has(main.simple-auth-page) header.universal-app-topbar .universal-language-wrap {
+  display: none;
+}
+html body:not(:has(main.simple-auth-page)) header.universal-app-topbar.universal-auth-topbar .universal-home-primary-nav, html body:not(:has(main.simple-auth-page)) header.universal-app-topbar.universal-auth-topbar .rebuilt-login-button {
+  display: flex;
+}
+@media (max-width: 760px), (hover: none) and (pointer: coarse) {
+  html body a, html body button, html body [role="button"] {
+    touch-action: manipulation;
+  }
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button {
+    -webkit-tap-highlight-color: transparent; pointer-events: auto; position: relative; touch-action: manipulation; user-select: none; z-index: 3;
+  }
+}
+html body :is(#notification-sheet-open, header.universal-app-topbar:has(.universal-notification-button.is-open)), html body :is(#notification-sheet-open, header.universal-app-topbar:has(.universal-notification-button.is-open)) .universal-topbar-actions, html body :is(#notification-sheet-open, header.universal-app-topbar:has(.universal-notification-button.is-open)) .universal-notification-wrap {
+  overflow: visible;
+}
+html body :is(#notification-sheet-open, header.universal-app-topbar:has(.universal-notification-button.is-open)) {
+  z-index: 90000;
+}
+html body :is(#notification-sheet-surface, .universal-notification-menu) {
+  z-index: 90200;
+}
+html body .messages-inbox-page :is( .conversation-closed-notice, .conversation-retention-notice ) {
+  align-items: flex-start; background: rgba(255, 122, 18, 0.08); border: 1px solid rgba(255, 122, 18, 0.46); border-radius: 8px; color: #c6d3df; display: flex;
+  flex-direction: column; gap: 4px; line-height: 1.4; padding: 12px 14px; width: 100%;
+}
+html body .messages-inbox-page .conversation-retention-notice {
+  margin-bottom: 8px;
+}
+html body .messages-inbox-page :is( .conversation-closed-notice, .conversation-retention-notice ) strong {
+  color: #ff8a2a;
+}
+html body .simple-auth-page {
+  display: grid; padding: 24px; place-items: center;
+}
+html body .simple-auth-page .auth-centered {
+  align-items: start; background: #0b151f; background-color: #0b151f; background-image: none; box-sizing: border-box; display: grid;
+  justify-items: center; margin: 0; max-width: 760px; min-height: 0; padding: 78px 48px 38px; position: relative;
+  width: min(760px, calc(100vw - 48px));
+}
+html body .simple-auth-page .auth-centered {
+  border: 1px solid var(--brand-primary, #ff7a18); box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+}
+html body .simple-auth-page .auth-centered::before, html body .simple-auth-page .auth-centered::after {
+  content: none; display: none;
+}
+html body .simple-auth-page:has(.registration-inline-card) .auth-centered {
+  min-height: 0; padding-bottom: 38px;
+}
+html body .simple-auth-page .auth-mobile-back-home {
+  appearance: none; background-color: transparent; background-image: none; border: 0; border-radius: 0; box-shadow: none;
+  left: 24px; line-height: 1; position: absolute; top: 19px;
+}
+html body .simple-auth-page .auth-mobile-back-home::before, html body .simple-auth-page .auth-mobile-back-home::after {
+  content: none; display: none;
+}
+html body .simple-auth-page .auth-mobile-back-home svg {
+  background: transparent; box-shadow: none; flex: 0 0 auto;
+}
+html body .simple-auth-page .auth-card.simple-card, html body .simple-auth-page .auth-card.simple-card:not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card), html body .simple-auth-page .registration-inline-card.profile-finalize-card {
+  background: transparent; border: 0; border-radius: 0; box-shadow: none; box-sizing: border-box; max-width: 540px;
+  padding: 34px; width: 100%;
+}
+html body .simple-auth-page .auth-input-with-icon > svg:first-child {
+  background: transparent; height: 18px; pointer-events: none; width: 18px;
+}
+html body .simple-auth-page .auth-input-with-icon > input:not([type="checkbox"]) {
+  line-height: normal; padding-left: 48px;
+}
+html body .simple-auth-page .auth-divider {
+  align-items: center; background: transparent; display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+html body .simple-auth-page .auth-divider::before, html body .simple-auth-page .auth-divider::after {
+  background: rgba(151, 178, 205, 0.22); content: ""; display: block; height: 1px;
+}
+html body .simple-auth-page .auth-divider span, html body .simple-auth-page .auth-social-row {
+  background: transparent; background-color: transparent; background-image: none; box-shadow: none;
+}
+html body .simple-auth-page .privacy-checkbox-label a {
+  color: #69b8ff; font-weight: 800; text-decoration: underline; text-underline-offset: 2px;
+}
+html body .simple-auth-page .auth-card label, html body .simple-auth-page .auth-password-pair, html body .simple-auth-page .register-details-grid, html body .simple-auth-page .register-country-field, html body .simple-auth-page .privacy-checkbox-row, html body .simple-auth-page .auth-card > button[type="submit"], html body .simple-auth-page .auth-divider, html body .simple-auth-page .auth-social-row, html body .simple-auth-page .auth-benefits {
+  box-sizing: border-box; max-width: none; width: 100%;
+}
+html body .simple-auth-page .auth-card input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), html body .simple-auth-page .auth-card select, html body .simple-auth-page .auth-card > button[type="submit"] {
+  box-sizing: border-box; height: 52px; min-height: 52px; width: 100%;
+}
+html body .simple-auth-page .registration-inline-card .register-essential-fields {
+  align-items: end; display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+html body .simple-auth-page .registration-inline-card .register-essential-fields > label {
+  min-width: 0; width: 100%;
+}
+html body .simple-auth-page .registration-inline-card .register-country-field {
+  grid-column: 1 / -1;
+}
+html body .simple-auth-page .auth-benefits {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+html body .simple-auth-page .auth-benefits > div {
+  min-height: 38px;
+}
+@media (max-width: 760px) {
+  html body .simple-auth-page {
+    align-items: start; padding: 8px;
+  }
+  html body .simple-auth-page .auth-centered {
+    border-radius: 16px; min-height: calc(100svh - 16px); padding: 66px 12px 22px; width: calc(100vw - 16px);
+  }
+  html body .simple-auth-page:has(.registration-inline-card) .auth-centered {
+    min-height: calc(100svh - 16px);
+  }
+  html body .simple-auth-page .auth-mobile-back-home {
+    height: 40px; left: 12px; min-height: 40px; top: 12px; width: auto;
+  }
+  html body .simple-auth-page .auth-card.simple-card, html body .simple-auth-page .auth-card.simple-card:not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card), html body .simple-auth-page .registration-inline-card.profile-finalize-card {
+    border-radius: 10px; margin: 0; max-width: 540px; padding: 24px 18px; width: 100%;
+  }
+  html body .simple-auth-page .registration-inline-card .register-essential-fields, html body .simple-auth-page .registration-inline-card .auth-password-pair {
+    grid-template-columns: 1fr;
+  }
+  html body .simple-auth-page .auth-benefits {
+    align-items: stretch; gap: 8px; grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  html body .simple-auth-page .auth-benefits > div {
+    align-items: center; flex-direction: column; gap: 6px; justify-content: flex-start; min-height: 82px; text-align: center;
+  }
+  html body .simple-auth-page .auth-benefits span {
+    align-items: center;
+  }
+  html body .simple-auth-page .auth-benefits strong, html body .simple-auth-page .auth-benefits small {
+    line-height: 1.2; white-space: normal;
+  }
+}
+@media (max-width: 390px) {
+  html body .simple-auth-page .auth-card.simple-card, html body .simple-auth-page .registration-inline-card.profile-finalize-card {
+    padding-left: 14px; padding-right: 14px;
+  }
+  html body .simple-auth-page .auth-benefits strong {
+    font-size: 9px;
+  }
+  html body .simple-auth-page .auth-benefits small {
+    font-size: 7px;
+  }
+}
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) {
+  background: transparent; background-color: transparent; background-image: none; border: 0; border-radius: 0; box-shadow: none;
+  max-width: 540px; padding: 34px; width: 540px;
+}
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) .auth-divider span, html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) .auth-social-row {
+  background: transparent; background-color: transparent; background-image: none; box-shadow: none;
+}
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) .privacy-checkbox-label {
+  display: block; line-height: 1.55; margin: 0; text-align: left;
+}
+html body main.auth-page.simple-auth-page .auth-centered:not(#maskines-auth-surface-width) {
+  box-sizing: border-box; max-width: 760px; width: min(760px, calc(100vw - 48px));
+}
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-width) {
+  box-sizing: border-box; max-width: 540px; width: min(540px, 100%);
+}
+@media (max-width: 760px) {
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-width) {
+    max-width: 430px; width: min(430px, 100%);
+  }
+}
+html body main.auth-page.simple-auth-page {
+  align-items: start; padding: 44px 24px 48px; place-items: start center;
+}
+html body main.auth-page.simple-auth-page:not(#maskines-auth-page-spacing) {
+  padding: 44px 24px 48px;
+}
+html body main.auth-page.simple-auth-page .auth-centered:not(#maskines-auth-surface-scale) {
+  margin: 0 auto; max-width: 700px; padding: 74px 54px 34px; width: min(700px, calc(100vw - 64px));
+}
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-scale) {
+  max-width: 500px; padding: 30px; width: min(500px, 100%);
+}
+@media (min-width: 481px) and (max-width: 760px) {
+  html body main.auth-page.simple-auth-page {
+    padding: 36px 20px 42px;
+  }
+  html body main.auth-page.simple-auth-page:not(#maskines-auth-page-spacing) {
+    padding: 36px 20px 42px;
+  }
+  html body main.auth-page.simple-auth-page .auth-centered:not(#maskines-auth-surface-scale) {
+    max-width: 500px; padding: 66px 34px 28px; width: min(500px, calc(100vw - 40px));
+  }
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-scale) {
+    max-width: 390px; padding: 24px 20px; width: min(390px, 100%);
+  }
+  html body main.auth-page.simple-auth-page .registration-inline-card .register-essential-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  html body main.auth-page.simple-auth-page {
+    padding: 20px 10px 30px;
+  }
+  html body main.auth-page.simple-auth-page:not(#maskines-auth-page-spacing) {
+    padding: 20px 10px 30px;
+  }
+  html body main.auth-page.simple-auth-page .auth-centered:not(#maskines-auth-surface-scale) {
+    border-radius: 15px; max-width: calc(100vw - 20px); min-height: 0; padding: 60px 12px 22px; width: calc(100vw - 20px);
+  }
+  html body main.auth-page.simple-auth-page .auth-mobile-back-home {
+    left: 14px; top: 12px;
+  }
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-scale) {
+    max-width: 100%; padding: 18px 14px; width: 100%;
+  }
+  html body main.auth-page.simple-auth-page .auth-maskines-brand > img {
+    height: 44px; width: 44px;
+  }
+  html body main.auth-page.simple-auth-page .auth-maskines-brand strong {
+    font-size: 24px;
+  }
+  html body main.auth-page.simple-auth-page .auth-maskines-brand span {
+    font-size: 8px; letter-spacing: 3px;
+  }
+  html body main.auth-page.simple-auth-page .auth-form-head h1 {
+    font-size: 25px;
+  }
+  html body main.auth-page.simple-auth-page .registration-inline-card .register-essential-fields, html body main.auth-page.simple-auth-page .registration-inline-card .auth-password-pair {
+    grid-template-columns: 1fr;
+  }
+  html body main.auth-page.simple-auth-page .auth-card input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), html body main.auth-page.simple-auth-page .auth-card select, html body main.auth-page.simple-auth-page .auth-card > button[type="submit"] {
+    height: 50px; min-height: 50px;
+  }
+  html body main.auth-page.simple-auth-page .auth-benefits {
+    gap: 6px;
+  }
+  html body main.auth-page.simple-auth-page .auth-benefits > div {
+    min-height: 74px;
+  }
+}
+@media (max-width: 760px) {
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) {
+    max-width: 100%; padding: 24px 18px; width: 100%;
+  }
+}
+@media (max-width: 390px) {
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) {
+    padding-left: 14px; padding-right: 14px;
+  }
+}
+html body main.auth-page.simple-auth-page .registration-inline-card .register-essential-fields > label > input:not([type="checkbox"]):not([type="radio"]):not([type="file"]) {
+  background: rgba(3, 17, 29, 0.74); background-color: rgba(3, 17, 29, 0.74); background-image: none;
+}
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card, html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card.registration-inline-card.profile-finalize-card {
+  background: transparent; background-color: transparent; background-image: none; border: 0; border-radius: 0; box-shadow: none;
+  max-width: 540px; padding: 34px; width: 540px;
+}

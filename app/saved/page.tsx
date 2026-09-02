@@ -1,8 +1,9 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Link from "@/app/components/LocalizedLink";
+import { useRouter } from "@/lib/navigation";
 import OptimizedListingImage, { fallbackListingImage } from "@/app/components/OptimizedListingImage";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 import ListingSalePrice from "@/app/components/ListingSalePrice";
@@ -192,9 +193,9 @@ export default function SavedListingsPage() {
               <Heart size={24} fill="currentColor" />
             </div>
             <div className="saved-hero-copy">
-              <span>Tallessa</span>
+              <span><UiText text={"Tallessa"} /></span>
               <h1>{t.savedListings}</h1>
-              <p>Kaikki suosikit yhdessä paikassa, valmiina kun palaat vertailemaan.</p>
+              <p><UiText text={"Kaikki suosikit yhdessä paikassa, valmiina kun palaat vertailemaan."} /></p>
             </div>
           </div>
           <div className="saved-hero-stat">
@@ -217,7 +218,7 @@ export default function SavedListingsPage() {
               </div>
             </div>
             <strong>{t.noListings}</strong>
-            <span>Paina ilmoituksen sydäntä, niin se näkyy täällä myöhemmin.</span>
+            <span><UiText text={"Paina ilmoituksen sydäntä, niin se näkyy täällä myöhemmin."} /></span>
             <Link className="saved-empty-link" href="/">
               <Search size={16} />
               {t.viewAll}
@@ -242,8 +243,8 @@ export default function SavedListingsPage() {
             <div className="saved-empty-icon">
               <Tag size={28} />
             </div>
-            <strong>Tallennettuja ilmoituksia ei löytynyt</strong>
-            <span>Osa suosikeista on voitu poistaa tai myydä. Lisää uusia ilmoituksia selaamalla etusivua.</span>
+            <strong><UiText text={"Tallennettuja ilmoituksia ei löytynyt"} /></strong>
+            <span><UiText text={"Osa suosikeista on voitu poistaa tai myydä. Lisää uusia ilmoituksia selaamalla etusivua."} /></span>
             <Link className="saved-empty-link" href="/">
               <Search size={16} />
               {t.viewAll}
@@ -289,9 +290,7 @@ export default function SavedListingsPage() {
                       alt={getListingImageAlt(listing, getListingTitle(listing))}
                     />
                     {isListingNew(listing.created_at) && (
-                      <span className={`${marketplaceStyles.newBadge} saved-new-badge`} aria-label="Uusi">
-                        Uusi
-                      </span>
+                      <span className={`${marketplaceStyles.newBadge} saved-new-badge`} aria-label="Uusi"><UiText text={"Uusi"} /></span>
                     )}
                     {isLoggedIn && <button
                       onClick={(e) => toggleFavorite(e, listing.id)}

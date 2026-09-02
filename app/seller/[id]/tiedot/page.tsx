@@ -1,6 +1,8 @@
+import UiText from "@/app/components/UiText";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 import { notFound } from "next/navigation";
+
 import {
   ArrowLeft,
   BadgeCheck,
@@ -140,64 +142,64 @@ export default async function CompanyInfoPage({ params }: { params: Promise<{ id
         >
           <div className={styles.companyInfoIdentity}>
             <div className={styles.companyInfoLogo}>{profile.avatar_url ? <Image src={profile.avatar_url} alt={`${name} logo`} width={104} height={104} unoptimized /> : <strong>{name.slice(0, 1).toUpperCase()}</strong>}</div>
-            <div><span className={styles.companyInfoKicker}><BadgeCheck size={15} /> Vahvistettu yritys</span><h1>{name}</h1><p>{company.storefront_headline || storefront.storefront_headline || "Luotettava yritys Maskines-markkinapaikalla."}</p></div>
+            <div><span className={styles.companyInfoKicker}><BadgeCheck size={15} /><UiText text={" Vahvistettu yritys"} /></span><h1>{name}</h1><p>{company.storefront_headline || storefront.storefront_headline || "Luotettava yritys Maskines-markkinapaikalla."}</p></div>
           </div>
           <div className={styles.companyInfoHeroActions}>
-            <Link href={storefrontPath}><ArrowLeft size={17} /> Takaisin valikoimaan</Link>
-            {website && <a href={website.href} target="_blank" rel="noreferrer">Verkkosivu <ExternalLink size={15} /></a>}
+            <Link href={storefrontPath}><ArrowLeft size={17} /><UiText text={" Takaisin valikoimaan"} /></Link>
+            {website && <a href={website.href} target="_blank" rel="noreferrer"><UiText text={"Verkkosivu "} /><ExternalLink size={15} /></a>}
           </div>
         </header>
 
         <nav className={styles.companyInfoNavigation} aria-label="Yrityssivun osiot">
-          <Link href={storefrontPath}><Store size={17} /> Tuotteet ja valikoima</Link>
-          <span><Building2 size={17} /> Yrityksen tiedot</span>
+          <Link href={storefrontPath}><Store size={17} /><UiText text={" Tuotteet ja valikoima"} /></Link>
+          <span><Building2 size={17} /><UiText text={" Yrityksen tiedot"} /></span>
         </nav>
 
         <section className={styles.companyInfoStats} aria-label="Yrityksen myyntitiedot">
-          <article><ShoppingBag size={22} /><span><strong>{listingCount + immediateProductCount}</strong><small>tuotetta ja ilmoitusta</small></span></article>
-          <article><PackageCheck size={22} /><span><strong>{inventoryCount}</strong><small>kappaletta saatavilla</small></span></article>
-          <article><Star size={22} /><span><strong>{reviews.length ? averageRating.toFixed(1) : "–"}</strong><small>{reviews.length} asiakasarviota</small></span></article>
-          <article><Truck size={22} /><span><strong>{offersPickup && offersShipping ? "Nouto + toimitus" : offersShipping ? "Toimitus" : offersPickup ? "Nouto" : "Sovitaan"}</strong><small>toimitustavat</small></span></article>
+          <article><ShoppingBag size={22} /><span><strong>{listingCount + immediateProductCount}</strong><small><UiText text={"tuotetta ja ilmoitusta"} /></small></span></article>
+          <article><PackageCheck size={22} /><span><strong>{inventoryCount}</strong><small><UiText text={"kappaletta saatavilla"} /></small></span></article>
+          <article><Star size={22} /><span><strong>{reviews.length ? averageRating.toFixed(1) : "–"}</strong><small>{reviews.length}<UiText text={" asiakasarviota"} /></small></span></article>
+          <article><Truck size={22} /><span><strong>{offersPickup && offersShipping ? "Nouto + toimitus" : offersShipping ? "Toimitus" : offersPickup ? "Nouto" : "Sovitaan"}</strong><small><UiText text={"toimitustavat"} /></small></span></article>
         </section>
 
         <div className={styles.companyInfoGrid}>
           <article className={styles.companyInfoMainCard}>
-            <header><span><Building2 size={21} /></span><div><small>Yritysesittely</small><h2>Tietoa yrityksestä</h2></div></header>
+            <header><span><Building2 size={21} /></span><div><small><UiText text={"Yritysesittely"} /></small><h2><UiText text={"Tietoa yrityksestä"} /></h2></div></header>
             <p>{company.description || profile.bio || "Vahvistettu yritys Maskines-markkinapaikalla."}</p>
-            {categories.length > 0 && <div className={styles.companyInfoCategories}><strong>Valikoiman pääkategoriat</strong><div>{categories.map((category) => <span key={category}>{category}</span>)}</div></div>}
+            {categories.length > 0 && <div className={styles.companyInfoCategories}><strong><UiText text={"Valikoiman pääkategoriat"} /></strong><div>{categories.map((category) => <span key={category}>{category}</span>)}</div></div>}
             <div className={styles.companyInfoChecks}>
-              <span><Shield size={18} /><strong>Yritystiedot tarkistettu</strong><small>Maskines on vahvistanut yrityksen perustiedot.</small></span>
-              <span><Check size={18} /><strong>Julkinen yritysprofiili</strong><small>Yhteystiedot ja myyjän valikoima ovat yhdessä paikassa.</small></span>
+              <span><Shield size={18} /><strong><UiText text={"Yritystiedot tarkistettu"} /></strong><small><UiText text={"Maskines on vahvistanut yrityksen perustiedot."} /></small></span>
+              <span><Check size={18} /><strong><UiText text={"Julkinen yritysprofiili"} /></strong><small><UiText text={"Yhteystiedot ja myyjän valikoima ovat yhdessä paikassa."} /></small></span>
             </div>
           </article>
 
           <aside className={styles.companyInfoSideCards}>
             <article>
-              <header><span><Hash size={20} /></span><div><small>Viralliset tiedot</small><h2>Yritystunnisteet</h2></div></header>
+              <header><span><Hash size={20} /></span><div><small><UiText text={"Viralliset tiedot"} /></small><h2><UiText text={"Yritystunnisteet"} /></h2></div></header>
               <dl>
-                <div><dt>Yrityksen nimi</dt><dd>{name}</dd></div>
-                <div><dt>Y-tunnus</dt><dd>{company.business_id || profile.business_id || "Ei ilmoitettu"}</dd></div>
-                {memberSince && <div><dt>Maskinesissa</dt><dd>{memberSince} lähtien</dd></div>}
-                {verifiedSince && <div><dt>Vahvistettu</dt><dd>{verifiedSince}</dd></div>}
+                <div><dt><UiText text={"Yrityksen nimi"} /></dt><dd>{name}</dd></div>
+                <div><dt><UiText text={"Y-tunnus"} /></dt><dd>{company.business_id || profile.business_id || "Ei ilmoitettu"}</dd></div>
+                {memberSince && <div><dt><UiText text={"Maskinesissa"} /></dt><dd>{memberSince}<UiText text={" lähtien"} /></dd></div>}
+                {verifiedSince && <div><dt><UiText text={"Vahvistettu"} /></dt><dd>{verifiedSince}</dd></div>}
               </dl>
             </article>
 
             <article>
-              <header><span><MapPin size={20} /></span><div><small>Yhteystiedot</small><h2>Ota yhteyttä yritykseen</h2></div></header>
+              <header><span><MapPin size={20} /></span><div><small><UiText text={"Yhteystiedot"} /></small><h2><UiText text={"Ota yhteyttä yritykseen"} /></h2></div></header>
               <div className={styles.companyInfoContacts}>
                 {location && <p><MapPin size={17} /><span>{location}</span></p>}
                 {company.phone && <a href={`tel:${company.phone.replace(/[^\d+]/g, "")}`}><Phone size={17} /> {company.phone}</a>}
                 {company.email && <a href={`mailto:${company.email}`}><Mail size={17} /> {company.email}</a>}
                 {website && <a href={website.href} target="_blank" rel="noreferrer"><Globe2 size={17} /> {website.label}</a>}
-                {company.contact_person && <p><Building2 size={17} /><span>Yhteyshenkilö: {company.contact_person}</span></p>}
+                {company.contact_person && <p><Building2 size={17} /><span><UiText text={"Yhteyshenkilö: "} />{company.contact_person}</span></p>}
               </div>
             </article>
           </aside>
         </div>
 
         <section className={styles.companyInfoFooterCta}>
-          <div><CalendarDays size={22} /><span><strong>Tutustu yrityksen valikoimaan</strong><small>Katso kaikki heti ostettavat tuotteet ja tavalliset myynti-ilmoitukset.</small></span></div>
-          <Link href={storefrontPath}>Avaa tuotteet <ExternalLink size={16} /></Link>
+          <div><CalendarDays size={22} /><span><strong><UiText text={"Tutustu yrityksen valikoimaan"} /></strong><small><UiText text={"Katso kaikki heti ostettavat tuotteet ja tavalliset myynti-ilmoitukset."} /></small></span></div>
+          <Link href={storefrontPath}><UiText text={"Avaa tuotteet "} /><ExternalLink size={16} /></Link>
         </section>
       </div>
     </main>

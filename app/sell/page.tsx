@@ -1,4 +1,9 @@
 "use client";
+import "@/app/styles/generated/sell.css";
+import { listingQualityCopy } from "@/lib/listing-quality-copy";
+import { marketplaceCopy } from "@/lib/marketplace-copy";
+import { trackAnalyticsEvent } from "@/lib/analytics";
+import UiText from "@/app/components/UiText";
 
 import {
   Fragment,
@@ -12,7 +17,8 @@ import {
   type RefObject
 } from "react";
 import { flushSync } from "react-dom";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/lib/navigation";
 import PageLoadingFallback from "@/app/components/PageLoadingFallback";
 import MobileNativeSelect from "@/app/components/MobileNativeSelect";
 import { useCurrency } from "@/app/components/CurrencyProvider";
@@ -5292,6 +5298,7 @@ function SellPageContent() {
         firstListingUrlId ||= listingUrlId(data);
       }
 
+      trackAnalyticsEvent("listing_published", { listing_id: firstListingId, language: locale });
       draftClearedOrPublishedRef.current = true;
       await deleteSellDraft(currentDraftKey).catch(() => undefined);
       const returnHref = firstListingId ? listingPath(firstListingUrlId || firstListingId) : "/my-listings";
@@ -5398,7 +5405,7 @@ function SellPageContent() {
                   >
                     <span>
                       <strong>{groupItem.name}</strong>
-                      <small>{groupItem.parts.length} valittua tuotetta</small>
+                      <small>{groupItem.parts.length}<UiText text={" valittua tuotetta"} /></small>
                     </span>
                     <ChevronDown size={18} aria-hidden="true" />
                   </button>
@@ -5552,7 +5559,7 @@ function SellPageContent() {
               <strong className={styles.multiListingIndex}>{index + 1}</strong>
               <span className={styles.multiPartIdentity}>
                 <b>{part.title || translatedAutomaticTitle}</b>
-                <small>{translateCategoryText(part.category)} &gt; {translateCategoryText(part.group)}</small>
+                <small>{translateCategoryText(part.category)}<UiText text={" > "} />{translateCategoryText(part.group)}</small>
               </span>
               <span className={styles.multiPriceCell}>
                 <input
@@ -5747,7 +5754,7 @@ function SellPageContent() {
                   <strong className={styles.multiListingIndex}>{activeIndex + 1}</strong>
                   <span className={styles.multiPartIdentity}>
                     <b>{part.title || translatedAutomaticTitle}</b>
-                    <small>{translateCategoryText(part.category)} &gt; {translateCategoryText(part.group)}</small>
+                    <small>{translateCategoryText(part.category)}<UiText text={" > "} />{translateCategoryText(part.group)}</small>
                   </span>
                   <span className={styles.multiPriceCell}>
                     <input
@@ -5960,7 +5967,7 @@ function SellPageContent() {
                   <span className={styles.multiListingHeaderTitle}>
                     <span className={styles.multiListingHeaderIcon}>{getMultiCategoryIcon(categoryItem.name)}</span>
                     <strong>{categoryItem.name}</strong>
-                    <small>{categoryItem.parts.length} osaa</small>
+                    <small>{categoryItem.parts.length}<UiText text={" osaa"} /></small>
                   </span>
                   <ChevronDown size={18} aria-hidden="true" />
                 </button>
@@ -5986,7 +5993,7 @@ function SellPageContent() {
                           >
                             <span className={styles.multiListingGroupTitle}>
                               <strong>{groupItem.name}</strong>
-                              <small>{groupItem.parts.length} osaa</small>
+                              <small>{groupItem.parts.length}<UiText text={" osaa"} /></small>
                             </span>
                             <ChevronDown size={18} aria-hidden="true" />
                           </button>
@@ -7033,7 +7040,7 @@ function SellPageContent() {
                   >
                     <span>
                       <strong>{groupItem.name}</strong>
-                      <small>{groupItem.parts.length} valittua tuotetta</small>
+                      <small>{groupItem.parts.length}<UiText text={" valittua tuotetta"} /></small>
                     </span>
                     <ChevronDown size={18} aria-hidden="true" />
                   </button>
@@ -7169,7 +7176,7 @@ function SellPageContent() {
           {selectedMultiPartList.length > 0 ? (
             selectedMultiPartList.map((part, index) => (
               <div className={styles.multiListingRow} key={part.id}>
-                <strong>Ilmoitus {index + 1}</strong>
+                <strong><UiText text={"Ilmoitus "} />{index + 1}</strong>
                 <input defaultValue={part.detail} placeholder={st("Otsikko")} />
                 <input
                   inputMode="numeric"
@@ -7301,6 +7308,7 @@ function SellPageContent() {
           ) : null}
 
           <section className={styles.photoTips} aria-label={st("Kuvavinkit")}>
+            <p className="listing-quality-hint">{listingQualityCopy[locale].photo}</p>
             <div>
               <strong>{st("Hyv\u00e4 valaistus")}</strong>
               <p>{st("K\u00e4yt\u00e4 luonnonvaloa tai kirkasta sis\u00e4valoa.")}</p>
@@ -7323,6 +7331,7 @@ function SellPageContent() {
     if (mode === "single" && currentStep === (isVehicleSale ? 5 : 6)) {
       return (
         <section className={styles.detailsPanel} aria-label={isVehicleSale ? "Lisätiedot ajoneuvosta" : st("Otsikko ja kuvaus")}>
+          <p className="listing-quality-hint">{listingQualityCopy[locale].title}</p>
           <label className={styles.detailsField}>
             <span>
               <strong>{st("Otsikko")}</strong>
@@ -7381,6 +7390,11 @@ function SellPageContent() {
               </div>
             </section>
           )}
+          <aside className="listing-quality-checklist" aria-label={marketplaceCopy[locale].qualityTitle}>
+            <h2>{marketplaceCopy[locale].qualityTitle}</h2>
+            <p>{listingQualityCopy[locale].details}</p>
+            <ul>{marketplaceCopy[locale].qualityItems.map(item => <li key={item}>{item}</li>)}</ul>
+          </aside>
         </section>
       );
     }
@@ -8036,12 +8050,8 @@ function SellPageContent() {
               <p>{st("Kaikki tämän myynti-ilmoituksen tiedot ja kuvat poistetaan, eikä niitä palauteta automaattisesti.")}</p>
             </div>
             <div className={styles.resetConfirmActions}>
-              <button type="button" onClick={() => setShowResetConfirm(false)}>
-                Peruuta
-              </button>
-              <button type="button" className={styles.resetConfirmPrimary} onClick={resetSellDraft}>
-                Nollaa luonnos
-              </button>
+              <button type="button" onClick={() => setShowResetConfirm(false)}><UiText text={"Peruuta"} /></button>
+              <button type="button" className={styles.resetConfirmPrimary} onClick={resetSellDraft}><UiText text={"Nollaa luonnos"} /></button>
             </div>
           </section>
         </div>
@@ -8929,7 +8939,7 @@ useEffect(() => {
                       aria-label={`${translateText("Muu")} ${field.label.toLowerCase()}`}
                     />
                     {partValue && !/cm/i.test(partValue) ? (
-                      <span data-track-mat-unit>cm</span>
+                      <span data-track-mat-unit><UiText text={"cm"} /></span>
                     ) : null}
                     <button
                       type="button"
@@ -8973,7 +8983,7 @@ useEffect(() => {
                 )}
               </span>
               {index < fields.length - 1 ? (
-                <span className={styles.trackMatDimensionSeparator} aria-hidden="true">x</span>
+                <span className={styles.trackMatDimensionSeparator} aria-hidden="true"><UiText text={"x"} /></span>
               ) : null}
             </Fragment>
           );

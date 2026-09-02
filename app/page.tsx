@@ -2,46 +2,27 @@ import type { Metadata } from "next";
 
 import HomeClient from "./HomeClient";
 import { getListings } from "@/lib/supabase";
-import { listingPath, listingUrlId } from "@/lib/routes";
+import { listingPath, languagePaths, translateLocalizedPath } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  metadataBase: new URL(PUBLIC_SITE_URL),
-  title: {
-    absolute: "Maskines – Osta ja myy varaosia ja ajoneuvoja"
-  },
-  description:
-    "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille. Osta ja myy varaosia ja ajoneuvoja: moottorikelkkoja, mönkijöitä, motocross-pyöriä ja mopoja.",
-  alternates: {
-    canonical: absoluteSiteUrl("/")
-  },
-  openGraph: {
-    type: "website",
-    locale: "fi_FI",
-    siteName: "Maskines",
-    title: "Maskines – Osta ja myy varaosia ja ajoneuvoja",
-    description:
-      "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille. Osta ja myy varaosia ja ajoneuvoja: moottorikelkkoja, mönkijöitä, motocross-pyöriä ja mopoja.",
-    url: absoluteSiteUrl("/"),
-    images: [
-      {
-        url: absoluteSiteUrl("/maskines-brand-share-v2.png"),
-        width: 1200,
-        height: 1200,
-        alt: "Maskines – pienkoneiden ajoneuvot ja varaosat"
-      }
-    ]
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Maskines – Osta ja myy varaosia ja ajoneuvoja",
-    description:
-      "Osta ja myy varaosia ja ajoneuvoja: moottorikelkkoja, mönkijöitä, motocross-pyöriä ja mopoja.",
-    images: [absoluteSiteUrl("/maskines-brand-share-v2.png")]
-  }
+import { getServerLocale } from "@/lib/server-locale";
+
+const homeCopy = {
+ fi: ["Maskines – Osta ja myy varaosia ja ajoneuvoja", "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille."],
+ en: ["Maskines – Buy and sell parts and vehicles", "The Nordic marketplace for small vehicles and spare parts."],
+ sv: ["Maskines – Köp och sälj reservdelar och fordon", "Den nordiska marknadsplatsen för småfordon och reservdelar."],
+ no: ["Maskines – Kjøp og selg reservedeler og kjøretøy", "Den nordiske markedsplassen for små kjøretøy og reservedeler."]
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+ const locale = await getServerLocale();
+ const [title, description] = homeCopy[locale];
+ const url = absoluteSiteUrl(translateLocalizedPath("/", locale));
+ return { title: { absolute: title }, description, alternates: { canonical: url, languages: { ...languagePaths("/"), "x-default": "/" } }, openGraph: { title, description, url, locale: {fi:"fi_FI",en:"en_GB",sv:"sv_SE",no:"nb_NO"}[locale] }, twitter: { title, description } };
+}
+
 
 function serializeStructuredData(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
@@ -52,6 +33,7 @@ export default async function HomePage({
 }: {
   searchParams: Promise<{ q?: string | string[] }>;
 }) {
+  const locale = await getServerLocale();
   const resolvedSearchParams = await searchParams;
   const rawSearchQuery = resolvedSearchParams.q;
   const initialSearchQuery = (Array.isArray(rawSearchQuery) ? rawSearchQuery[0] : rawSearchQuery)?.trim() ?? "";
@@ -59,15 +41,19 @@ export default async function HomePage({
   // refreshes them after the first paint. Waiting for the remote Supabase
   // request here made every localhost reload block for several seconds.
   // Production keeps server-rendered listings for SEO and fast public loads.
-  const listings = process.env.NODE_ENV === "development"
-    ? []
+  const usesDatabaseFilters = process.env.NEXT_PUBLIC_MARKETPLACE_DB_FILTERS === "true";
+  const initialResult = process.env.NODE_ENV === "development"
+    ? { data: [], count: null }
     : (await getListings({
+        databaseFilters: usesDatabaseFilters ? { all: [] } : undefined,
+        filters: { query: initialSearchQuery },
         includeOptionalFields: true,
         enrichSellerProfiles: true,
-        limit: 48
-      })).data;
+        includeCount: true,
+        limit: 24
+      }));
 
-  const publicListings = listings.filter(
+  const publicListings = initialResult.data.filter(
     (listing) => !listing.is_hidden && !listing.is_sold
   );
   const structuredData = {
@@ -88,7 +74,7 @@ export default async function HomePage({
         "@id": `${PUBLIC_SITE_URL}/#website`,
         url: PUBLIC_SITE_URL,
         name: "Maskines",
-        inLanguage: "fi-FI",
+        inLanguage: locale === "no" ? "nb" : locale,
         publisher: {
           "@id": `${PUBLIC_SITE_URL}/#organization`
         }
@@ -101,7 +87,7 @@ export default async function HomePage({
           "@type": "ListItem",
           position: index + 1,
           name: listing.title,
-          url: absoluteSiteUrl(listingPath(listing))
+          url: absoluteSiteUrl(listingPath(listing, locale))
         }))
       }
     ]
@@ -116,6 +102,8 @@ export default async function HomePage({
       <HomeClient
         initialListings={publicListings}
         initialSearchQuery={initialSearchQuery}
+        initialCount={initialResult.count ?? null}
+        initialUsesDatabaseFilters={usesDatabaseFilters}
       />
     </>
   );

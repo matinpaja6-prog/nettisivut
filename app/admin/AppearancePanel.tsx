@@ -1,4 +1,5 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 import {
   useCallback,
@@ -354,8 +355,7 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
       <section className={styles.section}>
         <header className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>
-            <Palette size={18} /> Ulkoasu
-          </h2>
+            <Palette size={18} /><UiText text={" Ulkoasu"} /></h2>
         </header>
         <p className={styles.empty} aria-busy="true" />
       </section>
@@ -369,11 +369,8 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
       <header className={styles.sectionHead}>
         <div>
           <h2 className={styles.sectionTitle}>
-            <Palette size={18} /> Ulkoasu
-          </h2>
-          <p className={styles.sectionSubtitle}>
-            Selaa sivustoa esikatselussa, säädä värejä reaaliajassa, tallenna kun on hyvä.
-          </p>
+            <Palette size={18} /><UiText text={" Ulkoasu"} /></h2>
+          <p className={styles.sectionSubtitle}><UiText text={"Selaa sivustoa esikatselussa, säädä värejä reaaliajassa, tallenna kun on hyvä."} /></p>
         </div>
         <button
           type="button"
@@ -387,9 +384,9 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
 
       <div className={styles.appearanceHeroEditor}>
         <div>
-          <span className={styles.appearanceHeroKicker}>Nopeat valinnat</span>
-          <strong>Säädä koko sivuston ilme yhdestä paikasta</strong>
-          <p>Valitse valmis pohja tai hienosäädä värit alta. Esikatselu päivittyy heti.</p>
+          <span className={styles.appearanceHeroKicker}><UiText text={"Nopeat valinnat"} /></span>
+          <strong><UiText text={"Säädä koko sivuston ilme yhdestä paikasta"} /></strong>
+          <p><UiText text={"Valitse valmis pohja tai hienosäädä värit alta. Esikatselu päivittyy heti."} /></p>
         </div>
         <div className={styles.appearancePresetGrid}>
           {APPEARANCE_PRESETS.map((preset) => (
@@ -415,13 +412,13 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
         {/* Controls */}
         <div className={styles.appearanceControls}>
           <div className={styles.appearanceCard}>
-            <div className={styles.appearanceLabel}>Etusivun hero-kuva</div>
+            <div className={styles.appearanceLabel}><UiText text={"Etusivun hero-kuva"} /></div>
             <div
               className={styles.appearancePreview}
               style={{ backgroundImage: form.hero_image_url ? `url(${form.hero_image_url})` : "none" }}
               aria-hidden="true"
             >
-              {!form.hero_image_url && <span>Ei kuvaa</span>}
+              {!form.hero_image_url && <span><UiText text={"Ei kuvaa"} /></span>}
             </div>
             <input
               type="text"
@@ -453,7 +450,7 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
           </div>
 
           <div className={styles.appearanceCard}>
-            <div className={styles.appearanceLabel}>Brändivärit</div>
+            <div className={styles.appearanceLabel}><UiText text={"Brändivärit"} /></div>
             <ColorRow
               label="Pääväri"
               value={form.primary_color ?? DEFAULT_APPEARANCE.primary_color ?? "#38bdf8"}
@@ -467,7 +464,7 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
           </div>
 
           <div className={styles.appearanceCard}>
-            <div className={styles.appearanceLabel}>Sivuston taustat</div>
+            <div className={styles.appearanceLabel}><UiText text={"Sivuston taustat"} /></div>
             <ColorRow
               label="Sivuston tausta"
               value={form.background_color ?? DEFAULT_APPEARANCE.background_color ?? "#0b1118"}
@@ -491,7 +488,7 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
           </div>
 
           <div className={styles.appearanceCard}>
-            <div className={styles.appearanceLabel}>Tekstit ja viivat</div>
+            <div className={styles.appearanceLabel}><UiText text={"Tekstit ja viivat"} /></div>
             <ColorRow
               label="Pääteksti"
               value={form.text_color ?? DEFAULT_APPEARANCE.text_color ?? "#f4f8fc"}
@@ -511,8 +508,7 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
 
           <div className={styles.appearanceActions}>
             <button type="button" className={styles.secondaryBtn} onClick={handleReset}>
-              <RotateCcw size={15} /> Palauta oletukset
-            </button>
+              <RotateCcw size={15} /><UiText text={" Palauta oletukset"} /></button>
             <button type="button" className={styles.primaryBtn} onClick={handleSave} disabled={saving}>
               <Save size={15} />
               {saving ? "Tallennetaan…" : "Tallenna muutokset"}
@@ -570,7 +566,7 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
                 if (e.target.value) navigateTo(e.target.value);
               }}
             >
-              <option value="">Pikalinkit…</option>
+              <option value=""><UiText text={"Pikalinkit…"} /></option>
               {QUICK_LINKS.map((p) => (
                 <option key={p.value} value={p.value}>
                   {p.label}

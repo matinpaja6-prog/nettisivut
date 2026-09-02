@@ -1,10 +1,13 @@
-import { cookies } from "next/headers";
+import { getLocalizedListingText } from "@/lib/listing-translations";
+import { getServerLocale, getServerPathname } from "@/lib/server-locale";
 import { notFound, permanentRedirect } from "next/navigation";
+
 
 import { formatPrice, getListingPartNumber, getListingSalePricing, type Listing } from "@/lib/listings";
 import { listingNumberUrlId, listingPath, listingUrlId } from "@/lib/routes";
 import { absoluteSiteUrl } from "@/lib/site-url";
-import { getListingById, getListingDisplayNumber } from "@/lib/supabase";
+import { getListingDisplayNumber } from "@/lib/supabase";
+import { getServerListing } from "@/lib/server-listing";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import ListingPageClient from "./ListingPageClient";
 import { generateListingMetadata } from "./metadata";
@@ -155,9 +158,9 @@ function serializeStructuredData(value: unknown) {
 export default async function ListingPage({ params }: { params: Promise<{ id: string; brand?: string; model?: string; part?: string }> }) {
   const { id, brand: requestedBrand, model: requestedModel, part: requestedPart } = await params;
   const decodedId = decodeURIComponent(id);
-  const locale = (await cookies()).get("locale")?.value;
+  const locale = await getServerLocale();
 
-  const { data: listing } = await getListingById(decodedId);
+  const { data: listing } = await getServerListing(decodedId);
 
   if (!listing || listing.is_hidden || listing.is_sold) {
     notFound();
@@ -182,21 +185,20 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
   const canonicalPath = canonicalId
     ? listingPath({ ...listing, listing_number: displayNumber, id: canonicalId }, locale)
     : "";
-  const requestedPath = requestedBrand && requestedModel
-    ? `/${encodeURIComponent(requestedBrand)}/${encodeURIComponent(requestedModel)}${requestedPart ? `/${encodeURIComponent(requestedPart)}` : ""}/${encodeURIComponent(decodedId)}`
-    : listingPath(decodedId, locale);
+  const requestedPath = await getServerPathname();
 
   if (canonicalPath && canonicalPath !== requestedPath) {
     permanentRedirect(canonicalPath);
   }
 
+  const localizedListing = { ...listing, ...getLocalizedListingText(listing, locale) };
   const productStructuredData =
     listing && !listing.is_hidden && !listing.is_sold && canonicalPath
-      ? buildProductStructuredData(listing, absoluteSiteUrl(canonicalPath))
+      ? buildProductStructuredData(localizedListing, absoluteSiteUrl(canonicalPath))
       : null;
   const breadcrumbStructuredData =
     listing && !listing.is_hidden && !listing.is_sold && canonicalPath
-      ? buildBreadcrumbStructuredData(listing, absoluteSiteUrl(canonicalPath))
+      ? buildBreadcrumbStructuredData(localizedListing, absoluteSiteUrl(canonicalPath))
       : null;
 
   return (

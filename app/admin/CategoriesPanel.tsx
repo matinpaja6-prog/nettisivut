@@ -1,4 +1,5 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 import { useEffect, useState, type ReactNode } from "react";
 import {
@@ -328,8 +329,7 @@ export default function CategoriesPanel({ onToastAction: onToast }: Props) {
       <section className={styles.section}>
         <header className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>
-            <FolderTree size={18} /> Kategoriat
-          </h2>
+            <FolderTree size={18} /><UiText text={" Kategoriat"} /></h2>
         </header>
         <p className={styles.empty} aria-busy="true" />
       </section>
@@ -341,16 +341,12 @@ export default function CategoriesPanel({ onToastAction: onToast }: Props) {
       <header className={styles.sectionHead}>
         <div>
           <h2 className={styles.sectionTitle}>
-            <FolderTree size={18} /> Kategoriat & ajoneuvot
-          </h2>
-          <p className={styles.sectionSubtitle}>
-            Luo rajattomasti alakategorioita. Kun poraudut tasolle, näet vain sen tason sisällön ja lisäykset.
-          </p>
+            <FolderTree size={18} /><UiText text={" Kategoriat & ajoneuvot"} /></h2>
+          <p className={styles.sectionSubtitle}><UiText text={"Luo rajattomasti alakategorioita. Kun poraudut tasolle, näet vain sen tason sisällön ja lisäykset."} /></p>
         </div>
         <div className={styles.adminPanelActions}>
           <button type="button" className={styles.secondaryBtn} onClick={handleReset}>
-            <RotateCcw size={15} /> Palauta oletukset
-          </button>
+            <RotateCcw size={15} /><UiText text={" Palauta oletukset"} /></button>
           <button type="button" className={styles.primaryBtn} onClick={handleSave} disabled={saving}>
             <Save size={15} />
             {saving ? "Tallennetaan..." : "Tallenna"}
@@ -372,15 +368,13 @@ export default function CategoriesPanel({ onToastAction: onToast }: Props) {
             className={activePanel === "categories" ? styles.taxonomyTabActive : ""}
             onClick={() => setActivePanel("categories")}
           >
-            <FolderTree size={15} /> Kategoriat
-          </button>
+            <FolderTree size={15} /><UiText text={" Kategoriat"} /></button>
           <button
             type="button"
             className={activePanel === "vehicles" ? styles.taxonomyTabActive : ""}
             onClick={() => setActivePanel("vehicles")}
           >
-            <CarFront size={15} /> Ajoneuvot
-          </button>
+            <CarFront size={15} /><UiText text={" Ajoneuvot"} /></button>
         </div>
 
         {activePanel === "categories" && selectedCategoryIndex === null && (
@@ -409,10 +403,9 @@ export default function CategoriesPanel({ onToastAction: onToast }: Props) {
       ) : selectedCategoryIndex === null ? (
         <div className={`${styles.appearanceCard} ${styles.taxonomyEditorCard}`}>
           <div className={styles.taxonomyCardHeader}>
-            <strong>Pääkategoriat</strong>
+            <strong><UiText text={"Pääkategoriat"} /></strong>
             <button type="button" className={styles.secondaryBtn} onClick={addCategory}>
-              <Plus size={14} /> Lisää pääkategoria
-            </button>
+              <Plus size={14} /><UiText text={" Lisää pääkategoria"} /></button>
           </div>
 
           <VehicleFilter
@@ -434,7 +427,7 @@ export default function CategoriesPanel({ onToastAction: onToast }: Props) {
               >
                 <span>
                   <strong>{category.key}</strong>
-                  <small>{category.subcategories.length} alikategoriaa</small>
+                  <small>{category.subcategories.length}<UiText text={" alikategoriaa"} /></small>
                 </span>
                 <ChevronRight size={17} />
               </button>
@@ -442,7 +435,7 @@ export default function CategoriesPanel({ onToastAction: onToast }: Props) {
             {filteredCategories.length === 0 && (
               <div className={styles.taxonomyEmptyResult}>
                 <Search size={18} />
-                <span>Ei osumia nykyisillä suodattimilla.</span>
+                <span><UiText text={"Ei osumia nykyisillä suodattimilla."} /></span>
               </div>
             )}
           </div>
@@ -503,7 +496,7 @@ function VehicleFilter({
 }) {
   return (
     <div className={styles.taxonomyFilterBlock}>
-      <span>Suodata ajoneuvotyypin mukaan</span>
+      <span><UiText text={"Suodata ajoneuvotyypin mukaan"} /></span>
       <div>
         {[{ key: "", label: "Kaikki" }, ...vehicles.map((v) => ({ key: v.key, label: v.label || v.key }))].map((vehicle) => (
           <button
@@ -559,7 +552,7 @@ function CategoryDrillEditor({
       <div className={styles.taxonomyDrillHeader}>
         <div>
           <div className={styles.taxonomyBreadcrumb}>
-            <button type="button" onClick={onBackToRoot}>Kategoriat</button>
+            <button type="button" onClick={onBackToRoot}><UiText text={"Kategoriat"} /></button>
             <ChevronRight size={13} />
             <button type="button" onClick={() => onPathChange([])}>{category.key}</button>
             {path.map((part, index) => (
@@ -578,9 +571,7 @@ function CategoryDrillEditor({
               : "Tällä tasolla näkyvät vain tämän kategorian suorat alakategoriat."}
           </small>
         </div>
-        <button type="button" className={styles.secondaryBtn} onClick={onBackToRoot}>
-          Takaisin listaan
-        </button>
+        <button type="button" className={styles.secondaryBtn} onClick={onBackToRoot}><UiText text={"Takaisin listaan"} /></button>
       </div>
 
       <div className={styles.taxonomyCurrentEditor}>
@@ -595,15 +586,13 @@ function CategoryDrillEditor({
 
         {path.length === 0 && (
           <div className={styles.taxonomyFilterBlock}>
-            <span>Näytä ajoneuvotyypeissä</span>
+            <span><UiText text={"Näytä ajoneuvotyypeissä"} /></span>
             <div>
               <button
                 type="button"
                 className={(category.vehicleKeys ?? []).length === 0 ? styles.taxonomyChipActive : styles.taxonomyChip}
                 onClick={onSetAllVehicles}
-              >
-                Kaikki
-              </button>
+              ><UiText text={"Kaikki"} /></button>
               {vehicles.map((vehicle) => (
                 <button
                   key={vehicle.key}
@@ -642,9 +631,9 @@ function CategoryDrillEditor({
         <div className={styles.taxonomyLevelTitle}>
           <div>
             <CornerDownRight size={16} />
-            <strong>Nykyisen tason alakategoriat</strong>
+            <strong><UiText text={"Nykyisen tason alakategoriat"} /></strong>
           </div>
-          <span>{childNodes.length} kpl</span>
+          <span>{childNodes.length}<UiText text={" kpl"} /></span>
         </div>
 
         <div className={styles.taxonomyList}>
@@ -681,7 +670,7 @@ function CategoryDrillEditor({
           {childNodes.length === 0 && (
             <div className={styles.taxonomyEmptyResult}>
               <FolderTree size={18} />
-              <span>Tällä tasolla ei ole vielä alakategorioita.</span>
+              <span><UiText text={"Tällä tasolla ei ole vielä alakategorioita."} /></span>
             </div>
           )}
         </div>
@@ -721,10 +710,9 @@ function VehicleEditor({
   return (
     <div className={`${styles.appearanceCard} ${styles.taxonomyEditorCard}`}>
       <div className={styles.taxonomyCardHeader}>
-        <strong>Ajoneuvotyypit</strong>
+        <strong><UiText text={"Ajoneuvotyypit"} /></strong>
         <button type="button" className={styles.secondaryBtn} onClick={onAddVehicle}>
-          <Plus size={14} /> Lisää ajoneuvo
-        </button>
+          <Plus size={14} /><UiText text={" Lisää ajoneuvo"} /></button>
       </div>
 
       <div className={styles.taxonomyList}>
@@ -735,7 +723,7 @@ function VehicleEditor({
               <button type="button" onClick={() => onToggleOpen(index)}>
                 <span>
                   <strong>{vehicle.label || vehicle.key}</strong>
-                  <small>{vehicle.brands.length} brändiä</small>
+                  <small>{vehicle.brands.length}<UiText text={" brändiä"} /></small>
                 </span>
                 <ChevronRight size={17} />
               </button>
@@ -749,7 +737,7 @@ function VehicleEditor({
                   <LabeledInput label="Kuvan polku" value={vehicle.image} onChange={(value) => onUpdateVehicle(index, { image: value })} />
 
                   <div className={styles.taxonomyBrandBlock}>
-                    <span>Brändit</span>
+                    <span><UiText text={"Brändit"} /></span>
                     <div>
                       {vehicle.brands.map((brand, brandIdx) => (
                         <button
@@ -758,8 +746,7 @@ function VehicleEditor({
                           onClick={() => onRemoveBrand(index, brandIdx)}
                           title="Poista brändi"
                         >
-                          {brand} ×
-                        </button>
+                          {brand}<UiText text={" ×"} /></button>
                       ))}
                     </div>
                     <AddInline placeholder="Lisää brändi..." onAdd={(value) => onAddBrand(index, value)} />
@@ -771,8 +758,7 @@ function VehicleEditor({
                     className={styles.secondaryBtn}
                     style={{ alignSelf: "flex-start", color: "#ff8aa0" }}
                   >
-                    <Trash2 size={14} /> Poista ajoneuvo
-                  </button>
+                    <Trash2 size={14} /><UiText text={" Poista ajoneuvo"} /></button>
                 </div>
               )}
             </div>

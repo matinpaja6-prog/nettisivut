@@ -1,3 +1,4 @@
+import UiText from "@/app/components/UiText";
 import { getListingSalePricing, type Listing } from "@/lib/listings";
 import { useCurrency } from "./CurrencyProvider";
 import { isSupportedCurrency } from "@/lib/currency";
@@ -28,7 +29,7 @@ export default function ListingSalePrice({ listing, className = "", detail = fal
 
   return (
     <p className={`${styles.price}${detail ? ` ${styles.detail}` : ""}${className ? ` ${className}` : ""}`}>
-      {pricing.onSale && !hideBadge && <span className={styles.badge}>ALE −{pricing.discountPercent} %</span>}
+      {pricing.onSale && !hideBadge && <span className={styles.badge}><UiText text={"ALE −"} />{pricing.discountPercent} %</span>}
       <strong>{formattedCurrent}</strong>
       {pricing.onSale && <>{" "}<del>{formattedOriginal}</del></>}
     </p>

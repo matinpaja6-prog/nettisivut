@@ -1,10 +1,12 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from "@/app/components/LocalizedLink";
+import { usePathname } from "@/lib/navigation";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, listingIndexPath, pagePath } from "@/lib/routes";
 import MaskinesWordmark from "./MaskinesWordmark";
+import { COMPANY_IDENTITY, companyIdentityCopy } from "@/lib/company-identity";
 
 const footerText = {
   fi: {
@@ -199,9 +201,9 @@ export default function Footer() {
           <div className="footer-col">
             <h4>{text.contactHeading}</h4>
             <ul>
-              <li><a href="mailto:info@maskines.com">info@maskines.com</a></li>
-              <li><a href="https://www.instagram.com/maskines1/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-              <li><a href="https://www.facebook.com/profile.php?id=61590753577719&locale=fi_FI" target="_blank" rel="noopener noreferrer">Facebook</a></li>
+              <li><a href="mailto:info@maskines.com"><UiText text={"info@maskines.com"} /></a></li>
+              <li><a href="https://www.instagram.com/maskines1/" target="_blank" rel="noopener noreferrer"><UiText text={"Instagram"} /></a></li>
+              <li><a href="https://www.facebook.com/profile.php?id=61590753577719&locale=fi_FI" target="_blank" rel="noopener noreferrer"><UiText text={"Facebook"} /></a></li>
             </ul>
           </div>
 
@@ -209,11 +211,12 @@ export default function Footer() {
       </div>
 
       <div className="footer-responsibility">
+        <p>{companyIdentityCopy[locale].operator}: {COMPANY_IDENTITY.name} · {companyIdentityCopy[locale].businessId}: {COMPANY_IDENTITY.businessId}</p>
         <p>{text.responsibility} <Link href={pagePath("terms", locale)}>{text.terms}</Link>.</p>
       </div>
 
       <div className="footer-bottom">
-        <span>© {year} Maskines. {text.rights}</span>
+        <span>© {year}<UiText text={" Maskines. "} />{text.rights}</span>
         <span className="footer-bottom-links">
           <Link href={pagePath("terms", locale)}>{text.terms}</Link>
           <Link href={pagePath("privacy", locale)}>{text.privacy}</Link>

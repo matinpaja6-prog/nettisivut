@@ -1,14 +1,13 @@
 ﻿import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import "./globals.css";
-import "./styles/legacy.css";
-import "./styles/themes.css";
+import "./styles/generated/shared.css";
+import "./styles/marketplace-improvements.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
-import FloatingChat from "./components/FloatingChat";
+import DeferredAccountTools from "./components/DeferredAccountTools";
 import BottomNav from "./components/BottomNav";
 import SiteAppearance from "./components/SiteAppearance";
-import RequiredReviewGate from "./components/RequiredReviewGate";
 import ProfileCompletionGate from "./components/ProfileCompletionGate";
 import SiteVisitTracker from "./components/SiteVisitTracker";
 import UniversalTopbar from "./components/UniversalTopbar";
@@ -16,15 +15,20 @@ import TaxonomyProvider from "./components/TaxonomyProvider";
 import InstantNavigation from "./components/InstantNavigation";
 import NavigationHistory from "./components/NavigationHistory";
 import AuthRouteGuard from "./components/AuthRouteGuard";
-import AutoTranslate from "./components/AutoTranslate";
-import SourceFog from "./components/SourceFog";
+import LanguageProvider from "./components/LanguageProvider";
+import { getServerLocale, getServerPathname } from "@/lib/server-locale";
 import GlobalNavigationSpinner from "./components/GlobalNavigationSpinner";
 import CookieConsentGate from "./components/CookieConsentGate";
 import GoogleMeasurement from "./components/GoogleMeasurement";
 import CurrencyProvider from "./components/CurrencyProvider";
+import { languagePaths } from "@/lib/routes";
 import { PUBLIC_SITE_URL } from "@/lib/site-url";
+import { googleVerification } from "@/lib/measurement-config";
+import { validateSeoCollectionRoute } from "@/lib/server-seo-collections";
 
-export const metadata: Metadata = {
+const searchConsoleVerification = googleVerification(process.env.GOOGLE_SITE_VERIFICATION) || googleVerification(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION);
+
+const baseMetadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
   applicationName: "Maskines",
   robots: {
@@ -57,8 +61,8 @@ export const metadata: Metadata = {
     shortcut: "/maskines-favicon-v6.png",
     apple: [{ url: "/maskines-favicon-v6.png", sizes: "192x192", type: "image/png" }]
   },
-  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
-    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
+  ...(searchConsoleVerification
+    ? { verification: { google: searchConsoleVerification } }
     : {}),
   manifest: "/site.webmanifest",
   openGraph: {
@@ -87,20 +91,39 @@ export const metadata: Metadata = {
   }
 };
 
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale();
+  const pathname = await getServerPathname();
+  const copy = {
+    fi: ["Maskines | Varaosat ja ajoneuvot", "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille."],
+    en: ["Maskines | Parts and vehicles", "The Nordic marketplace for small vehicles and spare parts."],
+    sv: ["Maskines | Reservdelar och fordon", "Den nordiska marknadsplatsen för småfordon och reservdelar."],
+    no: ["Maskines | Reservedeler og kjøretøy", "Den nordiske markedsplassen for små kjøretøy og reservedeler."]
+  }[locale];
+  return {
+    ...baseMetadata,
+    title: { default: copy[0], template: "%s | Maskines" },
+    description: copy[1],
+    alternates: { canonical: pathname, languages: languagePaths(pathname) },
+    openGraph: { ...baseMetadata.openGraph, title: copy[0], description: copy[1], url: pathname, locale: {fi:"fi_FI",en:"en_GB",sv:"sv_SE",no:"nb_NO"}[locale] },
+    twitter: { ...baseMetadata.twitter, title: copy[0], description: copy[1] }
+  };
+}
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: "cover",
   themeColor: "#040d1f"
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getServerLocale();
+  await validateSeoCollectionRoute(await getServerPathname());
   const earlyChunkRecovery = `
     (function () {
       var retryKey = 'maskines-chunk-retry-v1';
@@ -250,50 +273,6 @@ export default function RootLayout({
     })();
   `;
 
-  const earlyLocale = `
-    (function () {
-      try {
-        function isValidLocale(value) {
-          return value === "fi" || value === "en" || value === "sv" || value === "no";
-        }
-
-        function getStoredLocale() {
-          try {
-            var value = localStorage.getItem("locale");
-            return isValidLocale(value) ? value : "";
-          } catch {
-            return "";
-          }
-        }
-
-        function getCookieLocale() {
-          var match = document.cookie.match(/(?:^|;\\s*)locale=([^;]+)/);
-          return match ? decodeURIComponent(match[1] || "") : "";
-        }
-
-        var cookieLocale = getCookieLocale();
-        if (!isValidLocale(cookieLocale)) {
-          document.cookie = "locale=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0";
-          cookieLocale = "";
-        }
-
-        var storedLocale = getStoredLocale();
-        if (!isValidLocale(storedLocale)) {
-          localStorage.removeItem("locale");
-        }
-
-        var queryLocale = new URLSearchParams(window.location.search).get("lang") || "";
-        var locale = isValidLocale(queryLocale)
-          ? queryLocale
-          : isValidLocale(storedLocale)
-            ? storedLocale
-            : (cookieLocale || "en");
-        document.documentElement.lang = locale;
-        document.documentElement.setAttribute('data-i18n-target', locale);
-      } catch (e) {}
-    })();
-  `;
-
   const earlyFirstVisitReset = `
     (function () {
       try {
@@ -314,16 +293,15 @@ export default function RootLayout({
   `;
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale === "no" ? "nb" : locale} suppressHydrationWarning>
       <head>
         <style dangerouslySetInnerHTML={{ __html: "html,body{background-color:#0b1118}" }} />
         <script dangerouslySetInnerHTML={{ __html: earlyChunkRecovery }} />
         <script dangerouslySetInnerHTML={{ __html: earlyFirstVisitReset }} />
-        <script dangerouslySetInnerHTML={{ __html: earlyLocale }} />
         <script dangerouslySetInnerHTML={{ __html: earlyAppearance }} />
-        <SourceFog />
       </head>
       <body suppressHydrationWarning>
+        <LanguageProvider initialLocale={locale}>
         <CurrencyProvider>
         <CookieConsentGate>
           <Suspense fallback={null}>
@@ -336,20 +314,19 @@ export default function RootLayout({
             <Suspense fallback={null}>
               <NavigationHistory />
             </Suspense>
-            <AutoTranslate />
             <SiteAppearance />
             <OnlinePresence />
             <SiteVisitTracker />
             <ProfileCompletionGate />
             <UniversalTopbar />
             {children}
-            <RequiredReviewGate />
-            <FloatingChat />
+            <DeferredAccountTools />
             <BottomNav />
             <Footer />
           </TaxonomyProvider>
         </CookieConsentGate>
         </CurrencyProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

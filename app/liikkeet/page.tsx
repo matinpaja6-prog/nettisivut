@@ -1,8 +1,10 @@
+import UiText from "@/app/components/UiText";
 import { ArrowRight, MapPin, Package, Search, ShieldCheck, Store } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { cookies } from "next/headers";
+import Link from "@/app/components/LocalizedLink";
+import { getServerLocale } from "@/lib/server-locale";
 import { notFound } from "next/navigation";
+
 
 import styles from "./page.module.css";
 import { companyRecord } from "@/lib/commerce/company-record";
@@ -41,7 +43,7 @@ export default async function StoresPage({ searchParams }: StoresPageProps) {
   if (!COMPANY_DIRECTORY_VISIBLE) notFound();
 
   const params = await searchParams;
-  const locale = normalizeRouteLocale((await cookies()).get("locale")?.value);
+  const locale = await getServerLocale();
   const directoryPath = pagePath("yritykset", locale);
   const companyQuery = firstParam(params.yritys).trim();
   const locationQuery = firstParam(params.sijainti).trim();
@@ -143,28 +145,28 @@ export default async function StoresPage({ searchParams }: StoresPageProps) {
           <div className={styles.searchHeading}>
             <span><Search size={20} /></span>
             <div>
-              <h2>Haku</h2>
-              <p>Etsi Maskines-yrityksiä</p>
+              <h2><UiText text={"Haku"} /></h2>
+              <p><UiText text={"Etsi Maskines-yrityksiä"} /></p>
             </div>
           </div>
 
           <form className={styles.searchForm} action={directoryPath}>
             <label>
-              <span>Yritys</span>
+              <span><UiText text={"Yritys"} /></span>
               <input name="yritys" defaultValue={companyQuery} placeholder="Yrityksen nimi tai tuote" />
             </label>
             <label>
-              <span>Sijainti</span>
+              <span><UiText text={"Sijainti"} /></span>
               <input name="sijainti" defaultValue={locationQuery} placeholder="Kunta tai postinumero" />
             </label>
-            <button type="submit"><Search size={17} /> Hae yrityksiä</button>
-            {hasFilters ? <Link className={styles.clearFilters} href={directoryPath}>Tyhjennä haku</Link> : null}
+            <button type="submit"><Search size={17} /><UiText text={" Hae yrityksiä"} /></button>
+            {hasFilters ? <Link className={styles.clearFilters} href={directoryPath}><UiText text={"Tyhjennä haku"} /></Link> : null}
           </form>
 
           <div className={styles.searchSummary}>
             <Store size={20} />
             <div>
-              <strong>{companies.length} vahvistettua yritystä</strong>
+              <strong>{companies.length}<UiText text={" vahvistettua yritystä"} /></strong>
               <span>{totalProducts ? `${totalProducts} tuotetta yrityksiltä` : "Yritysten valikoimat yhdessä paikassa"}</span>
             </div>
           </div>
@@ -172,17 +174,17 @@ export default async function StoresPage({ searchParams }: StoresPageProps) {
 
         <div className={styles.content}>
           <header className={styles.pageHeader}>
-            <span className={styles.eyebrow}>MASKINES-YRITYKSET</span>
-            <h1>Yritykset</h1>
-            <p>Tutustu lähelläsi sijaitseviin yrityksiin ja niiden ajoneuvo-, varaosa- ja tarvikevalikoimiin.</p>
+            <span className={styles.eyebrow}><UiText text={"MASKINES-YRITYKSET"} /></span>
+            <h1><UiText text={"Yritykset"} /></h1>
+            <p><UiText text={"Tutustu lähelläsi sijaitseviin yrityksiin ja niiden ajoneuvo-, varaosa- ja tarvikevalikoimiin."} /></p>
           </header>
 
           {!hasFilters && locations.length ? (
             <section className={styles.locationSection} aria-labelledby="locations-title">
               <div className={styles.sectionHeading}>
                 <div>
-                  <h2 id="locations-title">Yritykset paikkakunnittain</h2>
-                  <p>Valitse paikkakunta nähdäksesi alueen yritykset.</p>
+                  <h2 id="locations-title"><UiText text={"Yritykset paikkakunnittain"} /></h2>
+                  <p><UiText text={"Valitse paikkakunta nähdäksesi alueen yritykset."} /></p>
                 </div>
                 <MapPin size={22} />
               </div>
@@ -218,14 +220,14 @@ export default async function StoresPage({ searchParams }: StoresPageProps) {
                       <div className={styles.cardBody}>
                         <div className={styles.companyTitle}>
                           <h3>{company.name}</h3>
-                          <span className={styles.verified}><ShieldCheck size={14} /> Vahvistettu</span>
+                          <span className={styles.verified}><ShieldCheck size={14} /><UiText text={" Vahvistettu"} /></span>
                         </div>
                         <p>{company.storefront_headline || company.description || "Tutustu yrityksen tuotteisiin ja valikoimaan."}</p>
                         <span className={styles.location}><MapPin size={14} /> {[company.postal_code, formatPlaceName(company.city ?? "")].filter(Boolean).join(" ") || "Sijainti ei ilmoitettu"}</span>
                       </div>
                       <div className={styles.cardMeta}>
                         <span><Package size={16} /> {count} {count === 1 ? "tuote" : "tuotetta"}</span>
-                        <strong>Avaa yritys <ArrowRight size={17} /></strong>
+                        <strong><UiText text={"Avaa yritys "} /><ArrowRight size={17} /></strong>
                       </div>
                     </Link>
                   );
@@ -234,9 +236,9 @@ export default async function StoresPage({ searchParams }: StoresPageProps) {
             ) : (
               <div className={styles.empty}>
                 <Store size={34} />
-                <h3>Yrityksiä ei löytynyt</h3>
-                <p>Kokeile toista yrityksen nimeä tai paikkakuntaa.</p>
-                {hasFilters ? <Link href={directoryPath}>Näytä kaikki yritykset</Link> : null}
+                <h3><UiText text={"Yrityksiä ei löytynyt"} /></h3>
+                <p><UiText text={"Kokeile toista yrityksen nimeä tai paikkakuntaa."} /></p>
+                {hasFilters ? <Link href={directoryPath}><UiText text={"Näytä kaikki yritykset"} /></Link> : null}
               </div>
             )}
           </section>

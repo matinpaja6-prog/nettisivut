@@ -1,9 +1,10 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 import { PackageOpen, ShoppingCart, Trash2 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from "@/app/components/LocalizedLink";
+import { usePathname } from "@/lib/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -188,7 +189,7 @@ export default function CartHoverPreview({ quantity }: CartHoverPreviewProps) {
                       </button>
                     </div>
                     <div className="universal-cart-preview-price">
-                      <span>{item.quantity}×</span>
+                      <span>{item.quantity}<UiText text={"×"} /></span>
                       <strong>{money(currentPrice * item.quantity)}</strong>
                       {onSale ? <del>{money(product.price_cents * item.quantity)}</del> : null}
                     </div>

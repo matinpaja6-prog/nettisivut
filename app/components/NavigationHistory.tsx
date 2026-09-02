@@ -1,6 +1,7 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { usePathname } from "@/lib/navigation";
 import { useEffect } from "react";
 
 import { rememberInternalPageVisit } from "@/lib/go-back";

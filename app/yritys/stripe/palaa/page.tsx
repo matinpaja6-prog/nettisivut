@@ -1,7 +1,9 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 import { useSearchParams } from "next/navigation";
+
 import { useEffect, useState } from "react";
 
 import styles from "@/app/commerce.module.css";
@@ -24,5 +26,5 @@ export default function StripeReturnPage() {
     }).catch((reason) => setError(reason instanceof Error ? reason.message : String(reason)));
   }, [refresh]);
 
-  return <main className={styles.page}><div className={styles.shell}><section className={styles.panel} style={{ maxWidth: 680, margin: "0 auto" }}><div className={styles.eyebrow}>Stripe Connect</div><h1>Paluu Maskinesiin</h1>{error ? <p className={styles.error}>{error}</p> : <p className={styles.notice}>{status}</p>}<Link className={styles.button} href="/yritys">Yrityksen hallintapaneeliin</Link></section></div></main>;
+  return <main className={styles.page}><div className={styles.shell}><section className={styles.panel} style={{ maxWidth: 680, margin: "0 auto" }}><div className={styles.eyebrow}><UiText text={"Stripe Connect"} /></div><h1><UiText text={"Paluu Maskinesiin"} /></h1>{error ? <p className={styles.error}>{error}</p> : <p className={styles.notice}>{status}</p>}<Link className={styles.button} href="/yritys"><UiText text={"Yrityksen hallintapaneeliin"} /></Link></section></div></main>;
 }

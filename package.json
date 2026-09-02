@@ -4,10 +4,20 @@
   "private": true,
   "packageManager": "pnpm@10.34.5",
   "scripts": {
+    "css:build": "node scripts/build-feature-css.mjs",
+    "test:css-seo": "node scripts/verify-legacy-css.mjs && node scripts/test-feature-css.mjs && node scripts/test-seo-collections.mjs && node scripts/test-visit-consent.mjs",
+    "test:local-seo": "node scripts/test-local-seo-collections.mjs",
+    "predev": "node scripts/build-feature-css.mjs",
+    "prebuild": "node scripts/build-feature-css.mjs",
     "dev": "next dev",
     "start": "next start",
     "build": "next build",
     "lint": "eslint .",
+    "test:marketplace": "node scripts/test-marketplace-regressions.mjs && node scripts/test-listing-seo.mjs && node scripts/test-pdf-fixes.mjs && node scripts/test-commerce-flows.mjs && node scripts/test-database-search.mjs && node scripts/test-measurement-quality.mjs && node scripts/verify-legacy-css.mjs",
+    "test:search-quality": "node scripts/test-search-performance-quality.mjs && node scripts/test-database-search.mjs && node scripts/test-marketplace-regressions.mjs && node scripts/test-listing-seo.mjs && node scripts/test-pdf-fixes.mjs && node scripts/test-report-fixes.mjs",
+    "check:search": "node scripts/test-public-database-search.mjs --remote-read-only",
+    "check:readiness": "node scripts/check-production-readiness.mjs --remote-read-only",
+    "db:search-indexes": "node scripts/run-search-indexes.mjs",
     "empty:storage": "node scripts/empty-supabase-storage.mjs"
   },
   "dependencies": {
@@ -21,6 +31,7 @@
     "stripe": "^22.5.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@netlify/plugin-nextjs": "^5.15.11",
     "@next/eslint-plugin-next": "15.5.21",
     "@types/node": "^22.15.3",
@@ -32,6 +43,8 @@
     "eslint": "^9.25.1",
     "eslint-config-next": "15.5.21",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "pg": "^8.23.0",
+    "postcss": "8.5.23",
     "typescript": "^5.8.3"
   },
   "overrides": {

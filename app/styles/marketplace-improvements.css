@@ -1,0 +1,80 @@
+/* Shared, accessible marketplace controls. Keep these after legacy overrides. */
+.marketplace-page-title {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+html body main[data-home-page] .home-latest-heading { margin: 0; font-size: 20px; line-height: 1.3; font-weight: 800; }
+.listing-quality-checklist { margin-top: 20px; padding: 18px; border: 1px solid var(--line); border-radius: 12px; }
+.listing-quality-checklist h2 { font-size: 17px; margin: 0 0 10px; }
+.listing-quality-checklist ul { padding-left: 20px; margin: 0; line-height: 1.6; }
+.listing-quality-checklist li + li { margin-top: 6px; }
+@media (max-width: 768px) {
+  /* Account access lives in the bottom bar; signed-in users also have Messages. */
+  html body:has(.bottom-nav-main[data-device-bottom-nav="true"]) .rebuilt-chat-button[data-chat-open="false"] { display: none !important; }
+  html body nav#maskines-bottom-nav-stable.bottom-nav-guest { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+}
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 3px solid #0b79d0 !important;
+  outline-offset: 3px !important;
+}
+@media (max-width: 720px) {
+  html body main[data-home-page] [data-home-listing-grid] {
+    grid-auto-rows: auto !important;
+  }
+  html body main[data-home-page] [data-home-listing-grid] > [data-listing-card="true"] {
+    grid-template-rows: 160px minmax(164px, auto) !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+  }
+  html body main[data-home-page] [data-home-listing-grid] [data-listing-card-body="true"] {
+    height: auto !important;
+    min-height: 164px !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  html body main[data-home-page] [data-listing-card="true"] [data-home-latest-meta] {
+    display: flex !important;
+    align-items: flex-start !important;
+    flex-wrap: wrap !important;
+    gap: 5px 10px !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+  html body main[data-home-page] [data-listing-card="true"] [data-home-latest-meta] span {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+  html body main[data-home-page] [data-listing-card="true"] [data-listing-vehicle-meta="true"],
+  html body main[data-home-page] [data-listing-card="true"] [data-listing-vehicle-meta="true"] span {
+    flex-wrap: wrap !important;
+    white-space: normal !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+  [data-listing-card="true"] { transition: none !important; }
+}
+
+.marketplace-filter-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+main[data-home-page] #listings .marketplace-filter-chips { max-width: 880px; margin: 0 auto 16px; width: 100%; }
+.marketplace-filter-chips button {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px;
+  padding: 8px 12px; border: 1px solid var(--line); border-radius: 9px;
+  background: var(--surface); color: var(--text); font: inherit; font-size: 14px;
+  cursor: pointer; text-align: left; max-width: 100%;
+}
+.marketplace-filter-chips button svg { flex-shrink: 0; }
+.marketplace-filter-chips .marketplace-filter-reset { text-decoration: underline; }
+.listing-quality-hint { grid-column: 1 / -1; font-size: 14px; line-height: 1.6; margin: 0 0 12px; }
+.deferred-chat-button {
+  position: fixed; bottom: 28px; right: 28px; width: 46px; height: 46px;
+  display: flex; align-items: center; justify-content: center; padding: 0;
+  border-radius: 50%; border: 1px solid #ffdcbe; background: #ff7a0a; color: #08131e;
+  cursor: pointer; z-index: 2147483647;
+}
+@media (max-width: 768px) {
+  .deferred-chat-button { right: 14px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+}

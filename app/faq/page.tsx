@@ -1,4 +1,5 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 import {
   AlertTriangle,
@@ -19,11 +20,13 @@ import {
   SquarePlus,
   type LucideIcon
 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 import { useMemo, useState } from "react";
 
 import { useLanguage } from "@/lib/i18n";
 import { pagePath } from "@/lib/routes";
+import { marketplaceCopy } from "@/lib/marketplace-copy";
+import { getStaticTranslation } from "@/lib/ui-translations";
 
 type TopicId = "buyer" | "seller" | "safety" | "general";
 
@@ -114,7 +117,7 @@ const buyerGuidesFi: HelpItem[] = [
     answer: [
       "Vahvista ennen maksua, mitä kauppaan kuuluu: tarkka osa, mahdolliset tarvikkeet, kokonaishinta ja toimituskulut.",
       "Arvokas tai vaikeasti tunnistettava osa kannattaa tarkistaa noudettaessa. Lähetykselle kannattaa pyytää seuranta ja riittävä pakkaus.",
-      "Maskines ei vastaanota eikä välitä kauppasummaa. Ostaja ja myyjä sopivat maksutavan itse, joten valitse tapa, jonka ehdot tunnet."
+      marketplaceCopy.fi.paymentGuide
     ]
   },
   {
@@ -243,7 +246,7 @@ const faqItemsFi: FaqItem[] = [
     topic: "safety",
     question: "Kulkeeko maksu Maskinesin kautta?",
     answer:
-      "Ei. Maskines toimii ilmoitus- ja yhteydenottopalveluna, eikä säilytä tai välitä kauppasummaa. Ostaja ja myyjä sopivat maksun, noudon ja toimituksen keskenään. Käytä maksutapaa, jonka ehdot ja mahdollisen ostajansuojan tunnet."
+      marketplaceCopy.fi.paymentFaq
   },
   {
     id: "bad-part",
@@ -340,7 +343,7 @@ const buyerGuidesNo: HelpItem[] = [
     answer: [
       "Bekreft før betaling hva handelen omfatter: den nøyaktige delen, eventuelt tilbehør, totalpris og fraktkostnader.",
       "En verdifull eller vanskelig identifiserbar del bør kontrolleres ved henting. Ved sending bør du be om sporing og forsvarlig emballasje.",
-      "Maskines mottar eller formidler ikke kjøpesummen. Kjøper og selger avtaler betalingsmåten selv, så velg en metode du kjenner vilkårene for."
+      marketplaceCopy.no.paymentGuide
     ]
   },
   {
@@ -469,7 +472,7 @@ const faqItemsNo: FaqItem[] = [
     topic: "safety",
     question: "Går betalingen gjennom Maskines?",
     answer:
-      "Nei. Maskines er en tjeneste for annonser og kontakt, og oppbevarer eller formidler ikke kjøpesummen. Kjøper og selger avtaler betaling, henting og levering seg imellom. Bruk en betalingsmåte der du kjenner vilkårene og eventuell kjøperbeskyttelse."
+      marketplaceCopy.no.paymentFaq
   },
   {
     id: "bad-part",
@@ -502,6 +505,16 @@ const faqItemsNo: FaqItem[] = [
 ];
 
 const pageText = {
+  en: {
+    kicker: "Maskines help centre", title: "Help", intro: "Practical guidance for finding and selling parts and trading safely.",
+    chooseTopic: "Choose a topic", buyerGuidesTitle: "Buyer guides", sellerGuidesTitle: "Seller guides", safetyGuidesTitle: "Safe trading guides", frequentlyAsked: "Frequently asked questions",
+    supportTitle: "Need help?", supportText: "Send the listing link and tell us what you were trying to do so we can help you faster.", contactTitle: "Contact us", contactText: "Send a message", email: "Email"
+  },
+  sv: {
+    kicker: "Maskines hjälpcenter", title: "Hjälp", intro: "Praktiska råd för att hitta och sälja reservdelar och handla tryggt.",
+    chooseTopic: "Välj ett ämne", buyerGuidesTitle: "Köparguider", sellerGuidesTitle: "Säljarguider", safetyGuidesTitle: "Guider för trygg handel", frequentlyAsked: "Vanliga frågor",
+    supportTitle: "Behöver du hjälp?", supportText: "Skicka länken till annonsen och berätta vad du försökte göra så kan vi hjälpa dig snabbare.", contactTitle: "Kontakta oss", contactText: "Skicka ett meddelande", email: "E-post"
+  },
   fi: {
     kicker: "Maskines ohjekeskus",
     title: "Ohjeet",
@@ -556,7 +569,21 @@ const faqContent = {
 export default function FaqPage() {
   const { locale } = useLanguage();
   const [activeTopic, setActiveTopic] = useState<TopicId>("buyer");
-  const copy = faqContent[locale === "no" ? "no" : "fi"];
+  const copy = useMemo(() => {
+    const base = faqContent[locale === "no" ? "no" : "fi"];
+    const tr = (text: string) => locale === "no" ? text : getStaticTranslation(locale, text) ?? text;
+    const guides = (items: HelpItem[]) => items.map(item => ({
+      ...item, title: tr(item.title), text: tr(item.text),
+      answer: item.answer.map((step, index) => item.id === "buy-safely" && index === 2 ? marketplaceCopy[locale].paymentGuide : tr(step))
+    }));
+    return {
+      ...base,
+      ...pageText[locale],
+      topics: base.topics.map(topic => ({ ...topic, title: tr(topic.title), text: tr(topic.text) })),
+      buyerGuides: guides(base.buyerGuides), sellerGuides: guides(base.sellerGuides), safetyGuides: guides(base.safetyGuides),
+      faqItems: base.faqItems.map(item => ({ ...item, question: tr(item.question), answer: item.id === "messages-payments" ? marketplaceCopy[locale].paymentFaq : tr(item.answer) }))
+    };
+  }, [locale]);
   const primaryGuideItems =
     activeTopic === "seller"
       ? copy.sellerGuides
@@ -678,7 +705,7 @@ export default function FaqPage() {
               <Mail size={25} aria-hidden="true" />
               <span>
                 <strong>{copy.email}</strong>
-                <small>info@maskines.com</small>
+                <small><UiText text={"info@maskines.com"} /></small>
               </span>
             </a>
           </section>

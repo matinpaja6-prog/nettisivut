@@ -66,6 +66,45 @@ export function normalizeRouteLocale(locale?: string | null): RouteLocale {
   return routeLocale(locale);
 }
 
+export const routeLocales: RouteLocale[] = ["fi", "en", "sv", "no"];
+
+export function localeFromPath(pathname: string): RouteLocale {
+  const segment = pathname.split(/[/?#]/)[1];
+  return segment === "eng" ? "en" : routeLocale(segment);
+}
+
+export function hasLocalePrefix(pathname: string) {
+  return /^\/(?:fi|en|eng|sv|no)(?:\/|$|[?#])/.test(pathname);
+}
+
+export function stripLocalePrefix(pathname: string) {
+  return pathname.replace(/^\/(?:fi|en|eng|sv|no)(?=\/|$|[?#])/, "") || "/";
+}
+
+export function isUnlocalizedPath(pathname: string) {
+  return !pathname.startsWith("/") || pathname.startsWith("//") ||
+    /^\/(?:api|_next|admin|\.well-known)(?:\/|$)/.test(pathname) ||
+    /\.[a-z0-9]{2,8}(?:[?#]|$)/i.test(pathname);
+}
+
+function prefixPath(pathname: string, locale: RouteLocale) {
+  return locale === "fi" ? pathname : `/${locale}${pathname === "/" ? "" : pathname}`;
+}
+
+/** Localize navigation, but preserve explicitly language-qualified links. */
+export function localizeHref(href: string, locale: RouteLocale) {
+  if (isUnlocalizedPath(href) || hasLocalePrefix(href)) return href;
+  const match = href.match(/^([^?#]*)(.*)$/);
+  return match ? `${translateLocalizedPath(match[1], locale)}${match[2]}` : href;
+}
+
+export function languagePaths(pathname: string) {
+  return Object.fromEntries(routeLocales.map(locale => [
+    locale === "no" ? "nb" : locale,
+    translateLocalizedPath(pathname, locale)
+  ]));
+}
+
 export function publicCompanyDisplayName(value?: string | null) {
   return String(value ?? "")
     .trim()
@@ -155,16 +194,16 @@ export function listingPath(valueOrListing?: ListingRouteValue, locale?: string 
 
   if (brand && model && urlId) {
     if (part) {
-      return `/${encodeURIComponent(brand)}/${encodeURIComponent(model)}/${encodeURIComponent(part)}/${encodeURIComponent(urlId)}`;
+      return prefixPath(`/${encodeURIComponent(brand)}/${encodeURIComponent(model)}/${encodeURIComponent(part)}/${encodeURIComponent(urlId)}`, routeLocale(locale));
     }
-    return `/${encodeURIComponent(brand)}/${encodeURIComponent(model)}/${encodeURIComponent(urlId)}`;
+    return prefixPath(`/${encodeURIComponent(brand)}/${encodeURIComponent(model)}/${encodeURIComponent(urlId)}`, routeLocale(locale));
   }
 
-  return `/${listingSegments[routeLocale(locale)]}/${encodeURIComponent(urlId)}`;
+  return prefixPath(`/${listingSegments[routeLocale(locale)]}/${encodeURIComponent(urlId)}`, routeLocale(locale));
 }
 
 export function listingIndexPath(locale?: string | null) {
-  return `/${listingSegments[routeLocale(locale)]}`;
+  return prefixPath(`/${listingSegments[routeLocale(locale)]}`, routeLocale(locale));
 }
 
 export function listingSharePath(id?: string | number | null, locale?: string | null) {
@@ -172,7 +211,7 @@ export function listingSharePath(id?: string | number | null, locale?: string | 
   const urlId = /^\d+$/.test(value) ? `id${value}` : value;
   const segment = locale === "en" ? "ad" : locale === "sv" ? "annons" : locale === "no" ? "annonse" : "ilmoitus";
 
-  return `/${segment}/${encodeURIComponent(urlId)}`;
+  return prefixPath(`/${segment}/${encodeURIComponent(urlId)}`, routeLocale(locale));
 }
 
 export function listingNumberUrlId(value?: string | number | null) {
@@ -200,7 +239,7 @@ export function profilePath(id?: string | null, name?: string | null, locale?: s
   const profileSlug = slugifyProfileName(name);
   const segment = profileSegments[routeLocale(locale)];
 
-  return `/${segment}/${encodeURIComponent(profileSlug || profileId)}`;
+  return prefixPath(`/${segment}/${encodeURIComponent(profileSlug || profileId)}`, routeLocale(locale));
 }
 
 export function legacySellerPath(id?: string | null) {
@@ -208,11 +247,11 @@ export function legacySellerPath(id?: string | null) {
 }
 
 export function profileRootPath(locale?: string | null) {
-  return `/${profileSegments[routeLocale(locale)]}`;
+  return prefixPath(`/${profileSegments[routeLocale(locale)]}`, routeLocale(locale));
 }
 
 export function pagePath(page: keyof typeof pageSegments, locale?: string | null) {
-  return `/${pageSegments[page][routeLocale(locale)]}`;
+  return prefixPath(`/${pageSegments[page][routeLocale(locale)]}`, routeLocale(locale));
 }
 
 export function isUuidLike(value: string) {
@@ -221,24 +260,25 @@ export function isUuidLike(value: string) {
 
 export function translateLocalizedPath(pathname: string, locale?: string | null) {
   const normalizedLocale = routeLocale(locale);
-  const parts = pathname.split("/");
+  if (isUnlocalizedPath(pathname)) return pathname;
+  const parts = stripLocalePrefix(pathname).split("/");
   const first = parts[1] ?? "";
   const canonical = canonicalSegments[first];
 
   if (canonical && localizedRouteGroups[canonical]) {
     parts[1] = localizedRouteGroups[canonical][normalizedLocale];
-    return parts.join("/") || "/";
+    return prefixPath(parts.join("/") || "/", normalizedLocale);
   }
 
-  return pathname;
+  return prefixPath(parts.join("/") || "/", normalizedLocale);
 }
 
 export function canonicalPathFromLocalized(pathname: string) {
-  const parts = pathname.split("/");
+  const parts = stripLocalePrefix(pathname).split("/");
   const first = parts[1] ?? "";
   const canonical = canonicalSegments[first];
 
-  if (!canonical) return pathname;
+  if (!canonical) return parts.join("/") || "/";
 
   parts[1] = canonical;
   return parts.join("/") || "/";

@@ -1,0 +1,37 @@
+{
+  "sourceSha256": "9b12b48840d8af07765c1f860a2e3f19f81e62cd2a99fe559fb26bb865679c59",
+  "sourceBytes": 1692587,
+  "roots": {
+    "profile": "pf-page",
+    "seller": "seller-page",
+    "auth": "simple-auth-page",
+    "sell": "sell-page-responsive",
+    "garage": "garage-page"
+  },
+  "files": {
+    "shared": {
+      "bytes": 1099933,
+      "sha256": "a4ede6e6a80162485bf22689fc8115b293e132c4a3cffb5995b8db64b7a7bc7c"
+    },
+    "profile": {
+      "bytes": 222712,
+      "sha256": "673ba50a9e6a09abfb44b81b6e5dda48a2b2e0efd03f6d71e8da46b77b8c3895"
+    },
+    "seller": {
+      "bytes": 210333,
+      "sha256": "1ede9bd9ae1ea6d5a44897123b4f55c07b5626cb5dcadb471f3620c1b3603d01"
+    },
+    "auth": {
+      "bytes": 88573,
+      "sha256": "7e9df90d4f58a53fa40b1fc417084faa3ed9b79a1b2961221f3a2db696a31e99"
+    },
+    "sell": {
+      "bytes": 48649,
+      "sha256": "4a050a1d5bac72267f62730487aed2cc1390f9b69c5becf278b44eb09881f8fd"
+    },
+    "garage": {
+      "bytes": 34107,
+      "sha256": "4620b883621eacd8edbae3616ce486d13004fa2a551e76ca87117c814afb1b6f"
+    }
+  }
+}

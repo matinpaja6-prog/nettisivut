@@ -1,4 +1,5 @@
 "use client";
+import UiText from "@/app/components/UiText";
 
 import Script from "next/script";
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
@@ -139,7 +140,7 @@ export default function TurnstileWidget({
   }, [action, containerWidth, removeWidget, resetKey, scriptReady, siteKey]);
 
   if (!siteKey) {
-    return <p role="alert">Bottitarkistuksen sivustoavain puuttuu.</p>;
+    return <p role="alert"><UiText text={"Bottitarkistuksen sivustoavain puuttuu."} /></p>;
   }
 
   const widgetScale = containerWidth === null
@@ -173,7 +174,7 @@ export default function TurnstileWidget({
         />
       </div>
       {!scriptReady && !widgetError ? (
-        <p className="turnstile-loading" role="status">Ladataan bottitarkistusta...</p>
+        <p className="turnstile-loading" role="status"><UiText text={"Ladataan bottitarkistusta..."} /></p>
       ) : null}
       {widgetError ? <p role="alert">{widgetError}</p> : null}
     </div>

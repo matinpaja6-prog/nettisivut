@@ -1,20 +1,16 @@
 import type { MetadataRoute } from "next";
 import { COMPANY_DIRECTORY_VISIBLE } from "@/lib/features";
+import { expandSitemapLanguages } from "@/lib/sitemap-locales";
+import { buildSeoCollectionCatalog, indexCollectionLanguages } from "@/lib/seo-collection-policy";
 
 import {
+  languagePaths,
   listingNumberUrlId,
   listingPath,
   listingUrlId,
   pagePath,
   profilePath
 } from "@/lib/routes";
-import {
-  seoCollectionLanguagePaths,
-  seoCollectionPath,
-  seoPartCollectionDescriptors,
-  seoVehicleSearchQueries,
-  type SeoCollectionKind
-} from "@/lib/seo-search";
 import { absoluteSiteUrl } from "@/lib/site-url";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getListingDisplayNumber, getListings } from "@/lib/supabase";
@@ -43,6 +39,7 @@ const PUBLIC_STATIC_PATHS = [
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = PUBLIC_STATIC_PATHS.map((path) => ({
     url: absoluteSiteUrl(path),
+    alternates: { languages: Object.fromEntries(Object.entries(languagePaths(path)).map(([language, href]) => [language, absoluteSiteUrl(href)])) },
     changeFrequency:
       path === "/" || path === "/ilmoitukset" || path === "/ajoneuvot" || path === "/varaosat"
         ? "hourly"
@@ -56,7 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const { data: listings } = await getListings({
-    includeOptionalFields: false,
+    includeOptionalFields: true,
     enrichSellerProfiles: false
   });
 
@@ -110,6 +107,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const path = profilePath(sellerId, sellerName, "fi");
     activeSellerEntries.set(sellerId, {
       url: absoluteSiteUrl(path),
+      alternates: { languages: Object.fromEntries(Object.entries(languagePaths(path)).map(([language, href]) => [language, absoluteSiteUrl(href)])) },
       ...(Number.isNaN(createdAt.getTime()) ? {} : { lastModified: createdAt }),
       ...(listing.seller_avatar_url ? { images: [absoluteSiteUrl(listing.seller_avatar_url)] } : {}),
       changeFrequency: "weekly",
@@ -130,12 +128,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         const canonicalId =
           listingNumberUrlId(displayNumber) || listingUrlId(listing);
 
-        // Legacy share URLs redirect to this same page; they are not separate
-        // language versions and must not be advertised as URLs or hreflang.
+        // Every language has a stable URL and reciprocal alternates.
         return {
-          url: absoluteSiteUrl(
-            listingPath({ ...listing, listing_number: displayNumber, id: canonicalId })
-          ),
+          url: absoluteSiteUrl(listingPath({ ...listing, listing_number: displayNumber, id: canonicalId })),
+          alternates: { languages: Object.fromEntries(Object.entries(languagePaths(listingPath({ ...listing, listing_number: displayNumber, id: canonicalId }))).map(([language, href]) => [language, absoluteSiteUrl(href)])) },
           ...(Number.isNaN(createdAt.getTime()) ? {} : { lastModified: createdAt }),
           ...(listing.image_url ? { images: [absoluteSiteUrl(listing.image_url)] } : {}),
           changeFrequency: "daily" as const,
@@ -144,60 +140,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
   );
 
-  const groupedSearchPages = new Map<
-    string,
-    { kind: SeoCollectionKind; query: string; path: string; count: number; lastModified?: Date }
-  >();
-
-  function addCollectionQuery(
-    kind: SeoCollectionKind,
-    query: string,
-    path: string,
-    lastModified?: Date
-  ) {
-    const group = groupedSearchPages.get(path);
-
-    groupedSearchPages.set(path, {
-      kind,
-      query,
-      path,
-      count: (group?.count ?? 0) + 1,
-      lastModified:
-        !group?.lastModified || (lastModified && lastModified > group.lastModified)
-          ? lastModified
-          : group.lastModified
-    });
-  }
-
-  for (const listing of listings.filter((item) => !item.is_hidden && !item.is_sold)) {
-    const createdAt = new Date(listing.created_at);
-    const date = Number.isNaN(createdAt.getTime()) ? undefined : createdAt;
-
-    for (const descriptor of seoPartCollectionDescriptors(listing)) {
-      addCollectionQuery("parts", descriptor.query, descriptor.path, date);
-    }
-
-    for (const query of seoVehicleSearchQueries(listing)) {
-      addCollectionQuery("vehicles", query, seoCollectionPath("vehicles", query), date);
-    }
-  }
-
-  const searchEntries: MetadataRoute.Sitemap = [...groupedSearchPages.entries()]
-    .filter(([, group]) => group.count > 0)
-    .map(([, group]) => {
-      const languagePaths = seoCollectionLanguagePaths(group.kind, group.query, group.path);
+  const catalog = buildSeoCollectionCatalog(listings);
+  const searchEntries: MetadataRoute.Sitemap = catalog
+    .filter(group => group.indexable)
+    .map(group => {
+      const timestamps = group.matches.map(listing => Date.parse(listing.created_at)).filter(Number.isFinite);
+      const lastModified = timestamps.length ? new Date(Math.max(...timestamps)) : undefined;
+      const languagePaths = indexCollectionLanguages(group, catalog);
       const languages = Object.fromEntries(
         Object.entries(languagePaths)
           .filter(([language]) => language !== "x-default")
           .map(([language, path]) => [language, absoluteSiteUrl(path)])
       );
 
-      // Publish one canonical Finnish collection URL per real search intent.
-      // The other language variants remain discoverable through hreflang, but
-      // do not multiply the sitemap into thousands of near-identical entries.
+      // Expand each language to its own URL entry at the end, retaining the
+      // reciprocal alternate set and deduplicating translated slug collisions.
       return {
         url: absoluteSiteUrl(group.path),
-        ...(group.lastModified ? { lastModified: group.lastModified } : {}),
+        ...(lastModified ? { lastModified } : {}),
         alternates: { languages },
         changeFrequency: "daily" as const,
         priority: 0.85
@@ -214,5 +174,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...searchEntries,
     ...listingEntries
   ];
-  return [...new Map(allEntries.map((entry) => [entry.url, entry])).values()];
+  return expandSitemapLanguages(allEntries);
 }

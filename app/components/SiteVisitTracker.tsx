@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/lib/navigation";
 
 import { supabase } from "@/lib/supabase";
+import { isLocalMeasurementHost } from "@/lib/measurement-config";
 import {
   COOKIE_CONSENT_EVENT,
   readCookieConsentSettings
@@ -13,6 +14,9 @@ export default function SiteVisitTracker() {
   const pathname = usePathname();
 
   useEffect(() => {
+    // Local acceptance runs must not inflate the production visit counter.
+    // GA4 has a separate, explicitly marked DebugView test path.
+    if (isLocalMeasurementHost()) return;
     let cancelled = false;
     let tracked = false;
 
@@ -23,6 +27,12 @@ export default function SiteVisitTracker() {
       const token = supabase
         ? (await supabase.auth.getSession()).data.session?.access_token
         : null;
+
+      // Consent can be withdrawn (or the route can unmount) while auth loads.
+      if (cancelled || !readCookieConsentSettings().analytics) {
+        tracked = false;
+        return;
+      }
 
       await fetch("/api/site-visit", {
         method: "POST",

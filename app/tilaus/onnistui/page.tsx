@@ -1,4 +1,8 @@
 "use client";
+import { SHIPPING_VAT_RATE, vatFromGrossCents } from "@/lib/commerce/vat";
+import { trackPurchaseOnce } from "@/lib/analytics";
+import { COOKIE_CONSENT_EVENT } from "@/lib/cookie-consent";
+import UiText from "@/app/components/UiText";
 
 import {
   ArrowRight,
@@ -14,8 +18,9 @@ import {
   ShieldCheck,
   Truck,
 } from "lucide-react";
-import Link from "next/link";
+import Link from "@/app/components/LocalizedLink";
 import { useSearchParams } from "next/navigation";
+
 import { useEffect, useRef, useState } from "react";
 
 import styles from "@/app/commerce.module.css";
@@ -170,6 +175,20 @@ export default function OrderSuccessPage() {
     };
   }, [paymentPublishableKey, paymentSession?.clientSecret, showPayment]);
 
+  useEffect(() => {
+    const measure = () => {
+      for (const paidOrder of orders.length ? orders : order ? [order] : []) {
+        if (paidOrder.payment_status !== "paid") continue;
+        trackPurchaseOnce({ id: paidOrder.id, totalCents: paidOrder.total_cents,
+          shippingCents: Math.max(0, (paidOrder.shipping_price_cents || 0) - vatFromGrossCents(paidOrder.shipping_price_cents || 0, SHIPPING_VAT_RATE)), taxCents: paidOrder.vat_cents || 0,
+          itemCount: (paidOrder.order_items || []).reduce((sum, item) => sum + item.quantity, 0), language: locale });
+      }
+    };
+    measure();
+    window.addEventListener(COOKIE_CONSENT_EVENT, measure);
+    return () => window.removeEventListener(COOKIE_CONSENT_EVENT, measure);
+  }, [order, orders, locale]);
+
   const isPaid = (checkout?.payment_status ?? order?.payment_status) === "paid";
   const isProcessingError = order?.payment_status === "processing_error";
   const canResumePayment = !isPaid && paymentSession?.status === "open" && paymentSession.paymentStatus === "unpaid" && Boolean(paymentSession.clientSecret && paymentPublishableKey);
@@ -191,8 +210,8 @@ export default function OrderSuccessPage() {
           <section className={styles.orderSuccessLoading} aria-live="polite">
             <span className={styles.orderSuccessSpinner} aria-hidden="true" />
             <div>
-              <strong>Haetaan tilaustasi</strong>
-              <p>Tämä kestää tavallisesti vain hetken.</p>
+              <strong><UiText text={"Haetaan tilaustasi"} /></strong>
+              <p><UiText text={"Tämä kestää tavallisesti vain hetken."} /></p>
             </div>
           </section>
         ) : null}
@@ -200,12 +219,11 @@ export default function OrderSuccessPage() {
         {error && !order ? (
           <section className={styles.orderSuccessError}>
             <span><ReceiptText size={30} /></span>
-            <div className={styles.eyebrow}>Tilausta ei voitu näyttää</div>
-            <h1>Tarkista tilausvahvistuksesi</h1>
+            <div className={styles.eyebrow}><UiText text={"Tilausta ei voitu näyttää"} /></div>
+            <h1><UiText text={"Tarkista tilausvahvistuksesi"} /></h1>
             <p>{error}</p>
             <Link className={styles.button} href="/">
-              <Home size={17} /> Takaisin etusivulle
-            </Link>
+              <Home size={17} /><UiText text={" Takaisin etusivulle"} /></Link>
           </section>
         ) : null}
 
@@ -227,7 +245,7 @@ export default function OrderSuccessPage() {
                 </p>
               </div>
               <div className={styles.orderSuccessOrderMeta}>
-                <span>Tilausnumero</span>
+                <span><UiText text={"Tilausnumero"} /></span>
                 <strong>{checkout?.checkout_number ?? order.order_number}</strong>
                 <small>{orderDate(checkout?.created_at ?? order.created_at)}</small>
               </div>
@@ -242,17 +260,16 @@ export default function OrderSuccessPage() {
                 </div>
                 {canResumePayment ? (
                   <button className={styles.button} type="button" onClick={() => setShowPayment(true)}>
-                    <CreditCard size={17} /> Palaa maksamaan
-                  </button>
+                    <CreditCard size={17} /><UiText text={" Palaa maksamaan"} /></button>
                 ) : (
-                  <Link className={styles.button} href="/ostoskori"><CreditCard size={17} /> Takaisin ostoskoriin</Link>
+                  <Link className={styles.button} href="/ostoskori"><CreditCard size={17} /><UiText text={" Takaisin ostoskoriin"} /></Link>
                 )}
               </section>
             ) : null}
 
             {!isPaid && showPayment && canResumePayment ? (
               <section className={styles.maskinesPaymentShell}>
-                <div className={styles.maskinesPaymentHeader}><div className={styles.maskinesPaymentMark}><span>M</span></div><div><strong>Jatka Maskines Pay -maksua</strong><small>Valitse maksutapa uudelleen</small></div><span><ShieldCheck size={16} /> Suojattu</span></div>
+                <div className={styles.maskinesPaymentHeader}><div className={styles.maskinesPaymentMark}><span><UiText text={"M"} /></span></div><div><strong><UiText text={"Jatka Maskines Pay -maksua"} /></strong><small><UiText text={"Valitse maksutapa uudelleen"} /></small></div><span><ShieldCheck size={16} /><UiText text={" Suojattu"} /></span></div>
                 <div className={styles.embeddedCheckoutWrap}><div ref={paymentMountRef} className={styles.embeddedCheckout} /></div>
               </section>
             ) : null}
@@ -261,8 +278,8 @@ export default function OrderSuccessPage() {
               <div className={styles.orderSuccessAttention}>
                 <Clock3 size={20} />
                 <div>
-                  <strong>Tilauksesi on vastaanotettu</strong>
-                  <p>Käsittelemme tilausta parhaillaan. Otamme sinuun yhteyttä, jos tarvitsemme lisätietoja.</p>
+                  <strong><UiText text={"Tilauksesi on vastaanotettu"} /></strong>
+                  <p><UiText text={"Käsittelemme tilausta parhaillaan. Otamme sinuun yhteyttä, jos tarvitsemme lisätietoja."} /></p>
                 </div>
               </div>
             ) : null}
@@ -274,13 +291,13 @@ export default function OrderSuccessPage() {
                     <span className={styles.orderSuccessSectionIcon}><PackageCheck size={20} /></span>
                     <div>
                       <h2>{isPaid ? "Ostamasi tuotteet" : "Maksua odottavat tuotteet"}</h2>
-                      <p>{allOrders.reduce((sum, entry) => sum + (entry.order_items?.reduce((itemSum, item) => itemSum + item.quantity, 0) ?? 0), 0)} tuotetta · {allOrders.length} {allOrders.length === 1 ? "myyjä" : "myyjää"}</p>
+                      <p>{allOrders.reduce((sum, entry) => sum + (entry.order_items?.reduce((itemSum, item) => itemSum + item.quantity, 0) ?? 0), 0)}<UiText text={" tuotetta · "} />{allOrders.length} {allOrders.length === 1 ? "myyjä" : "myyjää"}</p>
                     </div>
                   </div>
                 </header>
 
                 <div className={styles.orderSuccessProductList}>
-                  {allOrders.map((sellerOrder) => <section className={styles.orderSuccessSellerGroup} key={sellerOrder.id}><header><ShieldCheck size={17} /><span><small>Myyjä</small><strong>{sellerOrder.seller_name_snapshot}</strong></span><em>{sellerOrder.order_number}</em></header>{sellerOrder.order_items?.map((item) => (
+                  {allOrders.map((sellerOrder) => <section className={styles.orderSuccessSellerGroup} key={sellerOrder.id}><header><ShieldCheck size={17} /><span><small><UiText text={"Myyjä"} /></small><strong>{sellerOrder.seller_name_snapshot}</strong></span><em>{sellerOrder.order_number}</em></header>{sellerOrder.order_items?.map((item) => (
                     <article className={styles.orderSuccessProduct} key={item.id ?? item.product_name}>
                       <div className={styles.orderSuccessProductImage}>
                         {item.image_url_snapshot ? (
@@ -292,10 +309,10 @@ export default function OrderSuccessPage() {
                       <div className={styles.orderSuccessProductCopy}>
                         <strong>{item.product_name}</strong>
                         {item.product_description_snapshot ? <p>{item.product_description_snapshot}</p> : null}
-                        <span>{money(item.unit_price_cents)} / kpl</span>
+                        <span>{money(item.unit_price_cents)}<UiText text={" / kpl"} /></span>
                       </div>
                       <div className={styles.orderSuccessProductTotal}>
-                        <span>{item.quantity} kpl</span>
+                        <span>{item.quantity}<UiText text={" kpl"} /></span>
                         <strong>{money(item.line_total_cents)}</strong>
                       </div>
                     </article>
@@ -304,25 +321,25 @@ export default function OrderSuccessPage() {
 
                 {isPaid ? <div className={styles.orderSuccessSeller}>
                   <ShieldCheck size={19} />
-                  <span>Maksu on vastaanotettu turvallisesti Stripen kautta ja tilaus on välitetty {allOrders.length} myyjälle</span>
+                  <span><UiText text={"Maksu on vastaanotettu turvallisesti Stripen kautta ja tilaus on välitetty "} />{allOrders.length}<UiText text={" myyjälle"} /></span>
                 </div> : <div className={styles.orderSuccessAttention}>
                   <Clock3 size={19} />
-                  <span>Maksua ei ole vastaanotettu eikä tilausta ole välitetty myyjälle.</span>
+                  <span><UiText text={"Maksua ei ole vastaanotettu eikä tilausta ole välitetty myyjälle."} /></span>
                 </div>}
               </section>
 
               <aside className={styles.orderSuccessSummary}>
                 <div className={styles.orderSuccessSummaryTitle}>
                   <ReceiptText size={21} />
-                  <h2>Tilauksen yhteenveto</h2>
+                  <h2><UiText text={"Tilauksen yhteenveto"} /></h2>
                 </div>
                 <div className={styles.orderSuccessTotals}>
-                  <p><span>Tuotteet</span><strong>{money(productTotal)}</strong></p>
-                  {discountTotal > 0 && <p><span>Alennukset</span><strong>−{money(discountTotal)}</strong></p>}
-                  <p><span>Toimitukset</span><strong>{shippingTotal ? money(shippingTotal) : "0,00 €"}</strong></p>
+                  <p><span><UiText text={"Tuotteet"} /></span><strong>{money(productTotal)}</strong></p>
+                  {discountTotal > 0 && <p><span><UiText text={"Alennukset"} /></span><strong>−{money(discountTotal)}</strong></p>}
+                  <p><span><UiText text={"Toimitukset"} /></span><strong>{shippingTotal ? money(shippingTotal) : "0,00 €"}</strong></p>
                 </div>
                 <div className={styles.orderSuccessGrandTotal}>
-                  <span>Yhteensä</span>
+                  <span><UiText text={"Yhteensä"} /></span>
                   <strong>{money(grandTotal)}</strong>
                   <small>{isPaid ? "Lopullinen maksettu summa" : "Maksettava summa"}</small>
                 </div>
@@ -352,14 +369,11 @@ export default function OrderSuccessPage() {
               </div>
               <div>
                 {isPaid ? <Link className={styles.buttonSecondary} href="/tilaukset">
-                  <PackageCheck size={17} /> Omat tilaukset
-                </Link> : null}
+                  <PackageCheck size={17} /><UiText text={" Omat tilaukset"} /></Link> : null}
                 <Link className={styles.buttonSecondary} href="/">
-                  <Home size={17} /> Etusivulle
-                </Link>
-                {isPaid ? <Link className={styles.button} href="/ilmoitukset">
-                  Jatka ostoksia <ArrowRight size={17} />
-                </Link> : canResumePayment ? <button className={styles.button} type="button" onClick={() => setShowPayment(true)}><CreditCard size={17} /> Palaa maksamaan</button> : <Link className={styles.button} href="/ostoskori"><CreditCard size={17} /> Takaisin ostoskoriin</Link>}
+                  <Home size={17} /><UiText text={" Etusivulle"} /></Link>
+                {isPaid ? <Link className={styles.button} href="/ilmoitukset"><UiText text={"Jatka ostoksia "} /><ArrowRight size={17} />
+                </Link> : canResumePayment ? <button className={styles.button} type="button" onClick={() => setShowPayment(true)}><CreditCard size={17} /><UiText text={" Palaa maksamaan"} /></button> : <Link className={styles.button} href="/ostoskori"><CreditCard size={17} /><UiText text={" Takaisin ostoskoriin"} /></Link>}
               </div>
             </section>
           </>

@@ -1,0 +1,961 @@
+
+html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #julkinen-profiili .pf-field.pf-field-wide, html body .pf-page #julkinen-profiili .pf-public-name-field, html body .pf-page #julkinen-profiili .pf-public-id-field, html body .pf-page #julkinen-profiili .pf-public-address-field, html body .pf-page #julkinen-profiili .pf-public-bio-field {
+  align-items: center; background: transparent; border: 0; border-top: 1px solid rgba(122, 164, 197, 0.12); border-radius: 0; display: grid;
+  gap: 12px; grid-column: 1 / -1; grid-template-columns: 125px minmax(0, 1fr); min-height: 58px; padding: 8px 0;
+}
+html body .pf-page #julkinen-profiili .pf-field label {
+  color: rgba(202, 219, 233, 0.74); font-size: 11px; font-weight: 500;
+}
+html body .pf-page #julkinen-profiili :is(.pf-locked, .pf-readonly-value, input, textarea) {
+  background: transparent; border: 0; box-shadow: none; color: #eef5fb; grid-column: 2; min-height: 0;
+  padding: 0; width: 100%; -webkit-text-fill-color: #eef5fb;
+}
+html body .pf-page #julkinen-profiili :is(input, textarea), html body .pf-page #julkinen-profiili .pf-readonly-value span {
+  font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+html body .pf-page #julkinen-profiili .pf-lock-icon, html body .pf-page #julkinen-profiili .pf-readonly-value svg, html body .pf-page #julkinen-profiili .pf-phone-help, html body .pf-page #julkinen-profiili .pf-public-note {
+  display: none;
+}
+html body .pf-page #osoite {
+  min-height: 306px; padding: 0 22px 22px;
+}
+html body .pf-page #osoite .pf-section-head {
+  min-height: 92px; padding: 18px 0;
+}
+html body .pf-page #osoite .pf-fields {
+  background: rgba(4, 21, 38, 0.36); border: 1px solid rgba(122, 164, 197, 0.13); border-radius: 7px; margin: 0; max-width: none; width: 100%;
+}
+html body .pf-page #osoite .pf-field, html body .pf-page #osoite .pf-field:last-child {
+  width: 100%;
+}
+html body .pf-page #osoite .pf-field label {
+  color: rgba(202, 219, 233, 0.78); font-size: 11px; font-weight: 500; margin-bottom: 8px;
+}
+html body .pf-page #osoite .pf-field input {
+  background: #e7eef5; border: 1px solid #c6d5e1; border-radius: 7px; box-shadow: none; color: #0b2238; font-size: 13px;
+  font-weight: 700; min-height: 42px; padding: 0 12px; -webkit-text-fill-color: #0b2238;
+}
+html body .pf-page .pf-status {
+  color: rgba(202, 219, 233, 0.72); font-size: 12px;
+}
+html body:has(.pf-page) .rebuilt-chat-button, html body:has(.pf-page) .fc-panel {
+  display: none;
+}
+@media (max-width: 900px) {
+  html body .pf-page .pf-layout {
+    grid-template-columns: 1fr; max-width: 760px;
+  }
+  html body .pf-page .pf-sidebar {
+    min-height: 0; padding: 14px;
+  }
+  html body .pf-page .pf-nav {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  html body .pf-page .pf-sidebar-help {
+    display: none;
+  }
+  html body .pf-page .pf-content {
+    padding: 24px 14px 32px;
+  }
+  html body .pf-page .pf-profile-heading {
+    margin-left: 0;
+  }
+}
+@media (max-width: 700px) {
+  html body .pf-page .pf-topbar {
+    height: 66px; min-height: 66px; padding: 0 12px;
+  }
+  html body .pf-page .pf-brand-text strong, html body .pf-page .pf-brand-text em {
+    font-size: 17px;
+  }
+  html body .pf-page .pf-form, html body .pf-page .pf-form:has(.pf-company-sellers-section), html body .pf-page #osoite .pf-fields {
+    grid-template-columns: 1fr;
+  }
+  html body .pf-page .pf-form:has(.pf-company-sellers-section) .pf-company-sellers-section, html body .pf-page .pf-form:has(.pf-company-sellers-section) #julkinen-profiili {
+    grid-column: 1 / -1;
+  }
+  html body .pf-page #yritys .pf-info-row {
+    grid-template-columns: 38px minmax(0, 1fr); padding: 12px 0;
+  }
+  html body .pf-page #yritys .pf-info-label, html body .pf-page #yritys .pf-info-value {
+    grid-column: 2;
+  }
+  html body .pf-page #yritys .pf-info-phone-value .pf-phone-row {
+    align-items: flex-start; flex-direction: column;
+  }
+  html body .pf-page .pf-section-head {
+    grid-template-columns: 50px minmax(0, 1fr);
+  }
+  html body .pf-page .pf-section-head .pf-info-edit-btn, html body .pf-page .pf-section-head .pf-manage-btn {
+    grid-column: 1 / -1; width: 100%;
+  }
+  html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #julkinen-profiili .pf-field.pf-field-wide {
+    grid-template-columns: 1fr;
+  }
+  html body .pf-page #julkinen-profiili :is(.pf-locked, .pf-readonly-value, input, textarea) {
+    grid-column: 1;
+  }
+}
+html body .pf-page .pf-sidebar {
+  height: calc(100vh - 56px); overflow-y: auto;
+}
+html body .pf-page .pf-nav-button {
+  text-align: left;
+}
+html body .pf-page .pf-form:has(.pf-company-sellers-section) .pf-company-section, html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite, html body .pf-page .pf-form:has(.pf-company-sellers-section) .pf-save-bar {
+  grid-column: 1 / -1;
+}
+html body .pf-page .pf-form:has(.pf-company-sellers-section) .pf-company-sellers-section, html body .pf-page .pf-form:has(.pf-company-sellers-section) #julkinen-profiili {
+  grid-column: auto; min-width: 0; width: 100%;
+}
+html body .pf-page #yritys {
+  min-height: 0; width: 100%;
+}
+html body .pf-page #yritys .pf-info-row {
+  grid-template-columns: 40px minmax(150px, 190px) minmax(0, 1fr);
+}
+html body .pf-page #yritys .pf-info-value, html body .pf-page #yritys .pf-info-phone-value, html body .pf-page #yritys .pf-phone-row {
+  min-width: 0;
+}
+html body .pf-page #yritys .pf-info-phone-value .pf-phone-row {
+  display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr) auto;
+}
+html body .pf-page #yritys .pf-phone-card {
+  min-width: 0;
+}
+html body .pf-page #yritys .pf-phone-number {
+  overflow: visible; text-overflow: clip; white-space: nowrap;
+}
+html body .pf-page #yritys .pf-phone-actions {
+  flex: 0 0 auto; flex-wrap: nowrap;
+}
+html body .pf-page .pf-company-sellers-section, html body .pf-page #julkinen-profiili {
+  min-height: 430px; width: 100%;
+}
+html body .pf-page .pf-company-sellers-section .pf-section-head, html body .pf-page #julkinen-profiili .pf-section-head {
+  align-items: center; display: grid; gap: 14px; grid-template-columns: 58px minmax(0, 1fr) auto; min-height: 112px; padding: 18px 0;
+}
+html body .pf-page .pf-company-sellers-section .pf-section-head > div, html body .pf-page #julkinen-profiili .pf-section-head > div {
+  min-width: 0;
+}
+html body .pf-page .pf-company-sellers-section .pf-section-head h2, html body .pf-page #julkinen-profiili .pf-section-head h2 {
+  font-size: 16px; overflow: visible; overflow-wrap: normal; text-overflow: clip; white-space: normal; word-break: normal;
+}
+html body .pf-page .pf-company-sellers-section .pf-section-head p, html body .pf-page #julkinen-profiili .pf-section-head p {
+  overflow-wrap: normal; white-space: normal; word-break: normal;
+}
+html body .pf-page .pf-company-sellers-section .pf-manage-btn, html body .pf-page #julkinen-profiili .pf-info-edit-btn {
+  flex: 0 0 auto; justify-self: end; white-space: nowrap;
+}
+html body .pf-page .company-seller-list, html body .pf-page .company-seller-empty, html body .pf-page .company-seller-add, html body .pf-page .company-seller-add-btn {
+  max-width: none; width: 100%;
+}
+html body .pf-page .company-seller-empty {
+  min-height: 76px; overflow-wrap: normal; white-space: normal; word-break: normal;
+}
+html body .pf-page .company-seller-add {
+  margin: 20px 0 0;
+}
+html body .pf-page #julkinen-profiili .pf-public-fields {
+  min-width: 0;
+}
+html body .pf-page #julkinen-profiili :is(.pf-locked, .pf-readonly-value, input, textarea) {
+  min-width: 0;
+}
+html body .pf-page #osoite {
+  width: 100%;
+}
+@media (max-width: 1180px) {
+  html body .pf-page .pf-form:has(.pf-company-sellers-section) .pf-company-sellers-section, html body .pf-page .pf-form:has(.pf-company-sellers-section) #julkinen-profiili {
+    grid-column: 1 / -1;
+  }
+}
+html body .pf-page {
+  --pf-panel: rgba(4, 24, 42, 0.98); --pf-panel-2: rgba(2, 17, 31, 0.98); --pf-line: rgba(91, 169, 224, 0.28); --pf-line-strong: rgba(73, 158, 218, 0.56); --pf-text: #f7fbff; --pf-soft: rgba(219, 235, 247, 0.72);
+  --pf-muted: rgba(170, 194, 213, 0.72);
+}
+html body .pf-page .pf-content, html body .pf-page .pf-form {
+  margin-inline: auto; max-width: 1180px; width: 100%;
+}
+html body .pf-page .pf-profile-heading h1 {
+  color: var(--pf-text); font-size: clamp(28px, 3.2vw, 42px); letter-spacing: 0; line-height: 1.05; margin: 0 0 8px;
+}
+html body .pf-page .pf-profile-heading p {
+  line-height: 1.45;
+}
+html body .pf-page .pf-form > :is(.pf-section, .pf-info-card, .pf-company-sellers-section, .pf-public-profile-section, .pf-save-bar) {
+  grid-column: 1 / -1; width: 100%;
+}
+html body .pf-page :is(.pf-section, .pf-info-card, .pf-company-sellers-section, .pf-public-profile-section) {
+  min-height: 0; padding: 0;
+}
+html body .pf-page :is(.pf-info-title-icon, .pf-section-head > svg) {
+  margin: 0;
+}
+html body .pf-page :is(.pf-info-edit-btn, .pf-manage-btn):hover, html body .pf-page :is(.pf-info-edit-btn, .pf-manage-btn):focus-visible {
+  border-color: rgba(255, 151, 34, 0.8); color: #ffb45f; outline: none;
+}
+html body .pf-page .pf-info-rows {
+  background: rgba(2, 17, 32, 0.24); border: 1px solid rgba(126, 197, 240, 0.16); border-radius: 10px;
+}
+html body .pf-page .pf-info-row-icon {
+  align-items: center; color: rgba(225, 239, 249, 0.88); display: inline-flex; justify-content: center;
+}
+html body .pf-page .pf-info-value {
+  align-items: center; color: var(--pf-text); min-width: 0;
+}
+html body .pf-page .pf-info-value > span {
+  color: var(--pf-text); font-size: 14px; font-weight: 950; overflow-wrap: anywhere;
+}
+html body .pf-page :is(.pf-info-value input, .pf-field input, .pf-field textarea, .company-seller-add input, .company-seller-edit input) {
+  background: rgba(232, 240, 247, 0.98); border: 1px solid rgba(190, 211, 226, 0.96); border-radius: 9px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72); color: #0b2238; font-size: 14px;
+  font-weight: 900; min-height: 46px; min-width: 0; padding: 0 14px; width: 100%;
+}
+html body .pf-page :is(.pf-info-value input:disabled, .pf-locked input:disabled) {
+  background: transparent; border: 0; box-shadow: none; color: var(--pf-text); opacity: 1; padding: 0;
+  -webkit-text-fill-color: var(--pf-text);
+}
+html body .pf-page :is(.pf-info-value input, .pf-field input, .pf-field textarea, .company-seller-add input, .company-seller-edit input):focus {
+  border-color: #ff9226; box-shadow: 0 0 0 3px rgba(255, 146, 38, 0.18); outline: none;
+}
+html body .pf-page .pf-phone-value, html body .pf-page .pf-info-phone-value {
+  align-items: stretch; display: grid; gap: 8px;
+}
+html body .pf-page .pf-phone-card, html body .pf-page .pf-readonly-value, html body .pf-page #julkinen-profiili .pf-locked {
+  align-items: center; background: rgba(8, 36, 61, 0.62); border: 1px solid rgba(126, 197, 240, 0.22); border-radius: 9px; color: var(--pf-text); display: flex;
+  gap: 10px; min-height: 46px; min-width: 0; padding: 0 12px; width: 100%;
+}
+html body .pf-page .pf-phone-number, html body .pf-page .pf-readonly-value span {
+  color: var(--pf-text); flex: 1 1 auto; font-size: 14px; font-weight: 950; min-width: 0; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+html body .pf-page :is(.pf-unverified, .pf-locked-badge) {
+  background: rgba(255, 122, 26, 0.12); border: 1px solid rgba(255, 122, 26, 0.42); color: #ffcc8c;
+}
+html body .pf-page .pf-inline-btn, html body .pf-page .company-seller-small-btn {
+  align-items: center; background: rgba(8, 36, 61, 0.8); border: 1px solid rgba(126, 197, 240, 0.34); border-radius: 8px; color: var(--pf-text); display: inline-flex;
+  font-size: 12px; font-weight: 950; justify-content: center; min-height: 42px; min-width: 88px; padding: 0 12px;
+}
+html body .pf-page .pf-phone-help {
+  line-height: 1.35; margin: 2px 0 0;
+}
+html body .pf-page .pf-fields, html body .pf-page #osoite .pf-fields, html body .pf-page #julkinen-profiili .pf-public-fields {
+  background: rgba(2, 17, 32, 0.24); border: 1px solid rgba(126, 197, 240, 0.16); border-radius: 10px; margin: 0 28px 26px; padding: 22px;
+}
+html body .pf-page .pf-field, html body .pf-page #osoite .pf-field, html body .pf-page #osoite .pf-field:last-child, html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #julkinen-profiili .pf-field.pf-field-wide {
+  background: transparent; border: 0; display: grid; gap: 8px; grid-column: span 4; min-width: 0;
+  padding: 0;
+}
+html body .pf-page #julkinen-profiili .pf-public-name-field, html body .pf-page #julkinen-profiili .pf-public-id-field {
+  grid-column: span 6;
+}
+html body .pf-page #julkinen-profiili .pf-public-address-field, html body .pf-page #julkinen-profiili .pf-public-bio-field {
+  grid-column: 1 / -1;
+}
+html body .pf-page #julkinen-profiili :is(.pf-public-address-field input, .pf-public-bio-field textarea) {
+  background: rgba(232, 240, 247, 0.98); border: 1px solid rgba(190, 211, 226, 0.96); color: #0b2238; padding: 0 14px;
+}
+html body .pf-page .pf-field textarea {
+  line-height: 1.45; min-height: 120px; padding-block: 12px; resize: vertical;
+}
+html body .pf-page .pf-public-note {
+  align-items: center; background: rgba(6, 32, 56, 0.74); border: 1px solid rgba(126, 197, 240, 0.2); border-radius: 10px; color: var(--pf-soft); gap: 12px;
+  grid-template-columns: auto minmax(0, 1fr) auto; margin: -8px 28px 26px; min-height: 58px; padding: 0 18px;
+}
+html body .pf-page .pf-public-note > svg {
+  color: #39dc7b;
+}
+html body .pf-page .pf-public-note-link {
+  align-items: center; color: #42bdff; display: inline-flex; font-size: 12px; font-weight: 950; gap: 8px;
+  justify-self: end; text-decoration: none; white-space: nowrap;
+}
+html body .pf-page .pf-company-sellers-section .pf-section-head {
+  grid-column: 1 / -1;
+}
+html body .pf-page .pf-company-sellers-section .company-seller-list {
+  display: grid; gap: 12px; grid-column: 1; padding: 0;
+}
+html body .pf-page .pf-company-sellers-section .company-seller-card {
+  align-items: center; background: rgba(8, 36, 61, 0.58); border: 1px solid rgba(126, 197, 240, 0.22); border-radius: 10px; display: grid; gap: 12px;
+  grid-template-columns: 44px minmax(0, 1fr) auto; min-height: 68px; padding: 12px;
+}
+html body .pf-page .company-seller-avatar {
+  align-items: center; background: linear-gradient(135deg, #2096e8, #4fc4ff); border-radius: 999px; color: #ffffff; display: inline-flex; font-weight: 950;
+  height: 44px; justify-content: center; width: 44px;
+}
+html body .pf-page .company-seller-card strong {
+  color: var(--pf-text); display: block; font-size: 14px; font-weight: 950;
+}
+html body .pf-page .company-seller-card span {
+  align-items: center; color: var(--pf-soft); display: inline-flex; font-size: 12px; font-weight: 850; gap: 6px;
+  margin-top: 4px;
+}
+html body .pf-page .company-seller-actions {
+  display: flex; gap: 8px;
+}
+html body .pf-page .company-seller-delete {
+  align-items: center; background: rgba(255, 75, 75, 0.12); border: 1px solid rgba(255, 110, 110, 0.32); border-radius: 8px; color: #ffb4b4; display: inline-flex;
+  height: 42px; justify-content: center; width: 42px;
+}
+html body .pf-page .company-seller-edit {
+  display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+html body .pf-page .pf-company-sellers-section .company-seller-empty {
+  align-items: center; background: rgba(255, 122, 26, 0.1); border: 1px dashed rgba(255, 145, 31, 0.42); border-radius: 10px; color: var(--pf-text); display: flex;
+  font-size: 13px; font-weight: 900; min-height: 68px; padding: 16px;
+}
+html body .pf-page .pf-company-sellers-section .company-seller-add {
+  align-self: stretch; background: rgba(8, 36, 61, 0.58); border: 1px solid rgba(126, 197, 240, 0.22); border-radius: 10px; display: grid; gap: 14px;
+  grid-column: 2; margin: 0; padding: 16px;
+}
+html body .pf-page .company-seller-add-head, html body .pf-page .company-seller-add-fields, html body .pf-page .company-seller-footer, html body .pf-page .company-seller-limit {
+  display: grid;
+}
+html body .pf-page .company-seller-add:not(.is-open) .company-seller-add-fields {
+  display: none;
+}
+html body .pf-page .company-seller-add-head {
+  align-items: center; color: var(--pf-text); grid-template-columns: minmax(0, 1fr) auto;
+}
+html body .pf-page .company-seller-add-fields {
+  gap: 12px;
+}
+html body .pf-page .company-seller-add label {
+  color: var(--pf-muted); display: grid; font-size: 12px; font-weight: 950; gap: 7px;
+}
+html body .pf-page .company-seller-add-btn {
+  align-items: center; background: linear-gradient(135deg, #ff9d2f, #ff7418); border: 1px solid rgba(255, 210, 165, 0.52); border-radius: 9px; color: #ffffff; display: inline-flex;
+  font-size: 13px; font-weight: 950; gap: 9px; justify-content: center; min-height: 48px; width: 100%;
+}
+html body .pf-page .company-seller-footer {
+  align-items: center; color: var(--pf-muted); font-size: 12px; font-weight: 850; gap: 8px; grid-column: 1 / -1;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+html body .pf-page .company-seller-limit {
+  align-items: center; background: rgba(8, 36, 61, 0.78); border: 1px solid rgba(126, 197, 240, 0.28); border-radius: 999px; color: var(--pf-text); font-size: 12px;
+  font-weight: 950; grid-column: 4; justify-self: end; min-height: 30px; padding: 0 11px;
+}
+html body .pf-page .pf-save-bar {
+  justify-content: flex-start;
+}
+@media (max-width: 900px) {
+  html body .pf-page .pf-layout {
+    padding: 22px 14px 46px;
+  }
+  html body .pf-page .pf-company-sellers-section, html body .pf-page .pf-fields, html body .pf-page #osoite .pf-fields, html body .pf-page #julkinen-profiili .pf-public-fields {
+    grid-template-columns: 1fr;
+  }
+  html body .pf-page .pf-field, html body .pf-page #osoite .pf-field, html body .pf-page #osoite .pf-field:last-child, html body .pf-page #julkinen-profiili .pf-public-name-field, html body .pf-page #julkinen-profiili .pf-public-id-field, html body .pf-page #julkinen-profiili .pf-public-address-field, html body .pf-page #julkinen-profiili .pf-public-bio-field, html body .pf-page .pf-company-sellers-section .company-seller-list, html body .pf-page .pf-company-sellers-section .company-seller-add {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 680px) {
+  html body .pf-page :is(.pf-info-card-head, .pf-section-head) {
+    min-height: 0;
+  }
+  html body .pf-page :is(.pf-info-title-icon, .pf-section-head > svg) {
+    padding: 11px;
+  }
+  html body .pf-page :is(.pf-info-edit-btn, .pf-manage-btn), html body .pf-page .company-seller-limit {
+    grid-column: 1 / -1; justify-self: stretch; width: 100%;
+  }
+  html body .pf-page .pf-info-row {
+    align-items: stretch; gap: 8px 12px; grid-template-columns: 36px minmax(0, 1fr); min-height: 0; padding: 14px;
+  }
+  html body .pf-page .pf-info-value {
+    grid-column: 1 / -1;
+  }
+  html body .pf-page .pf-phone-row, html body .pf-page .company-seller-card, html body .pf-page .company-seller-edit {
+    grid-template-columns: 1fr;
+  }
+  html body .pf-page .company-seller-actions, html body .pf-page .pf-phone-actions {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  html body .pf-page .pf-company-sellers-section {
+    padding: 0 14px 16px;
+  }
+  html body .pf-page .pf-company-sellers-section .pf-section-head {
+    margin-inline: -14px;
+  }
+  html body .pf-page .pf-public-note {
+    grid-template-columns: auto minmax(0, 1fr); margin: -2px 14px 16px; padding: 12px;
+  }
+  html body .pf-page .pf-public-note-link {
+    grid-column: 1 / -1; justify-self: start;
+  }
+  html body .pf-page .pf-save-btn {
+    min-width: 0;
+  }
+}
+html body .pf-page #julkinen-profiili, html body .pf-page #osoite, html body .pf-page .pf-company-sellers-section {
+  box-sizing: border-box;
+}
+html body .pf-page :is(.pf-info-card-head h2, .pf-section-head h2) {
+  overflow: visible; text-overflow: clip;
+}
+html body .pf-page :is(.pf-info-card-head p, .pf-section-head p) {
+  max-width: none; overflow: visible;
+}
+html body .pf-page :is(.pf-info-title-icon, .pf-section-head > svg) {
+  flex: 0 0 auto;
+}
+html body .pf-page .pf-info-rows {
+  box-sizing: border-box; margin: 0 24px 24px; overflow: hidden;
+}
+html body .pf-page .pf-info-value, html body .pf-page .pf-info-value > span, html body .pf-page .pf-info-value input {
+  min-width: 0;
+}
+html body .pf-page .pf-info-value > span, html body .pf-page .pf-info-value input:disabled {
+  overflow-wrap: anywhere; white-space: normal;
+}
+html body .pf-page #julkinen-profiili .pf-public-fields, html body .pf-page #osoite .pf-fields {
+  box-sizing: border-box; min-width: 0;
+}
+html body .pf-page #julkinen-profiili :is(.pf-locked, .pf-readonly-value) {
+  min-width: 0;
+}
+html body .pf-page #osoite .pf-field input, html body .pf-page :is(.pf-field input, .pf-field textarea, .pf-info-value input:not(:disabled)) {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+html body .pf-page #osoite .pf-field input::placeholder, html body .pf-page #julkinen-profiili input::placeholder, html body .pf-page #julkinen-profiili textarea::placeholder {
+  color: rgba(220, 236, 247, 0.52);
+}
+@media (max-width: 680px) {
+  html body .pf-page :is(.pf-info-card-head, .pf-section-head), html body .pf-page .pf-info-title {
+    grid-template-columns: 48px minmax(0, 1fr); padding: 16px;
+  }
+  html body .pf-page .pf-info-rows, html body .pf-page #julkinen-profiili .pf-public-fields, html body .pf-page #osoite .pf-fields {
+    margin: 0 14px 16px; padding: 14px;
+  }
+  html body .pf-page .pf-info-row, html body .pf-page .pf-phone-row, html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #julkinen-profiili .pf-field.pf-field-wide, html body .pf-page #osoite .pf-fields {
+    grid-template-columns: 1fr;
+  }
+}
+html body .pf-page .pf-nav {
+  grid-auto-rows: min-content; height: auto;
+}
+html body .pf-page .pf-nav-item {
+  align-self: start; padding-block: 0;
+}
+html body .pf-page .pf-nav-active {
+  height: 66px; min-height: 66px;
+}
+html body .pf-page .pf-form, html body .pf-page .pf-form:has(.pf-company-sellers-section) {
+  box-sizing: border-box; max-width: 100%; overflow: visible;
+}
+html body .pf-page .pf-form > :is(.pf-section, .pf-info-card, .pf-company-sellers-section, .pf-public-profile-section, .pf-save-bar) {
+  box-sizing: border-box; max-width: 100%; min-width: 0;
+}
+html body .pf-page :is(.pf-info-card-head, .pf-section-head) {
+  box-sizing: border-box; min-width: 0;
+}
+html body .pf-page :is(.pf-info-card-head h2, .pf-section-head h2) {
+  text-wrap: balance;
+}
+html body .pf-page #osoite .pf-section-head, html body .pf-page #julkinen-profiili .pf-section-head {
+  grid-template-columns: 58px minmax(0, 1fr) auto;
+}
+html body .pf-page #osoite .pf-section-head > div, html body .pf-page #julkinen-profiili .pf-section-head > div {
+  min-width: 0;
+}
+html body .pf-page #osoite .pf-section-head h2, html body .pf-page #julkinen-profiili .pf-section-head h2 {
+  white-space: normal;
+}
+@media (max-width: 1180px) {
+  html body .pf-page .pf-layout {
+    gap: 24px; padding-right: 14px;
+  }
+}
+html body .pf-page #julkinen-profiili, html body .pf-page #osoite, html body .pf-page .pf-company-sellers-section {
+  align-self: stretch;
+}
+html body .pf-page :is(#julkinen-profiili, #osoite, .pf-company-sellers-section) :is(.pf-section-head, .pf-info-card-head) {
+  align-items: center; grid-template-columns: 58px minmax(0, 1fr); min-height: 104px; padding: 20px 22px 14px;
+}
+html body .pf-page :is(#julkinen-profiili, #osoite, .pf-company-sellers-section) .pf-section-head p {
+  overflow: visible;
+}
+html body .pf-page #julkinen-profiili .pf-field {
+  align-items: start;
+}
+html body .pf-page #julkinen-profiili :is(.pf-locked, .pf-readonly-value), html body .pf-page #julkinen-profiili :is(.pf-public-address-field input, .pf-public-bio-field textarea) {
+  align-items: start; overflow: visible; white-space: normal;
+}
+html body .pf-page #osoite .pf-field input {
+  overflow: visible; text-overflow: clip;
+}
+html body .pf-page .pf-company-sellers-section .company-seller-list, html body .pf-page .pf-company-sellers-section .company-seller-add, html body .pf-page .pf-company-sellers-section .company-seller-footer {
+  margin-inline: 0;
+}
+@media (max-width: 1240px) {
+  html body .pf-page #julkinen-profiili, html body .pf-page #osoite, html body .pf-page .pf-company-sellers-section {
+    min-height: 0;
+  }
+}
+@media (max-width: 680px) {
+  html body .pf-page #julkinen-profiili .pf-public-fields, html body .pf-page #osoite .pf-fields, html body .pf-page .pf-info-rows {
+    margin: 0 14px 16px; padding: 14px;
+  }
+  html body .pf-page :is(#julkinen-profiili, #osoite, .pf-company-sellers-section) :is(.pf-section-head, .pf-info-card-head) {
+    grid-template-columns: 48px minmax(0, 1fr); min-height: 0; padding: 16px;
+  }
+  html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #osoite .pf-fields {
+    grid-template-columns: 1fr;
+  }
+}
+html body .pf-page .pf-avatar img, html body .pf-page .pf-avatar .profile-avatar-initial {
+  height: 100%; width: 100%;
+}
+html body .pf-page .pf-user-id, html body .pf-page .pf-company-badge {
+  display: block; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+@media (max-width: 820px) {
+  html body .pf-page .pf-layout {
+    grid-template-columns: 1fr;
+  }
+  html body .pf-page .pf-sidebar {
+    height: auto; min-height: 0; overflow: visible; position: static;
+  }
+  html body .pf-page .pf-nav {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+html body .pf-page .pf-form > :is(.pf-section, .pf-info-card, .pf-company-sellers-section, .pf-public-profile-section, .pf-save-bar), html body .pf-page .pf-form:has(.pf-company-sellers-section) > :is(.pf-section, .pf-info-card, .pf-company-sellers-section, .pf-public-profile-section, .pf-save-bar) {
+  grid-column: 1 / -1; width: 100%;
+}
+@media (max-width: 820px) {
+  html body .pf-page .pf-sidebar {
+    display: none;
+  }
+}
+html body .pf-page .pf-nav-active {
+  box-shadow: inset 0 0 0 1px rgba(126, 197, 240, 0.12);
+}
+html body .pf-page .pf-content {
+  align-self: start;
+}
+html body .pf-page .pf-profile-heading p {
+  margin: 0; max-width: 760px;
+}
+html body .pf-page #tiedot, html body .pf-page #yritys, html body .pf-page .pf-form:has(.pf-company-sellers-section) #yritys, html body .pf-page .pf-save-bar {
+  grid-column: 1 / -1;
+}
+html body .pf-page #julkinen-profiili, html body .pf-page #osoite, html body .pf-page .pf-company-sellers-section, html body .pf-page .pf-form:has(.pf-company-sellers-section) #julkinen-profiili, html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite, html body .pf-page .pf-form:has(.pf-company-sellers-section) .pf-company-sellers-section {
+  grid-column: span 1; width: 100%;
+}
+html body .pf-page :is(.pf-section, .pf-info-card, .pf-company-sellers-section, .pf-public-profile-section) {
+  background: radial-gradient(560px 250px at 18% 0%, rgba(41, 119, 182, 0.14), transparent 72%), linear-gradient(180deg, rgba(6, 25, 43, 0.97), rgba(4, 17, 31, 0.98)); border: 1px solid rgba(82, 139, 190, 0.36); border-radius: 8px; box-shadow: 0 18px 44px rgba(0, 7, 18, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.05); overflow: hidden;
+}
+html body .pf-page .pf-info-value > span, html body .pf-page .pf-info-value input:disabled, html body .pf-page #julkinen-profiili .pf-locked input:disabled, html body .pf-page #julkinen-profiili .pf-readonly-value span {
+  color: #ffffff; font-size: 14px; font-weight: 950; -webkit-text-fill-color: #ffffff;
+}
+html body .pf-page .pf-fields, html body .pf-page #osoite .pf-fields, html body .pf-page #julkinen-profiili .pf-public-fields {
+  display: grid; gap: 16px 20px; grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+html body .pf-page #osoite .pf-field:first-child, html body .pf-page #osoite .pf-field:last-child {
+  grid-column: span 1;
+}
+html body .pf-page :is(.pf-field input, .pf-field textarea, .pf-info-value input:not(:disabled)) {
+  background: rgba(8, 28, 49, 0.82); border: 1px solid rgba(107, 154, 195, 0.36); border-radius: 7px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04); color: #ffffff; min-height: 48px;
+  -webkit-text-fill-color: #ffffff;
+}
+html body .pf-page #julkinen-profiili :is(.pf-locked, .pf-readonly-value), html body .pf-page #julkinen-profiili :is(.pf-public-address-field input, .pf-public-bio-field textarea) {
+  background: transparent; border: 0; box-shadow: none; min-height: 28px; padding: 0;
+}
+html body .pf-page #julkinen-profiili .pf-field {
+  border-bottom: 1px solid rgba(107, 154, 195, 0.18); display: grid; gap: 8px; grid-template-columns: minmax(150px, 0.46fr) minmax(0, 1fr); min-height: 56px; padding: 0 0 12px;
+}
+html body .pf-page .pf-company-sellers-section {
+  display: grid; gap: 14px; grid-template-columns: 1fr; padding: 0 22px 20px;
+}
+html body .pf-page .pf-company-sellers-section .pf-section-head {
+  margin-inline: -22px;
+}
+html body .pf-page .pf-company-sellers-section .company-seller-list, html body .pf-page .pf-company-sellers-section .company-seller-add, html body .pf-page .pf-company-sellers-section .company-seller-footer {
+  grid-column: 1 / -1;
+}
+html body .pf-page .pf-company-sellers-section .company-seller-card, html body .pf-page .pf-company-sellers-section .company-seller-add {
+  background: rgba(3, 16, 29, 0.34); border: 1px solid rgba(107, 154, 195, 0.22); border-radius: 8px;
+}
+@media (max-width: 980px) {
+  html body .pf-page .pf-layout {
+    padding: 0 14px 30px;
+  }
+  html body .pf-page .pf-sidebar {
+    display: none;
+  }
+  html body .pf-page .pf-form, html body .pf-page .pf-form:has(.pf-company-sellers-section) {
+    grid-template-columns: 1fr;
+  }
+  html body .pf-page #julkinen-profiili, html body .pf-page #osoite, html body .pf-page .pf-company-sellers-section {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 680px) {
+  html body .pf-page :is(.pf-info-title-icon, .pf-section-head > svg) {
+    height: 48px; width: 48px;
+  }
+  html body .pf-page .pf-info-row, html body .pf-page #julkinen-profiili .pf-field {
+    grid-template-columns: 1fr;
+  }
+  html body .pf-page .pf-phone-row, html body .pf-page .pf-fields, html body .pf-page #osoite .pf-fields {
+    grid-template-columns: 1fr;
+  }
+}
+html body .pf-page .pf-content {
+  overflow: visible;
+}
+html body .pf-page :is(.pf-info-card-head h2, .pf-section-head h2) {
+  word-break: normal;
+}
+html body .pf-page .pf-info-rows {
+  padding: 0;
+}
+html body .pf-page .pf-info-row {
+  box-sizing: border-box;
+}
+html body .pf-page #osoite .pf-field input, html body .pf-page :is(.pf-field input, .pf-field textarea, .pf-info-value input:not(:disabled)) {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 680px) {
+  html body .pf-page .pf-phone-actions {
+    grid-auto-flow: row;
+  }
+}
+html body .pf-page #julkinen-profiili, html body .pf-page #osoite, html body .pf-page .pf-company-sellers-section {
+  display: flex; flex-direction: column; min-height: 0; width: 100%;
+}
+html body .pf-page :is(#julkinen-profiili, #osoite, .pf-company-sellers-section) .pf-section-head {
+  align-items: center; display: grid; gap: 14px; grid-template-columns: 58px minmax(0, 1fr); min-height: 96px; padding: 20px 22px 14px;
+}
+html body .pf-page :is(#julkinen-profiili, #osoite, .pf-company-sellers-section) .pf-section-head > div {
+  min-width: 0;
+}
+html body .pf-page :is(#julkinen-profiili, #osoite, .pf-company-sellers-section) .pf-section-head h2 {
+  font-size: 18px; line-height: 1.15; overflow-wrap: normal; white-space: normal; word-break: normal;
+}
+html body .pf-page :is(#julkinen-profiili, #osoite, .pf-company-sellers-section) .pf-section-head p {
+  color: rgba(221, 234, 246, 0.72); font-size: 12px; line-height: 1.35; max-width: none; white-space: normal;
+}
+html body .pf-page #julkinen-profiili .pf-public-fields, html body .pf-page #osoite .pf-fields {
+  flex: 1 1 auto; margin: 0 22px 20px;
+}
+html body .pf-page #julkinen-profiili .pf-public-fields {
+  align-content: start;
+}
+html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #julkinen-profiili .pf-field.pf-field-wide {
+  border-radius: 0;
+}
+html body .pf-page #julkinen-profiili .pf-field:first-child {
+  padding-top: 0;
+}
+html body .pf-page #julkinen-profiili .pf-field:last-child {
+  min-height: 126px; padding-bottom: 0;
+}
+html body .pf-page #julkinen-profiili :is(.pf-locked, .pf-readonly-value) {
+  background: transparent; border: 0; box-shadow: none; min-height: 0; overflow: visible; padding: 0;
+}
+html body .pf-page #julkinen-profiili :is(.pf-locked input:disabled, .pf-readonly-value span, .pf-public-address-field input, .pf-public-bio-field textarea) {
+  display: block; font-size: 14px; font-weight: 950; min-height: 0; text-overflow: clip; word-break: normal;
+}
+html body .pf-page #julkinen-profiili .pf-public-bio-field .pf-phone-help {
+  text-align: right;
+}
+html body .pf-page #osoite .pf-field, html body .pf-page #osoite .pf-field:last-child {
+  display: grid; gap: 8px;
+}
+html body .pf-page #osoite .pf-field input {
+  min-width: 0; width: 100%;
+}
+@media (max-width: 1240px) {
+  html body .pf-page .pf-form, html body .pf-page .pf-form:has(.pf-company-sellers-section) {
+    grid-template-columns: 1fr;
+  }
+  html body .pf-page #julkinen-profiili, html body .pf-page #osoite, html body .pf-page .pf-company-sellers-section {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 680px) {
+  html body .pf-page #julkinen-profiili .pf-public-fields, html body .pf-page #osoite .pf-fields {
+    margin: 0 14px 16px; padding: 14px;
+  }
+  html body .pf-page :is(#julkinen-profiili, #osoite, .pf-company-sellers-section) .pf-section-head {
+    grid-template-columns: 48px minmax(0, 1fr); min-height: 0; padding: 16px;
+  }
+  html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #julkinen-profiili .pf-field.pf-field-wide, html body .pf-page #osoite .pf-fields {
+    grid-template-columns: 1fr;
+  }
+  html body .pf-page #julkinen-profiili .pf-public-bio-field .pf-phone-help {
+    grid-column: 1;
+  }
+  html body .pf-page #osoite .pf-field, html body .pf-page #osoite .pf-field:last-child {
+    grid-column: 1 / -1;
+  }
+}
+html body .pf-page .pf-avatar {
+  cursor: pointer;
+}
+html body .pf-page .pf-user-name, html body .pf-page .pf-user-id, html body .pf-page .pf-company-badge {
+  display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+html body .pf-page .pf-user-id, html body .pf-page .pf-company-badge {
+  color: rgba(221, 234, 246, 0.66); font-size: 11px; font-weight: 800;
+}
+html body .pf-page .pf-nav {
+  margin-top: 0;
+}
+html body .pf-page .pf-avatar > img, html body .pf-page .pf-avatar > .profile-avatar-initial {
+  display: block;
+}
+html body .pf-page .pf-avatar-overlay {
+  box-shadow: 0 3px 8px rgba(0, 4, 12, 0.28);
+}
+html body .pf-page .pf-avatar-overlay svg {
+  height: 12px; width: 12px;
+}
+html body .pf-page .pf-avatar-remove, html body .pf-page .pf-avatar-remove:hover, html body .pf-page .pf-avatar-remove:focus-visible {
+  align-items: center; border-radius: 0; cursor: pointer; display: inline-flex; justify-content: center; position: absolute;
+  z-index: 4;
+}
+html body .pf-page .pf-avatar-remove:hover, html body .pf-page .pf-avatar-remove:focus-visible {
+  color: #ff7676; outline: none;
+}
+html body .pf-page .pf-sidebar {
+  border-right: 1px solid rgba(102, 157, 202, 0.24);
+}
+html body .pf-page .pf-nav-active {
+  background: radial-gradient(180px 84px at 70% 30%, rgba(95, 157, 218, 0.16), transparent 72%), rgba(17, 45, 72, 0.76); border-left: 3px solid #ff8a1f; color: #ffffff; padding-left: 11px;
+}
+html body .pf-page .pf-nav-danger {
+  margin-top: 8px;
+}
+html body .pf-page .pf-profile-heading {
+  margin: 0 0 42px;
+}
+html body .pf-page .pf-profile-heading h1 {
+  display: none;
+}
+html body .pf-page .pf-profile-heading p {
+  color: rgba(221, 234, 246, 0.76); font-size: 15px; font-weight: 850;
+}
+html body .pf-page .pf-info-rows, html body .pf-page .pf-fields, html body .pf-page #osoite .pf-fields, html body .pf-page #julkinen-profiili .pf-public-fields {
+  background: rgba(3, 16, 29, 0.34); border: 1px solid rgba(107, 154, 195, 0.22); border-radius: 8px; margin: 0 26px 26px; padding: 20px;
+}
+html body .pf-page .pf-info-rows {
+  display: grid; gap: 0; padding-block: 0;
+}
+html body .pf-page .pf-info-row {
+  border-bottom: 1px solid rgba(107, 154, 195, 0.18);
+}
+html body .pf-page .pf-info-row:last-child {
+  border-bottom: 0;
+}
+html body .pf-page .pf-info-row-icon {
+  background: rgba(33, 88, 130, 0.42); border: 1px solid rgba(120, 158, 195, 0.24); border-radius: 10px; height: 42px; width: 42px;
+}
+html body .pf-page .pf-info-value > span, html body .pf-page .pf-info-value input:disabled, html body .pf-page #julkinen-profiili .pf-readonly-value span, html body .pf-page #julkinen-profiili .pf-locked input:disabled {
+  color: #ffffff; font-size: 15px; font-weight: 950; -webkit-text-fill-color: #ffffff;
+}
+html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #julkinen-profiili .pf-field.pf-field-wide {
+  grid-column: 1 / -1;
+}
+html body .pf-page #julkinen-profiili .pf-field:last-child {
+  border-bottom: 0;
+}
+html body .pf-page #julkinen-profiili :is(.pf-locked, .pf-readonly-value, .pf-public-address-field input, .pf-public-bio-field textarea) {
+  background: transparent; border: 0; box-shadow: none; color: #ffffff; min-height: 0; overflow: visible;
+  padding: 0; white-space: normal; width: 100%; -webkit-text-fill-color: #ffffff;
+}
+html body .pf-page #julkinen-profiili .pf-public-bio-field textarea {
+  line-height: 1.45;
+}
+html body .pf-page #osoite .pf-fields {
+  align-content: start;
+}
+html body .pf-page #osoite .pf-field:last-child {
+  grid-column: 1 / -1;
+}
+html body .pf-page #osoite .pf-field input, html body .pf-page :is(.pf-field input, .pf-info-value input:not(:disabled)) {
+  background: rgba(10, 34, 57, 0.86); border: 1px solid rgba(107, 154, 195, 0.36); border-radius: 8px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04); color: #ffffff; min-height: 56px;
+  padding: 0 16px; -webkit-text-fill-color: #ffffff;
+}
+html body .pf-page .pf-public-note {
+  display: none;
+}
+html body .pf-page .pf-save-bar {
+  grid-column: 1 / -1;
+}
+@media (max-width: 1180px) {
+  html body .pf-page .pf-content {
+    max-width: none; padding-top: 20px;
+  }
+  html body .pf-page #julkinen-profiili, html body .pf-page #osoite, html body .pf-page .pf-company-sellers-section {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 680px) {
+  html body .pf-page :is(.pf-info-card-head, .pf-section-head) {
+    grid-template-columns: 48px minmax(0, 1fr); padding: 16px;
+  }
+  html body .pf-page .pf-info-title {
+    grid-column: 1 / -1; grid-template-columns: 48px minmax(0, 1fr);
+  }
+  html body .pf-page :is(.pf-info-edit-btn, .pf-manage-btn) {
+    grid-column: 1 / -1; justify-self: stretch; width: 100%;
+  }
+  html body .pf-page .pf-info-row, html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #julkinen-profiili .pf-field.pf-field-wide, html body .pf-page #osoite .pf-fields {
+    grid-template-columns: 1fr;
+  }
+  html body .pf-page .pf-phone-row {
+    grid-template-columns: 1fr;
+  }
+  html body .pf-page .pf-phone-actions {
+    min-width: 0;
+  }
+  html body .pf-page .pf-info-rows, html body .pf-page .pf-fields, html body .pf-page #osoite .pf-fields, html body .pf-page #julkinen-profiili .pf-public-fields {
+    margin: 0 14px 16px; padding: 14px;
+  }
+  html body .pf-page .pf-save-bar {
+    align-items: stretch; flex-direction: column;
+  }
+  html body .pf-page .pf-save-btn {
+    width: 100%;
+  }
+}
+html body .pf-page .pf-layout {
+  overflow-x: hidden;
+}
+html body .pf-page .pf-user-card {
+  align-self: start;
+}
+html body .pf-page .pf-user-name {
+  display: block;
+}
+html body .pf-page .pf-avatar, html body .pf-page .pf-avatar-upload {
+  cursor: pointer; position: relative;
+}
+html body .pf-page .pf-avatar-overlay {
+  pointer-events: none;
+}
+html body .pf-page .pf-avatar-remove, html body .pf-page .pf-avatar-remove:hover, html body .pf-page .pf-avatar-remove:focus-visible {
+  background: transparent; border: 0; box-shadow: none; color: #ff4d4d; font-size: 15px; font-weight: 950;
+  height: 14px; line-height: 1; min-height: 14px; min-width: 14px; padding: 0; right: -8px;
+  top: -8px; transform: none; width: 14px;
+}
+html body .pf-page #tiedot, html body .pf-page #yritys, html body .pf-page .pf-save-bar {
+  grid-column: 1 / -1;
+}
+html body .pf-page #julkinen-profiili, html body .pf-page #osoite, html body .pf-page .pf-company-sellers-section {
+  grid-column: span 1; min-width: 0;
+}
+html body .pf-page :is(.pf-info-card-head, .pf-section-head), html body .pf-page .pf-info-title {
+  align-items: center; display: grid; gap: 14px; grid-template-columns: 58px minmax(0, 1fr); min-width: 0;
+}
+html body .pf-page :is(.pf-info-card-head h2, .pf-section-head h2) {
+  white-space: normal;
+}
+html body .pf-page :is(.pf-info-card-head p, .pf-section-head p) {
+  white-space: normal;
+}
+html body .pf-page .pf-info-rows, html body .pf-page #julkinen-profiili .pf-public-fields, html body .pf-page #osoite .pf-fields {
+  box-sizing: border-box; min-width: 0;
+}
+html body .pf-page .pf-info-row {
+  align-items: center; display: grid; gap: 16px; grid-template-columns: 42px minmax(130px, 190px) minmax(0, 1fr); min-height: 70px; padding: 10px 12px;
+}
+html body .pf-page #julkinen-profiili .pf-public-fields {
+  display: grid; gap: 0; grid-template-columns: 1fr; padding: 16px 18px;
+}
+html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #julkinen-profiili .pf-field.pf-field-wide {
+  align-items: start; background: transparent; border: 0; border-bottom: 1px solid rgba(107, 154, 195, 0.18); display: grid; gap: 12px;
+  grid-template-columns: minmax(118px, 0.38fr) minmax(0, 1fr); min-height: 62px; min-width: 0; padding: 13px 0;
+}
+html body .pf-page #julkinen-profiili :is(.pf-locked input:disabled, .pf-readonly-value span, .pf-public-address-field input, .pf-public-bio-field textarea) {
+  background: transparent; border: 0; box-shadow: none; color: #fff; line-height: 1.45; min-width: 0;
+  overflow: visible; padding: 0; white-space: normal; width: 100%; overflow-wrap: anywhere; -webkit-text-fill-color: #fff;
+}
+html body .pf-page #osoite .pf-fields {
+  display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 18px;
+}
+html body .pf-page #osoite .pf-field, html body .pf-page #osoite .pf-field:last-child {
+  background: transparent; border: 0; grid-column: span 1; min-width: 0; padding: 0;
+}
+html body .pf-page #osoite .pf-field input, html body .pf-page :is(.pf-field input, .pf-field textarea, .pf-info-value input:not(:disabled)) {
+  background: rgba(10, 34, 57, 0.86); border: 1px solid rgba(107, 154, 195, 0.36); border-radius: 8px; color: #fff; min-height: 48px; min-width: 0;
+  padding: 0 14px; width: 100%; -webkit-text-fill-color: #fff;
+}
+@media (max-width: 1180px) {
+  html body .pf-page .pf-layout {
+    grid-template-columns: 1fr; padding: 0 14px 32px;
+  }
+  html body .pf-page .pf-sidebar {
+    display: none;
+  }
+  html body .pf-page .pf-form, html body .pf-page .pf-form:has(.pf-company-sellers-section) {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 680px) {
+  html body .pf-page :is(.pf-info-card-head, .pf-section-head), html body .pf-page .pf-info-title, html body .pf-page .pf-info-row, html body .pf-page .pf-phone-row, html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #julkinen-profiili .pf-field.pf-field-wide, html body .pf-page #osoite .pf-fields {
+    grid-template-columns: 1fr;
+  }
+}
+html body .pf-page .pf-content {
+  padding-top: 0;
+}
+html body .pf-page #tiedot, html body .pf-page #yritys, html body .pf-page #julkinen-profiili, html body .pf-page #osoite, html body .pf-page .pf-company-sellers-section, html body .pf-page .pf-save-bar {
+  grid-column: 1 / -1;
+}
+html body .pf-page :is(.pf-info-card-head, .pf-section-head) {
+  border-bottom: 0;
+}
+html body .pf-page .pf-info-rows, html body .pf-page #julkinen-profiili .pf-public-fields, html body .pf-page #osoite .pf-fields {
+  background: rgba(2, 15, 29, 0.36); border: 1px solid rgba(96, 148, 192, 0.2); border-radius: 6px; display: grid; gap: 7px; margin: 0 18px 14px;
+  overflow: visible; padding: 10px;
+}
+html body .pf-page .pf-info-row, html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #julkinen-profiili .pf-field.pf-field-wide, html body .pf-page #osoite .pf-field, html body .pf-page #osoite .pf-field:last-child {
+  align-items: center; background: transparent; border: 0; display: grid; gap: 10px; grid-column: 1 / -1;
+  grid-template-columns: 34px minmax(132px, 0.28fr) minmax(0, 1fr); min-height: 40px; min-width: 0; padding: 0;
+}
+html body .pf-page .pf-info-row-icon, html body .pf-page #julkinen-profiili .pf-field::before, html body .pf-page #osoite .pf-field::before {
+  align-items: center; background: rgba(33, 88, 130, 0.44); border: 1px solid rgba(120, 158, 195, 0.22); border-radius: 7px; color: rgba(215, 233, 247, 0.86); display: inline-flex;
+  height: 30px; justify-content: center; width: 30px;
+}
+html body .pf-page #julkinen-profiili .pf-field::before, html body .pf-page #osoite .pf-field::before {
+  grid-column: 1;
+}
+html body .pf-page .pf-info-value, html body .pf-page #julkinen-profiili :is(.pf-locked, .pf-readonly-value), html body .pf-page #julkinen-profiili :is(input, textarea), html body .pf-page #osoite input {
+  grid-column: 3; min-width: 0;
+}
+html body .pf-page .pf-info-value input:disabled, html body .pf-page .pf-info-value > span, html body .pf-page #julkinen-profiili :is(.pf-locked input:disabled, .pf-readonly-value span, .pf-public-address-field input, .pf-public-bio-field textarea), html body .pf-page #osoite input {
+  background: rgba(9, 30, 52, 0.84); border: 1px solid rgba(91, 141, 184, 0.26); border-radius: 5px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035); color: #fff; display: block;
+  font-size: 12px; font-weight: 850; line-height: 1.3; min-height: 30px; min-width: 0; overflow: hidden;
+  padding: 7px 10px; text-overflow: ellipsis; white-space: nowrap; width: 100%; -webkit-text-fill-color: #fff;
+}
+html body .pf-page #julkinen-profiili .pf-public-bio-field textarea {
+  resize: vertical; white-space: normal;
+}
+@media (max-width: 720px) {
+  html body .pf-page :is(.pf-info-card-head, .pf-section-head), html body .pf-page .pf-info-title, html body .pf-page .pf-info-row, html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #julkinen-profiili .pf-field.pf-field-wide, html body .pf-page #osoite .pf-field, html body .pf-page #osoite .pf-field:last-child, html body .pf-page .pf-phone-row {
+    grid-template-columns: 1fr;
+  }
+  html body .pf-page .pf-info-value, html body .pf-page #julkinen-profiili :is(.pf-locked, .pf-readonly-value), html body .pf-page #julkinen-profiili :is(input, textarea), html body .pf-page #osoite input {
+    grid-column: 1;
+  }
+}
+html body .pf-page .pf-layout {
+  margin-inline: auto;
+}
+html body .pf-page .pf-field-icon {
+  align-items: center; background: rgba(33, 88, 130, 0.44); border: 1px solid rgba(120, 158, 195, 0.22); border-radius: 7px; color: rgba(215, 233, 247, 0.86); display: inline-flex;
+  grid-column: 1; height: 30px; justify-content: center; width: 30px;
+}
+html body .pf-page .pf-field-icon svg {
+  height: 15px; width: 15px;
+}
+html body .pf-page #julkinen-profiili .pf-field, html body .pf-page #julkinen-profiili .pf-field.pf-field-wide, html body .pf-page #osoite .pf-field, html body .pf-page #osoite .pf-field:last-child {
+  align-items: center; display: grid; grid-template-columns: 34px minmax(132px, 0.28fr) minmax(0, 1fr);
+}
+html body .pf-page #julkinen-profiili .pf-field label, html body .pf-page #osoite .pf-field label {
+  grid-column: 2;
+}

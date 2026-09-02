@@ -35,12 +35,13 @@ async function recordEvent(event: Stripe.Event) {
       .maybeSingle<{ processing_status: string }>();
     if (existingError) throw existingError;
     if (existing?.processing_status !== "failed") return false;
-    const { error: retryError } = await admin
+    const { data: retried, error: retryError } = await admin
       .from("stripe_webhook_events")
       .update({ processing_status: "processing", error_message: null, processed_at: null })
-      .eq("stripe_event_id", event.id);
+      .eq("stripe_event_id", event.id)
+      .eq("processing_status", "failed").select("id");
     if (retryError) throw retryError;
-    return true;
+    return Boolean(retried?.length);
   }
   if (error) throw error;
   return Boolean(data);
@@ -48,11 +49,12 @@ async function recordEvent(event: Stripe.Event) {
 
 async function finishEvent(eventId: string, status: "completed" | "ignored" | "failed", error?: unknown) {
   const admin = getSupabaseAdmin();
-  await admin.from("stripe_webhook_events").update({
+  const { error: updateError } = await admin.from("stripe_webhook_events").update({
     processing_status: status,
     processed_at: new Date().toISOString(),
     error_message: error ? String(error instanceof Error ? error.message : error).slice(0, 2000) : null
   }).eq("stripe_event_id", eventId);
+  if (updateError) throw updateError;
 }
 
 function relationId(value: string | { id: string } | null | undefined) {
@@ -62,11 +64,14 @@ function relationId(value: string | { id: string } | null | undefined) {
 async function updateOrderByPaymentIntent(
   paymentIntentId: string | null,
   values: Record<string, unknown>,
-  orderId?: string | null
+  orderId?: string | null,
+  onlyPending = false
 ) {
+  if (!orderId && !paymentIntentId) return;
   const admin = getSupabaseAdmin();
   let query = admin.from("orders").update(values);
   query = orderId ? query.eq("id", orderId) : query.eq("stripe_payment_intent_id", paymentIntentId ?? "");
+  if (onlyPending) query = query.in("payment_status", ["pending", "failed"]);
   const { error } = await query;
   if (error) throw error;
 }
@@ -96,6 +101,13 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Stripe webhook signature failed", error);
     return NextResponse.json({ error: "Virheellinen Stripe webhook -allekirjoitus." }, { status: 400 });
+  }
+
+  // Connect production endpoints can deliver both live and test events.
+  // Never let a signed event from the other mode modify this database.
+  const configuredLiveMode = /^(?:sk|rk)_live_/.test(process.env.STRIPE_SECRET_KEY?.trim() || "");
+  if (event.livemode !== configuredLiveMode) {
+    return NextResponse.json({ received: true, ignored: true, reason: "mode_mismatch" });
   }
 
   try {
@@ -143,18 +155,18 @@ export async function POST(request: Request) {
         const { error: groupError } = await admin.from("checkout_groups").update({
           payment_status: "failed",
           payment_error: failure,
-        }).eq("id", checkoutGroupId).neq("payment_status", "paid");
+        }).eq("id", checkoutGroupId).in("payment_status", ["pending", "failed"]);
         if (groupError) throw groupError;
         const { error: orderError } = await admin.from("orders").update({
           payment_status: "failed",
           payment_error: failure,
-        }).eq("checkout_group_id", checkoutGroupId).neq("payment_status", "paid");
+        }).eq("checkout_group_id", checkoutGroupId).in("payment_status", ["pending", "failed"]);
         if (orderError) throw orderError;
       } else if (orderId) {
         await updateOrderByPaymentIntent(null, {
           payment_status: "failed",
           payment_error: failure,
-        }, orderId);
+        }, orderId, true);
       }
       await finishEvent(event.id, "completed");
       return NextResponse.json({ received: true });
@@ -195,9 +207,9 @@ export async function POST(request: Request) {
       const dispute = event.data.object as Stripe.Dispute;
       const paymentIntentId = relationId(dispute.payment_intent);
       const charge = typeof dispute.charge === "string"
-        ? await getStripe().charges.retrieve(dispute.charge)
+        ? await getStripe().charges.retrieve(dispute.charge, {}, event.account ? { stripeAccount: event.account } : undefined)
         : dispute.charge;
-      if (paymentIntentId && charge) {
+      if (paymentIntentId && charge && !event.account) {
         await recoverSellerTransfers({
           paymentIntentId,
           chargeAmountCents: charge.amount,

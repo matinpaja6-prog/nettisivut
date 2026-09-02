@@ -1,0 +1,810 @@
+
+@media (max-width: 720px) {
+  html body .universal-home-topbar .universal-home-brand {
+    flex: 0 0 auto;
+  }
+  html body .universal-home-topbar .universal-home-primary-nav {
+    display: none;
+  }
+  html body .universal-home-topbar .universal-create-button {
+    min-height: 40px; min-width: 42px; padding: 0; width: 42px;
+  }
+  html body .universal-home-topbar .universal-create-button strong {
+    display: none;
+  }
+  html body .universal-home-topbar .universal-notification-wrap, html body .universal-home-topbar .language-switcher, html body .universal-home-topbar .universal-category-button-left {
+    display: none;
+  }
+  html body .universal-home-topbar .rebuilt-profile-button {
+    min-height: 40px; min-width: 42px; padding: 0; width: 42px;
+  }
+  html body .universal-home-topbar .rebuilt-login-button-guest {
+    gap: 7px;
+  }
+  html body .universal-home-topbar .rebuilt-login-button-guest strong {
+    font-size: 12px;
+  }
+}
+@media (max-width: 720px) {
+  html body .universal-home-topbar .universal-mobile-home-menu {
+    align-items: center; background: transparent; border: 0; border-radius: 8px; color: #ffffff; cursor: pointer;
+    display: inline-flex; grid-column: 1; height: 40px; justify-content: center; padding: 0; width: 40px;
+  }
+  html body .universal-home-topbar .universal-home-brand {
+    grid-column: 2; justify-self: center;
+  }
+  html body .universal-home-topbar .universal-topbar-actions, html body .universal-home-topbar .universal-topbar-actions-guest {
+    grid-column: 3;
+  }
+}
+@media (min-width: 721px) {
+  html body .universal-mobile-home-menu {
+    display: none;
+  }
+}
+html body .simple-auth-page:has(.registration-inline-card) .auth-centered {
+  padding-top: 72px;
+}
+@media (max-width: 700px) {
+  html body .simple-auth-page:has(.registration-inline-card) .auth-centered {
+    padding-top: 68px;
+  }
+}
+@media (max-width: 480px) {
+  html body .simple-auth-page .registration-inline-card.profile-finalize-card .date-part-button {
+    font-size: 12px; gap: 3px; grid-template-columns: minmax(0, 1fr) 12px; padding: 0 6px;
+  }
+  html body .simple-auth-page .registration-inline-card.profile-finalize-card .date-part-button svg {
+    height: 12px; width: 12px;
+  }
+}
+html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button {
+  background: transparent; border: 0; border-left: 0; border-right: 0; box-shadow: none; color: #ff7a1a;
+  height: 28px; min-height: 28px; min-width: 28px; padding: 0; width: 28px;
+}
+html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button::before, html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button::after {
+  content: none; display: none;
+}
+html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button svg {
+  color: #ff7a1a; height: 20px; stroke-width: 3; width: 20px;
+}
+html body .simple-auth-page .registration-inline-card.profile-finalize-card .auth-input-with-icon > input:not([type="checkbox"]) {
+  padding-left: 44px;
+}
+html body .simple-auth-page .registration-inline-card.profile-finalize-card .auth-password-input > input:not([type="checkbox"]) {
+  padding-right: 46px;
+}
+html body .simple-auth-page .registration-inline-card.profile-finalize-card .auth-input-with-icon > svg {
+  left: 14px;
+}
+html body .simple-auth-page .profile-finalize-card .registration-fields > label, html body .simple-auth-page .profile-finalize-card .registration-fields > .date-field {
+  color: #d8e8f8; font-size: 12px; font-weight: 950; gap: 7px;
+}
+html body .simple-auth-page .profile-finalize-card input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), html body .simple-auth-page .profile-finalize-card select, html body .simple-auth-page .profile-finalize-card .phone-field-row {
+  background: #03101d; border: 1px solid rgba(112, 178, 230, 0.34); border-radius: 10px; box-shadow: none; color: #ffffff; font-size: 14px;
+  font-weight: 850; height: 44px; min-height: 44px;
+}
+html body .simple-auth-page .profile-finalize-card input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus, html body .simple-auth-page .profile-finalize-card select:focus, html body .simple-auth-page .profile-finalize-card .phone-field-row:focus-within, html body .simple-auth-page .profile-finalize-card .date-field-control:focus-within {
+  border-color: #ff8a1a; box-shadow: 0 0 0 2px rgba(255, 138, 26, 0.2); outline: none;
+}
+html body .simple-auth-page .profile-finalize-card:has(.date-part-select.is-open), html body .simple-auth-page .profile-finalize-card .registration-fields:has(.date-field.is-open), html body .simple-auth-page .profile-finalize-card .registration-fields:has(.date-part-select.is-open) {
+  overflow: visible; position: relative; z-index: 300;
+}
+html body .simple-auth-page .profile-finalize-card .privacy-checkbox-row {
+  position: relative; z-index: 0;
+}
+html body .simple-auth-page .profile-finalize-card .date-part-select {
+  display: block; height: 100%; min-width: 0; position: relative;
+}
+html body .simple-auth-page .profile-finalize-card .date-part-button {
+  align-items: center; background: transparent; border: 0; border-left: 1px solid rgba(112, 178, 230, 0.24); border-radius: 0; box-shadow: none;
+  color: #ffffff; cursor: pointer; display: grid; font: inherit; font-size: 14px; font-weight: 900;
+  gap: 8px; grid-template-columns: minmax(0, 1fr) 16px; height: 100%; min-height: 0; min-width: 0; padding: 0 8px 0 12px;
+  text-align: center; width: 100%;
+}
+body .simple-auth-page .registration-inline-card {
+  background: linear-gradient(145deg, #0b1d33 0%, #0d2138 100%); border: 1px solid rgba(80, 126, 181, 0.3); border-radius: 12px; box-shadow: 0 24px 60px rgba(0, 5, 16, 0.42); padding: 24px;
+}
+body .simple-auth-page .registration-inline-card .auth-form-head {
+  gap: 5px; margin-bottom: 4px; text-align: center;
+}
+body .simple-auth-page .registration-inline-card .auth-form-head h1 {
+  color: #f7f9fc; font-size: 28px; line-height: 1.1;
+}
+body .simple-auth-page .registration-inline-card .auth-form-head p {
+  color: #8294aa; font-size: 13px; margin: 0;
+}
+body .simple-auth-page .registration-inline-card label {
+  color: #d7e0eb; font-size: 12px; font-weight: 800; gap: 6px;
+}
+body .simple-auth-page .registration-inline-card .auth-input-with-icon {
+  display: block; position: relative; width: 100%;
+}
+body .simple-auth-page .registration-inline-card .auth-input-with-icon > svg {
+  color: #8d9db0; left: 13px; pointer-events: none; position: absolute; top: 50%; transform: translateY(-50%);
+  z-index: 2;
+}
+body .simple-auth-page .registration-inline-card .auth-input-with-icon > input {
+  padding-left: 40px; width: 100%;
+}
+body .simple-auth-page .registration-inline-card .auth-password-eye {
+  align-items: center; background: transparent; border: 0; color: #9babbc; display: inline-flex; height: 38px;
+  justify-content: center; min-height: 0; padding: 0; position: absolute; right: 5px; top: 50%;
+  transform: translateY(-50%); width: 36px; z-index: 3;
+}
+body .simple-auth-page .registration-inline-card .auth-password-match {
+  align-items: center; color: #32c95a; display: flex; font-size: 11px; font-weight: 800; gap: 4px;
+  justify-content: flex-start; margin-top: 2px;
+}
+body .simple-auth-page .registration-inline-card .auth-password-strength {
+  display: grid; gap: 5px; margin-left: calc(50% + 8px); margin-top: -7px; width: calc(50% - 8px);
+}
+body .simple-auth-page .registration-inline-card .auth-password-strength-track {
+  background: rgba(112, 133, 158, 0.22); border-radius: 999px; display: block; height: 2px; overflow: hidden; width: 100%;
+}
+body .simple-auth-page .registration-inline-card .auth-password-strength-track > span {
+  border-radius: inherit; display: block; height: 100%; transition: background-color 160ms ease, width 160ms ease;
+}
+body .simple-auth-page .registration-inline-card .auth-password-mismatch {
+  align-items: center; color: #ff6b6b; display: flex; font-size: 12px; font-weight: 850; gap: 5px;
+  margin-left: calc(50% + 8px); margin-top: -6px; width: calc(50% - 8px);
+}
+body .simple-auth-page .registration-inline-card > button[type="submit"]:disabled {
+  cursor: not-allowed; opacity: 0.5;
+}
+body .simple-auth-page .registration-inline-card .register-account-type {
+  gap: 8px; margin: 2px 0;
+}
+body .simple-auth-page .registration-inline-card .register-account-type .account-type-card {
+  background: rgba(8, 25, 45, 0.88); border: 1px solid rgba(71, 109, 149, 0.45); border-radius: 8px; color: #eaf1f8; grid-template-columns: 34px minmax(0, 1fr) 28px; padding: 9px 14px;
+}
+body .simple-auth-page .registration-inline-card .register-account-type .account-type-card.active {
+  border-color: #4387ff; box-shadow: inset 0 0 0 1px rgba(67, 135, 255, 0.25);
+}
+body .simple-auth-page .registration-inline-card .register-account-type .account-type-copy {
+  align-items: flex-start; display: flex; flex-direction: column; gap: 2px; text-align: left;
+}
+body .simple-auth-page .registration-inline-card .register-account-type .account-type-copy strong {
+  color: #f4f7fb; font-size: 13px;
+}
+body .simple-auth-page .registration-inline-card .register-account-type .account-type-copy > span {
+  color: #899aae; font-size: 11px;
+}
+body .simple-auth-page .registration-inline-card .register-account-type .account-type-check {
+  background: transparent; border: 1px solid #5f7186; height: 22px; width: 22px;
+}
+body .simple-auth-page .registration-inline-card .register-account-type .active .account-type-check {
+  background: #4387ff; border-color: #4387ff;
+}
+body .simple-auth-page .registration-inline-card input:not([type="checkbox"]), body .simple-auth-page .registration-inline-card select, body .simple-auth-page .registration-inline-card .date-field-control {
+  background: #061427; border: 1px solid rgba(66, 101, 138, 0.55); border-radius: 7px; box-shadow: none; color: #e9f0f7; height: 44px;
+}
+body .simple-auth-page .registration-inline-card input:focus, body .simple-auth-page .registration-inline-card select:focus {
+  border-color: #4387ff; box-shadow: 0 0 0 2px rgba(67, 135, 255, 0.18);
+}
+body .simple-auth-page .registration-inline-card .register-privacy-row {
+  background: rgba(23, 48, 75, 0.78); border: 1px solid rgba(65, 101, 139, 0.45); border-radius: 7px; min-height: 46px; padding: 9px 13px;
+}
+body .simple-auth-page .registration-inline-card > button[type="submit"] {
+  background: linear-gradient(90deg, #3689ff, #2760e8); border: 0; border-radius: 7px; box-shadow: 0 10px 24px rgba(35, 99, 231, 0.22); color: #fff;
+}
+@media (max-width: 700px) {
+  body .simple-auth-page .registration-inline-card .auth-password-pair, body .simple-auth-page .registration-inline-card .register-details-grid {
+    grid-template-columns: 1fr;
+  }
+  body .simple-auth-page .registration-inline-card .auth-password-strength {
+    margin-left: 0; width: 100%;
+  }
+  body .simple-auth-page .registration-inline-card .auth-password-mismatch {
+    margin-left: 0; width: 100%;
+  }
+}
+html body .simple-auth-page .profile-finalize-card .date-part-button span {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+html body .simple-auth-page .profile-finalize-card .date-part-button svg {
+  color: #d8e8f8; justify-self: end;
+}
+html body .simple-auth-page .profile-finalize-card .date-part-button.is-placeholder {
+  color: #9fb6cb;
+}
+html body .simple-auth-page .profile-finalize-card .date-part-menu {
+  background: #03101d; border: 1px solid rgba(112, 178, 230, 0.42); border-radius: 10px; box-shadow: 0 18px 38px rgba(0, 6, 18, 0.42); display: grid; left: 0;
+  max-height: 176px; overflow-y: auto; overscroll-behavior: contain; padding: 5px; position: absolute; right: 0;
+  top: calc(100% + 6px); touch-action: pan-y; -webkit-overflow-scrolling: touch; z-index: 500;
+}
+html body .simple-auth-page .profile-finalize-card .date-part-option {
+  background: transparent; border: 0; border-radius: 7px; color: #ffffff; cursor: pointer; font: inherit;
+  font-size: 13px; font-weight: 850; min-height: 30px; padding: 0 8px; text-align: center; touch-action: pan-y;
+}
+html body .simple-auth-page .profile-finalize-card .date-part-option:hover, html body .simple-auth-page .profile-finalize-card .date-part-option.is-active {
+  background: #8fc5f3; color: #061827;
+}
+@media (min-width: 761px) {
+  html body .simple-auth-page:has(.profile-finalize-card) .auth-centered {
+    align-items: flex-start; padding: 18px 18px 32px;
+  }
+  html body .simple-auth-page .profile-finalize-card {
+    border-color: rgba(255, 134, 24, 0.58); border-radius: 18px; box-shadow: 0 22px 62px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08); gap: 12px; max-width: min(760px, calc(100vw - 120px)); padding: 22px 24px 24px;
+    width: min(760px, calc(100vw - 120px));
+  }
+  html body .simple-auth-page .profile-finalize-card .profile-completion-head {
+    gap: 8px; margin: 0;
+  }
+  html body .simple-auth-page .profile-finalize-card .eyebrow {
+    font-size: 11px; padding: 8px 14px;
+  }
+  html body .simple-auth-page .profile-finalize-card .profile-completion-head h1 {
+    font-size: clamp(32px, 3vw, 40px); line-height: 1.02;
+  }
+  html body .simple-auth-page .profile-finalize-card > .profile-alert {
+    gap: 12px; min-height: 54px; padding: 10px 14px;
+  }
+  html body .simple-auth-page .profile-finalize-card > .profile-alert svg {
+    height: 16px; padding: 8px; width: 16px;
+  }
+  html body .simple-auth-page .profile-finalize-card > .profile-alert span {
+    font-size: 14px;
+  }
+  html body .simple-auth-page .profile-finalize-card .account-type-picker {
+    gap: 8px; margin: 0;
+  }
+  html body .simple-auth-page .profile-finalize-card .account-type-card {
+    border-radius: 12px; gap: 12px; grid-template-columns: 42px minmax(0, 1fr) 30px; min-height: 62px; padding: 10px 12px;
+  }
+  html body .simple-auth-page .profile-finalize-card .account-type-icon {
+    height: 42px; width: 42px;
+  }
+  html body .simple-auth-page .profile-finalize-card .account-type-card strong, html body .simple-auth-page .profile-finalize-card .account-type-locked strong {
+    font-size: 16px;
+  }
+  html body .simple-auth-page .profile-finalize-card .account-type-card span:not(.account-type-check):not(.account-type-icon):not(.account-type-copy), html body .simple-auth-page .profile-finalize-card .account-type-locked > span, html body .simple-auth-page .profile-finalize-card .account-type-locked p {
+    font-size: 12px;
+  }
+  html body .simple-auth-page .profile-finalize-card .account-type-check {
+    height: 28px; width: 28px;
+  }
+  html body .simple-auth-page .profile-finalize-card .account-type-locked {
+    border-radius: 12px; grid-template-columns: 42px minmax(0, 1fr); min-height: 62px; padding: 10px 12px;
+  }
+  html body .simple-auth-page .profile-finalize-card .account-type-locked::before {
+    height: 42px; width: 42px;
+  }
+  html body .simple-auth-page .profile-finalize-card .registration-fields {
+    gap: 10px 20px; margin-top: 2px;
+  }
+  html body .simple-auth-page .profile-finalize-card .registration-fields > label, html body .simple-auth-page .profile-finalize-card .registration-fields > .date-field {
+    font-size: 12px; gap: 6px;
+  }
+  html body .simple-auth-page .profile-finalize-card input:not([type="checkbox"]), html body .simple-auth-page .profile-finalize-card select, html body .simple-auth-page .profile-finalize-card .phone-field-row, html body .simple-auth-page .profile-finalize-card .date-field-control {
+    border-radius: 10px; font-size: 14px; height: 44px; min-height: 44px;
+  }
+  html body .simple-auth-page .profile-finalize-card .privacy-checkbox-row {
+    min-height: 52px; padding: 10px 14px;
+  }
+  html body .simple-auth-page .profile-finalize-card button[type="submit"], html body .simple-auth-page .profile-finalize-card .primary-action, html body .simple-auth-page .profile-finalize-card .secondary-button {
+    font-size: 14px; height: 44px; min-height: 44px;
+  }
+}
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) > .pf-section-head {
+  align-items: center; display: grid; gap: 16px; grid-template-columns: 52px minmax(0, 1fr) auto; text-align: left; transform: none;
+}
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) > .pf-section-head > svg {
+  grid-column: 1; justify-self: start; margin: 0; transform: none;
+}
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) > .pf-section-head > div {
+  grid-column: 2; justify-self: start; margin: 0; text-align: left; transform: none;
+}
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) .pf-section-head {
+  align-items: center; display: grid; gap: 16px; grid-template-columns: 52px minmax(0, 1fr) auto; margin-left: 0; margin-right: 0;
+  padding-left: 34px; padding-right: 20px; text-align: left; transform: none; width: 100%;
+}
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) .pf-section-head > svg {
+  grid-column: 1; justify-self: start; margin: 0; transform: none;
+}
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) .pf-section-head > div {
+  grid-column: 2; justify-self: start; margin: 0; text-align: left; transform: none;
+}
+html body .pf-page :is(#julkinen-profiili .pf-public-fields, #osoite .pf-info-rows, #osoite .pf-address-rows, #tilin-turvallisuus .pf-info-rows) {
+  margin-left: 34px; margin-right: 34px; width: calc(100% - 68px);
+}
+html body .pf-page :is(#julkinen-profiili .pf-field, #julkinen-profiili .pf-field.pf-field-wide, #osoite .pf-info-row, #tilin-turvallisuus .pf-info-row) {
+  gap: 16px; grid-template-columns: 44px 150px minmax(0, 1fr); padding-left: 10px; padding-right: 10px;
+}
+html body .pf-page :is(#osoite .pf-info-row > .pf-info-value, #tilin-turvallisuus .pf-info-row > .pf-info-value) {
+  grid-column: 3;
+}
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) {
+  padding-left: 0; padding-right: 0;
+}
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) > :is(.pf-section-head, .pf-info-rows, .pf-public-fields, .company-seller-list, .company-seller-add, .company-seller-footer) {
+  margin-left: 34px; margin-right: 34px; width: calc(100% - 68px);
+}
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) > .pf-section-head {
+  margin-bottom: 0; padding-left: 0; padding-right: 0;
+}
+@media (min-width: 721px) {
+  html body header.universal-app-topbar .rebuilt-profile-button, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    flex: 0 0 136px; gap: 6px; max-width: 136px; min-height: 46px; min-width: 136px; padding: 0 8px;
+    width: 136px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar {
+    height: 32px; width: 32px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button-copy, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy {
+    gap: 3px; width: 56px;
+  }
+  html body header.universal-app-topbar .rebuilt-profile-button-copy strong, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+    font-size: 14px; max-width: 56px; transform: translateY(3px);
+  }
+  html body header.universal-app-topbar .rebuilt-profile-xp-track, html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-track {
+    height: 6px; width: 42px;
+  }
+}
+body .simple-auth-page {
+  background: #0f1e26; background-color: #0f1e26; background-image: none;
+}
+body .simple-auth-page .auth-centered {
+  background: transparent; background-color: transparent; background-image: none;
+}
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) {
+  background: #12304a; background-color: #12304a; background-image: none; isolation: isolate;
+}
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card)::before, body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card)::after, body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) :is(.auth-form-head, label, .auth-password-label, .auth-label-row, .auth-divider, .auth-social-row, .auth-mode-switch, .form-note)::before, body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) :is(.auth-form-head, label, .auth-password-label, .auth-label-row, .auth-divider, .auth-social-row, .auth-mode-switch, .form-note)::after {
+  background: none; background-color: transparent; background-image: none; box-shadow: none; content: none; display: none;
+}
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) :is(.auth-form-head, label, .auth-password-label, .auth-label-row, .auth-social-row, .auth-mode-switch, .form-note), body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) :is(h1, p, span:not(.auth-divider span), a) {
+  background: transparent; background-color: transparent; background-image: none; box-shadow: none;
+}
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) .auth-divider {
+  align-items: center; background: transparent; display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); margin: 10px 0;
+}
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) .auth-divider::before, body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) .auth-divider::after {
+  background: rgba(151, 178, 205, 0.28); content: ""; display: block; height: 1px;
+}
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) .auth-divider span {
+  background: #12304a; color: rgba(214, 228, 241, 0.72); font-size: 12px; font-weight: 950; padding: 0;
+}
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) .auth-social-row {
+  background: transparent; box-shadow: none; padding: 0;
+}
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) input:not([type="checkbox"]):not([type="radio"]):not([type="file"]) {
+  box-shadow: none;
+}
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) .google-button.auth-social-button {
+  background: #ffffff; background-color: #ffffff; background-image: none; border-color: rgba(255, 218, 184, 0.64); box-shadow: none; color: #071827;
+}
+body .simple-auth-page .registration-inline-card {
+  gap: 14px; max-width: min(900px, calc(100vw - 40px)); width: min(900px, calc(100vw - 40px));
+}
+body .simple-auth-page .registration-inline-card .auth-password-pair {
+  display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+body .simple-auth-page .registration-inline-card .auth-password-pair > label {
+  min-width: 0;
+}
+body .simple-auth-page .registration-inline-card .auth-password-toggle-row {
+  align-items: center; display: flex; justify-content: flex-end; margin-top: -5px; width: 100%;
+}
+body .simple-auth-page .registration-inline-card .register-account-type {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+body .simple-auth-page .registration-inline-card .register-account-type .account-type-card {
+  min-height: 58px;
+}
+body .simple-auth-page .registration-inline-card .register-details-grid {
+  display: grid; gap: 12px 16px; grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+body .simple-auth-page .registration-inline-card .register-details-grid > label, body .simple-auth-page .registration-inline-card .register-details-grid > .date-field {
+  min-width: 0;
+}
+body .simple-auth-page .registration-inline-card .register-privacy-row {
+  margin-top: 2px;
+}
+@media (max-width: 700px) {
+  body .simple-auth-page .registration-inline-card {
+    max-width: calc(100vw - 18px); padding: 18px 12px; width: calc(100vw - 18px);
+  }
+  body .simple-auth-page .registration-inline-card .auth-password-pair, body .simple-auth-page .registration-inline-card .register-account-type, body .simple-auth-page .registration-inline-card .register-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+body .simple-auth-page:has(.profile-finalize-card) .auth-centered {
+  padding: 10px 14px 24px;
+}
+body .simple-auth-page .profile-finalize-card {
+  border-radius: 16px; gap: 9px; max-width: min(900px, calc(100vw - 64px)); padding: clamp(18px, 2vw, 24px); width: min(900px, calc(100vw - 64px));
+}
+body .simple-auth-page .profile-finalize-card .profile-completion-head {
+  gap: 9px; margin-bottom: 2px;
+}
+body .simple-auth-page .profile-finalize-card .eyebrow {
+  font-size: 12px; padding: 8px 14px;
+}
+body .simple-auth-page .profile-finalize-card .profile-completion-head h1 {
+  font-size: clamp(30px, 3.5vw, 42px); line-height: 1;
+}
+body .simple-auth-page .profile-finalize-card > .profile-alert {
+  gap: 13px; min-height: 54px; padding: 9px 13px;
+}
+body .simple-auth-page .profile-finalize-card > .profile-alert svg {
+  height: 18px; padding: 8px; width: 18px;
+}
+body .simple-auth-page .profile-finalize-card > .profile-alert span {
+  font-size: 14px;
+}
+body .simple-auth-page .profile-finalize-card .account-type-picker {
+  gap: 8px; margin-bottom: 2px;
+}
+body .simple-auth-page .profile-finalize-card .account-type-card {
+  gap: 12px; grid-template-columns: 44px minmax(0, 1fr) 32px; min-height: 62px; padding: 9px 12px;
+}
+body .simple-auth-page .profile-finalize-card .account-type-icon {
+  height: 44px; width: 44px;
+}
+body .simple-auth-page .profile-finalize-card .account-type-card strong {
+  font-size: 17px;
+}
+body .simple-auth-page .profile-finalize-card .account-type-card span:not(.account-type-check):not(.account-type-icon):not(.account-type-copy) {
+  font-size: 13px;
+}
+body .simple-auth-page .profile-finalize-card .account-type-check {
+  height: 30px; width: 30px;
+}
+body .simple-auth-page .profile-finalize-card .account-type-locked {
+  min-height: 62px; padding: 9px 12px;
+}
+body .simple-auth-page .profile-finalize-card .registration-fields {
+  gap: 10px 20px; margin-top: 2px;
+}
+body .simple-auth-page .profile-finalize-card .registration-fields > label, body .simple-auth-page .profile-finalize-card .registration-fields > .date-field {
+  font-size: 13px; gap: 6px;
+}
+body .simple-auth-page .profile-finalize-card input:not([type="checkbox"]), body .simple-auth-page .profile-finalize-card select, body .simple-auth-page .profile-finalize-card .phone-field-row, body .simple-auth-page .profile-finalize-card .date-field-control {
+  border-radius: 8px; color: #ffffff; font-size: 14px; height: 44px;
+}
+body .simple-auth-page .profile-finalize-card input:not([type="checkbox"]), body .simple-auth-page .profile-finalize-card select {
+  padding-inline: 14px;
+}
+body .simple-auth-page .profile-finalize-card .privacy-checkbox-row {
+  min-height: 54px; padding: 10px 13px;
+}
+body .simple-auth-page .profile-finalize-card .privacy-checkbox-row input[type="checkbox"] {
+  appearance: none; align-items: center; display: inline-grid; height: 24px; justify-content: center; position: relative;
+  width: 24px;
+}
+body .simple-auth-page .profile-finalize-card .privacy-checkbox-row input[type="checkbox"]:checked::after {
+  border: solid #071827; border-width: 0 3px 3px 0; content: ""; display: block; height: 12px; margin-top: -2px;
+  transform: rotate(45deg); width: 6px;
+}
+body .simple-auth-page .profile-finalize-card button[type="submit"], body .simple-auth-page .profile-finalize-card .primary-action, body .simple-auth-page .profile-finalize-card .secondary-button {
+  border-radius: 8px; font-size: 15px; height: 46px; min-height: 46px;
+}
+html body .simple-auth-page .registration-pin-card {
+  background: radial-gradient(440px 240px at 50% -70px, rgba(255, 122, 26, 0.2), transparent 72%), linear-gradient(155deg, #102c45 0%, #0a2034 52%, #071827 100%); border: 1px solid rgba(255, 143, 56, 0.54); border-radius: 24px; box-shadow: 0 28px 70px rgba(0, 7, 18, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08); gap: 20px; max-width: 590px;
+  padding: clamp(28px, 5vw, 46px); width: min(590px, calc(100vw - 32px));
+}
+html body .simple-auth-page .registration-pin-card .email-confirm-icon {
+  background: linear-gradient(145deg, #ff9b3d 0%, #ff6f0b 100%); border: 1px solid rgba(255, 219, 185, 0.7); border-radius: 20px; box-shadow: 0 16px 34px rgba(255, 111, 11, 0.27); color: #ffffff; height: 68px;
+  width: 68px;
+}
+html body .simple-auth-page .registration-pin-card .profile-completion-head {
+  gap: 12px;
+}
+html body .simple-auth-page .registration-pin-card .profile-completion-head h1 {
+  font-size: clamp(30px, 5vw, 42px); letter-spacing: -0.035em; line-height: 1.05;
+}
+html body .simple-auth-page .registration-pin-card > .profile-alert {
+  background: rgba(138, 177, 207, 0.12); border: 1px solid rgba(176, 207, 231, 0.28); border-radius: 14px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05); display: grid; grid-template-columns: 38px minmax(0, 1fr);
+  padding: 15px 17px; text-align: left;
+}
+html body .simple-auth-page .registration-pin-card > .profile-alert svg {
+  background: rgba(255, 122, 26, 0.16); border-radius: 10px; color: #ff9b42; height: 20px; padding: 8px; width: 20px;
+}
+html body .simple-auth-page .registration-pin-card > .profile-alert span {
+  font-size: 14px; font-weight: 700; line-height: 1.45;
+}
+html body .simple-auth-page .registration-pin-card > .profile-alert small {
+  color: rgba(220, 233, 244, 0.72); display: block; font-size: 12px; font-weight: 650; margin-top: 3px;
+}
+html body .simple-auth-page .registration-pin-card > label {
+  align-items: center; color: rgba(231, 241, 249, 0.82); font-size: 12px; gap: 8px; text-align: center; width: min(100%, 300px);
+}
+html body .simple-auth-page .registration-pin-card > label input {
+  background: rgba(2, 12, 23, 0.82); border: 1px solid rgba(159, 190, 216, 0.34); border-radius: 13px; box-shadow: inset 0 2px 9px rgba(0, 0, 0, 0.2); font-size: 25px; font-variant-numeric: tabular-nums;
+  font-weight: 850; height: 58px; letter-spacing: 0.32em; padding: 0 14px 0 22px; text-align: center;
+}
+html body .simple-auth-page .registration-pin-card > label input:focus {
+  border-color: #ff963b; box-shadow: 0 0 0 4px rgba(255, 122, 26, 0.14);
+}
+html body .simple-auth-page .registration-pin-card > button[type="submit"] {
+  background: linear-gradient(135deg, #ff9638 0%, #ff7212 58%, #e95b00 100%); border: 1px solid rgba(255, 212, 172, 0.55); border-radius: 13px; box-shadow: 0 14px 30px rgba(255, 103, 13, 0.24); color: #ffffff; font-size: 15px;
+  min-height: 52px; width: 100%;
+}
+html body .simple-auth-page .registration-pin-card > button[type="submit"]:disabled {
+  background: rgba(151, 178, 205, 0.14); border-color: rgba(151, 178, 205, 0.2); box-shadow: none; color: rgba(222, 234, 244, 0.42);
+}
+.registration-pin-actions {
+  display: flex; gap: 10px; justify-content: center; width: 100%;
+}
+html body .simple-auth-page .registration-pin-card .registration-pin-actions .secondary-button {
+  align-items: center; background: rgba(239, 246, 252, 0.08); border: 1px solid rgba(184, 208, 228, 0.24); border-radius: 11px; color: #edf5fb; display: inline-flex;
+  flex: 1 1 0; font-size: 13px; gap: 7px; justify-content: center; min-height: 44px; min-width: 0;
+  padding: 0 14px;
+}
+html body .simple-auth-page .registration-pin-card .registration-pin-actions .secondary-button:hover {
+  background: rgba(239, 246, 252, 0.14); border-color: rgba(255, 157, 72, 0.42);
+}
+.registration-pin-status {
+  background: rgba(5, 16, 28, 0.52); border-radius: 9px; color: rgba(222, 234, 244, 0.78); font-size: 12px; margin: 0; padding: 9px 12px;
+  text-align: center; width: 100%;
+}
+@media (max-width: 560px) {
+  html body .simple-auth-page .registration-pin-card {
+    border-radius: 19px; gap: 17px; padding: 25px 20px; width: calc(100vw - 24px);
+  }
+  .registration-pin-actions {
+    flex-direction: column;
+  }
+  html body .simple-auth-page .registration-pin-card .registration-pin-actions .secondary-button {
+    flex-basis: auto; width: 100%;
+  }
+}
+@media (max-width: 760px) {
+  body .simple-auth-page:has(.profile-finalize-card) .auth-centered {
+    padding: 10px 8px 20px;
+  }
+  body .simple-auth-page .profile-finalize-card {
+    max-width: calc(100vw - 18px); padding: 14px 10px; width: calc(100vw - 18px);
+  }
+  body .simple-auth-page .profile-finalize-card .registration-fields {
+    grid-template-columns: 1fr;
+  }
+}
+html body .pf-page #osoite, html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite {
+  margin-left: 0; margin-right: 0; max-width: none; transform: none; width: 100%;
+}
+html body .pf-page #osoite .pf-section-head, html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite .pf-section-head {
+  align-items: center; display: grid; gap: 16px; grid-template-columns: 52px minmax(0, 1fr) auto; justify-content: start; margin-left: 0;
+  margin-right: 0; max-width: none; padding-left: 42px; padding-right: 20px; transform: none; width: 100%;
+}
+html body .pf-page #osoite .pf-section-head > svg, html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite .pf-section-head > svg {
+  grid-column: 1; justify-self: start; margin: 0; transform: none;
+}
+html body .pf-page #osoite .pf-section-head > div, html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite .pf-section-head > div {
+  grid-column: 2; justify-self: start; margin: 0; max-width: none; text-align: left; transform: none;
+}
+html body .simple-auth-page .auth-password-input {
+  display: block; position: relative; width: 100%;
+}
+html body .simple-auth-page .auth-password-input > input {
+  padding-right: 52px; width: 100%;
+}
+html body .simple-auth-page .auth-password-input > .auth-password-eye {
+  align-items: center; background: transparent; border: 0; border-radius: 9px; box-shadow: none; color: #9fb6cb;
+  display: inline-flex; height: 38px; justify-content: center; margin: 0; min-height: 38px; min-width: 38px;
+  padding: 0; position: absolute; right: 7px; top: 50%; transform: translateY(-50%); width: 38px;
+  z-index: 3;
+}
+html body .simple-auth-page .auth-password-input > .auth-password-eye:hover, html body .simple-auth-page .auth-password-input > .auth-password-eye:focus-visible {
+  background: rgba(255, 122, 26, 0.12); color: #ff8a2a; outline: none;
+}
+html body .simple-auth-page .auth-password-input > .auth-password-eye svg {
+  height: 18px; position: static; transform: none; width: 18px;
+}
+html body .simple-auth-page .registration-inline-card.profile-finalize-card {
+  gap: 15px; padding: clamp(22px, 4vw, 34px);
+}
+html body .simple-auth-page .registration-inline-card .register-account-switch {
+  align-items: center; align-self: center; background: rgba(5, 19, 34, 0.72); border: 1px solid rgba(80, 126, 181, 0.34); border-radius: 999px; display: inline-grid;
+  gap: 3px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0 auto 2px; padding: 3px; width: min(230px, 100%);
+}
+html body .simple-auth-page .registration-inline-card .register-account-switch > button {
+  background: transparent; border: 0; border-radius: 999px; box-shadow: none; color: #91a2b7; font-size: 12px;
+  font-weight: 850; height: 32px; min-height: 32px; padding: 0 13px; width: 100%;
+}
+html body .simple-auth-page .registration-inline-card .register-account-switch > button.active {
+  background: linear-gradient(135deg, #ff812b, #ff5f12); box-shadow: 0 5px 14px rgba(255, 103, 22, 0.24); color: #ffffff;
+}
+html body .simple-auth-page .registration-inline-card .register-essential-fields, html body .simple-auth-page .registration-inline-card .auth-password-pair {
+  display: grid; gap: 13px; grid-template-columns: 1fr;
+}
+html body .simple-auth-page .registration-inline-card .auth-password-strength, html body .simple-auth-page .registration-inline-card .auth-password-mismatch {
+  margin-left: 0; width: 100%;
+}
+html body .simple-auth-page .registration-inline-card .auth-label-row {
+  box-shadow: none;
+}
+html body .simple-auth-page .registration-inline-card .register-country-field > select {
+  appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23dce8f3' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-position: right 18px center; background-repeat: no-repeat; background-size: 14px 14px; padding-right: 48px;
+}
+@media (max-width: 560px) {
+  html body .simple-auth-page .registration-inline-card.profile-finalize-card {
+    max-width: calc(100vw - 16px); padding: 22px 14px; width: calc(100vw - 16px);
+  }
+}
+html body:has(.simple-auth-page) {
+  background: var(--maskines-page-background, var(--site-bg, #071421));
+}
+html body .simple-auth-page {
+  align-items: flex-start; background: radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--brand-primary, #ff7a18) 9%, transparent), transparent 38%), var(--maskines-page-background, var(--site-bg, #071421)); box-sizing: border-box; min-height: 100svh; position: relative;
+}
+html body .simple-auth-page .auth-centered {
+  border-radius: 22px; overflow: hidden;
+}
+html body .simple-auth-page .auth-centered::after {
+  background-image: radial-gradient(color-mix(in srgb, var(--brand-primary, #ff7a18) 28%, transparent) 1px, transparent 1px); background-size: 8px 8px; content: ""; display: block; height: 160px; opacity: 0.25;
+  pointer-events: none; position: absolute; right: -16px; top: -18px; width: 180px;
+}
+html body .simple-auth-page .auth-mobile-back-home {
+  align-items: center; background: transparent; color: #9eafc0; display: inline-flex; font-size: 13px; font-weight: 650;
+  gap: 8px; height: auto; margin: 0; min-height: 38px; padding: 0 8px; width: auto;
+  z-index: 12;
+}
+html body .simple-auth-page .auth-mobile-back-home:hover, html body .simple-auth-page .auth-mobile-back-home:focus-visible {
+  color: var(--brand-primary, #ff7a18);
+}
+html body .simple-auth-page .auth-mobile-back-home svg {
+  height: 19px; width: 19px;
+}
+html body .simple-auth-page .auth-card.simple-card, html body .simple-auth-page .auth-card.simple-card:not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) {
+  background: transparent; border: 0; border-radius: 0; box-shadow: none; gap: 18px; margin: 0 auto;
+  max-width: 520px; padding: 0; position: relative; width: 100%; z-index: 2;
+}
+html body .simple-auth-page .auth-maskines-brand {
+  align-items: center; display: flex; justify-content: center; margin: 0 auto 2px;
+}
+html body .simple-auth-page .auth-maskines-brand > img {
+  border-radius: 0; clip-path: none; filter: drop-shadow(0 8px 18px rgba(255, 112, 18, 0.18)); height: 58px; margin-right: 9px; object-fit: contain;
+  width: 58px;
+}
+html body .simple-auth-page .auth-maskines-brand > div {
+  align-items: center; display: flex; flex-direction: column; line-height: 1;
+}
+html body .simple-auth-page .auth-maskines-brand strong {
+  background: linear-gradient(110deg, #ff9c2a, #ff5f0d); background-clip: text; color: transparent; font-size: clamp(25px, 5vw, 34px); font-style: italic; font-weight: 1000;
+  letter-spacing: -1.7px; transform: skewX(-5deg);
+}
+html body .simple-auth-page .auth-maskines-brand span {
+  display: none;
+}
+html body .simple-auth-page .auth-form-head {
+  margin: 2px 0 6px; text-align: center;
+}
+html body .simple-auth-page .auth-form-head h1 {
+  color: #f5f8fb; font-size: clamp(27px, 5vw, 34px); letter-spacing: -0.8px; line-height: 1.1; margin: 0 0 7px;
+}
+html body .simple-auth-page .auth-form-head p {
+  color: #93a5b8; font-size: 14px; margin: 0;
+}
+html body .simple-auth-page .auth-card > label, html body .simple-auth-page .auth-password-label {
+  color: #e4edf5; font-size: 12px; font-weight: 800; gap: 7px;
+}
+html body .simple-auth-page .auth-input-with-icon {
+  display: block; position: relative;
+}
+html body .simple-auth-page .auth-input-with-icon > svg:first-child {
+  color: #8fa2b5; left: 17px; position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+}
+html body .simple-auth-page .auth-card input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), html body .simple-auth-page .auth-card select {
+  background: rgba(3, 17, 29, 0.74); border: 1px solid rgba(112, 145, 175, 0.3); border-radius: 9px; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18); color: #f3f7fb; min-height: 52px;
+}
+html body .simple-auth-page .auth-card input:focus, html body .simple-auth-page .auth-card select:focus {
+  border-color: var(--brand-primary, #ff7a18); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-primary, #ff7a18) 14%, transparent);
+}
+html body .simple-auth-page .auth-forgot-inline {
+  align-self: flex-end; color: var(--brand-primary, #ff7a18); font-size: 11px; margin-top: 2px;
+}
+html body .simple-auth-page .auth-card > button[type="submit"] {
+  background: linear-gradient(100deg, var(--brand-accent, #ff8f20), var(--brand-primary, #ff5b0d)); border: 0; border-radius: 9px; box-shadow: 0 12px 26px rgba(255, 97, 13, 0.2); color: #ffffff; font-size: 14px;
+  font-weight: 900; min-height: 54px; position: relative;
+}
+html body .simple-auth-page .auth-submit-arrow {
+  position: absolute; right: 17px;
+}
+html body .simple-auth-page .auth-divider {
+  margin: 2px 0;
+}
+html body .simple-auth-page .auth-divider span {
+  background: #081a2a; color: #8497aa; font-size: 11px; font-weight: 600;
+}
+html body .simple-auth-page .google-button.auth-social-button {
+  background: #ffffff; border: 1px solid #dce3e9; border-radius: 8px; color: #122131; font-size: 14px; font-weight: 850;
+  min-height: 52px;
+}
+html body .simple-auth-page .auth-mode-switch {
+  color: #9baec0; font-size: 12px; margin: 0; text-align: center;
+}
+html body .simple-auth-page .auth-mode-switch button {
+  color: var(--brand-primary, #ff7a18); font-size: 12px; text-decoration: underline;
+}
+html body .simple-auth-page .auth-benefits {
+  border-top: 1px solid rgba(119, 147, 174, 0.2); display: grid; gap: 14px; margin-top: 16px; padding-top: 18px;
+}
+html body .simple-auth-page .auth-benefits > div {
+  align-items: center; display: flex; gap: 9px; min-width: 0;
+}
+html body .simple-auth-page .auth-benefits > div > svg {
+  border: 1px solid color-mix(in srgb, var(--brand-primary, #ff7a18) 32%, transparent); border-radius: 10px; color: var(--brand-primary, #ff7a18); flex: 0 0 auto; height: 34px; padding: 7px;
+  width: 34px;
+}
+html body .simple-auth-page .auth-benefits span {
+  display: flex; flex-direction: column; min-width: 0;
+}
+html body .simple-auth-page .auth-benefits strong {
+  color: #eff5fa; font-size: 10px; white-space: nowrap;
+}
+html body .simple-auth-page .auth-benefits small {
+  color: #768a9d; font-size: 8px; white-space: nowrap;
+}
+html body .simple-auth-page .registration-inline-card.profile-finalize-card {
+  max-width: 560px; width: 100%;
+}
+@media (min-width: 900px) {
+  html body .simple-auth-page {
+    display: grid; padding: 28px clamp(24px, 5vw, 72px); place-items: center;
+  }
+  html body .simple-auth-page .auth-centered {
+    max-width: 820px; min-height: min(900px, calc(100svh - 56px)); padding: 80px clamp(72px, 8vw, 108px) 42px;
+  }
+  html body .simple-auth-page .auth-mobile-back-home {
+    left: max(48px, calc(50% - 370px)); top: max(48px, calc(50% - min(450px, (100svh - 56px) / 2) + 18px));
+  }
+  html body .simple-auth-page .auth-card.simple-card, html body .simple-auth-page .auth-card.simple-card:not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) {
+    max-width: 540px;
+  }
+  html body .simple-auth-page .registration-inline-card.profile-finalize-card {
+    max-width: 600px;
+  }
+  html body .simple-auth-page .registration-inline-card .register-essential-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 620px) {
+  html body .simple-auth-page {
+    padding: 8px;
+  }
+  html body .simple-auth-page .auth-centered {
+    border-radius: 16px; min-height: calc(100svh - 16px); padding: 68px 18px 24px;
+  }
+  html body .simple-auth-page .auth-mobile-back-home {
+    left: 20px; top: 21px;
+  }
+  html body .simple-auth-page .auth-maskines-brand > img {
+    height: 48px; width: 48px;
+  }
+  html body .simple-auth-page .auth-benefits {
+    gap: 11px; grid-template-columns: 1fr;
+  }
+  html body .simple-auth-page .auth-benefits strong {
+    font-size: 11px;
+  }
+  html body .simple-auth-page .auth-benefits small {
+    font-size: 9px;
+  }
+}
+html body .simple-auth-page .login-mfa-card {
+  align-items: center; background: radial-gradient(360px 190px at 50% -45px, rgba(255, 126, 24, 0.18), transparent 72%), rgba(5, 14, 23, 0.78); border: 1px solid rgba(255, 122, 24, 0.92); border-radius: 19px; box-shadow: 0 28px 70px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.05); gap: 17px;
+  max-width: 460px; padding: clamp(28px, 5vw, 42px); text-align: center;
+}
+html body .simple-auth-page .login-mfa-card .email-confirm-icon {
+  align-items: center; background: linear-gradient(145deg, #ff9b42, #ff6710); border: 1px solid rgba(255, 220, 185, 0.7); border-radius: 20px; box-shadow: 0 16px 34px rgba(255, 103, 16, 0.3); display: inline-flex;
+  height: 72px; justify-content: center; width: 72px;
+}
+html body .simple-auth-page .login-mfa-card .eyebrow {
+  border: 1px solid rgba(255, 143, 43, 0.65); border-radius: 999px; color: #ffe8d1; display: inline-flex; font-size: 11px; font-weight: 900;
+  letter-spacing: 0.02em; padding: 6px 13px; text-transform: uppercase;
+}
+html body .simple-auth-page .login-mfa-card .profile-completion-head h1 {
+  font-size: clamp(30px, 5vw, 40px); letter-spacing: -0.04em; line-height: 1.02; margin-top: 10px;
+}
+html body .simple-auth-page .login-mfa-card .login-mfa-code-label {
+  align-items: center; width: 100%;
+}
+html body .simple-auth-page .login-mfa-card .login-mfa-code-label input {
+  background: rgba(2, 13, 23, 0.88); border: 1px solid rgba(133, 170, 200, 0.35); border-radius: 12px; font-variant-numeric: tabular-nums; padding-left: 0.3em; width: 100%;
+}
+html body .simple-auth-page .login-mfa-card > .secondary-button {
+  align-items: center; background: rgba(232, 241, 249, 0.08); border: 1px solid rgba(171, 197, 218, 0.24); border-radius: 11px; color: #eaf2f8; display: inline-flex;
+  gap: 8px; justify-content: center; min-height: 44px; padding: 0 16px; width: 100%;
+}

@@ -8,8 +8,9 @@ import {
   useRef,
   useState
 } from "react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "@/app/components/LocalizedLink";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/lib/navigation";
 import PageLoadingFallback from "@/app/components/PageLoadingFallback";
 import { useLanguage, type Locale } from "@/lib/i18n";
 

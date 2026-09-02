@@ -2,44 +2,32 @@ import type { Metadata } from "next";
 
 import HomeClient from "@/app/HomeClient";
 import { isVehicleListing } from "@/lib/listings";
-import { listingPath, listingUrlId } from "@/lib/routes";
+import { listingPath, languagePaths, pagePath } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
 import { getListings } from "@/lib/supabase";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  metadataBase: new URL(PUBLIC_SITE_URL),
-  title: { absolute: "Varaosat myynnissä | Maskines" },
-  description:
-    "Selaa moottorikelkkojen, mönkijöiden, motocross-pyörien ja mopojen varaosia. Hae varaosia merkin, mallin, vuosimallin ja osatyypin mukaan.",
-  alternates: {
-    canonical: absoluteSiteUrl("/varaosat")
-  },
-  robots: {
-    index: true,
-    follow: true
-  },
-  openGraph: {
-    type: "website",
-    locale: "fi_FI",
-    siteName: "Maskines",
-    title: "Varaosat myynnissä | Maskines",
-    description:
-      "Pienkoneiden varaosat moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin.",
-    url: absoluteSiteUrl("/varaosat")
-  }
-};
+import { getServerLocale } from "@/lib/server-locale";
+
+export async function generateMetadata(): Promise<Metadata> {
+ const locale = await getServerLocale();
+ const title = {fi:"Varaosat myynnissä",en:"Parts for sale",sv:"Reservdelar till salu",no:"Reservedeler til salgs"}[locale];
+ const path = pagePath("varaosat", locale);
+ return { title, description: title + " – Maskines", alternates: { canonical: path, languages: languagePaths(path) }, openGraph: { title, url: path } };
+}
 
 function serializeStructuredData(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
 export default async function PartsPage() {
+  const locale = await getServerLocale();
   const { data: listings } = await getListings({
     includeOptionalFields: false,
     enrichSellerProfiles: false,
-    limit: 240
+    filters: { kind: "parts" },
+    limit: 48
   });
   const parts = listings.filter(
     (listing) => !listing.is_hidden && !listing.is_sold && !isVehicleListing(listing)
@@ -49,7 +37,7 @@ export default async function PartsPage() {
     "@type": "CollectionPage",
     name: "Varaosat myynnissä",
     url: absoluteSiteUrl("/varaosat"),
-    inLanguage: "fi-FI",
+    inLanguage: locale === "no" ? "nb" : locale,
     mainEntity: {
       "@type": "ItemList",
       numberOfItems: parts.length,
@@ -57,7 +45,7 @@ export default async function PartsPage() {
         "@type": "ListItem",
         position: index + 1,
         name: listing.title,
-        url: absoluteSiteUrl(listingPath(listing))
+        url: absoluteSiteUrl(listingPath(listing, locale))
       }))
     }
   };

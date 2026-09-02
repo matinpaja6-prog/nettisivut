@@ -1,16 +1,24 @@
 "use client";
+import UiText from "@/app/components/UiText";
+import { buildDatabaseListingFilters, DATABASE_LISTING_FILTERS_ENABLED, type AppliedListingFilters } from "@/lib/database-listing-filters";
+import { getStaticTranslation } from "@/lib/ui-translations";
+import { listingMatchesQuery } from "@/lib/listing-query";
+import { marketplaceCopy } from "@/lib/marketplace-copy";
+import { listingFilterChips, removeListingFilter } from "@/lib/listing-filter-chips";
 
 // Interactive home experience. The route-level server component supplies
 // public listings so the same content exists in the initial HTML for crawlers.
 
 import { Fragment, Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "@/app/components/LocalizedLink";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/lib/navigation";
 import type { User } from "@supabase/supabase-js";
 import styles from "./page.module.css";
 import PageLoadingFallback from "@/app/components/PageLoadingFallback";
 import MobileNativeSelect from "@/app/components/MobileNativeSelect";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 import ListingSalePrice from "@/app/components/ListingSalePrice";
 
 import {
@@ -126,7 +134,6 @@ import {
   getProfile,
   getSavedListingIds,
   getGarageVehicles,
-  ensureListingTranslations,
   getListings,
   getUserPreferenceProfile,
   saveListing,
@@ -137,10 +144,7 @@ import {
   type UserPreferenceProfile
 } from "@/lib/supabase";
 import {
-  applyLocale,
-  isLocale,
-  normalizeLocale,
-  purgeInvalidLocaleStorage,
+  useLanguage,
   translateCategory,
   type Locale,
   type SupportedLocale
@@ -153,7 +157,7 @@ import { getCategoryVehicleKey } from "./components/CategoryDrawer";
 function HomeListingSaleBadge({ listing }: { listing: Pick<Listing, "price" | "translations"> }) {
   const pricing = getListingSalePricing(listing);
   if (!pricing.onSale) return null;
-  return <span className={styles.listingSaleBadge}>ALE −{pricing.discountPercent} %</span>;
+  return <span className={styles.listingSaleBadge}><UiText text={"ALE −"} />{pricing.discountPercent} %</span>;
 }
 
 function VehicleTaxBadges({ listing }: { listing: Pick<Listing, "category" | "translations"> }) {
@@ -163,8 +167,8 @@ function VehicleTaxBadges({ listing }: { listing: Pick<Listing, "category" | "tr
 
   return (
     <div className={styles.vehicleTaxBadges} aria-label="Ajoneuvon verotiedot">
-      {meta.vat_deductible ? <span>ALV-vähennyskelpoinen</span> : null}
-      {meta.tax_free ? <span>Tax free</span> : null}
+      {meta.vat_deductible ? <span><UiText text={"ALV-vähennyskelpoinen"} /></span> : null}
+      {meta.tax_free ? <span><UiText text={"Tax free"} /></span> : null}
     </div>
   );
 }
@@ -808,46 +812,7 @@ type VehicleType = string;
 type VehicleFilter = string;
 type SellerTypeFilter = "" | "company" | "private" | "verified-company";
 
-type AppliedListingFilters = {
-  query: string;
-  category: string;
-  subcategory: string;
-  vehicleType: VehicleFilter;
-  vehicleSubtype: string;
-  selectedBrand: string;
-  modelQuery: string;
-  identifierQuery: string;
-  locationQuery: string;
-  yearQuery: string;
-  yearMinQuery: string;
-  yearMaxQuery: string;
-  engineCcQuery: string;
-  engineModelQuery: string;
-  vehicleMileageMinQuery: string;
-  vehicleMileageMaxQuery: string;
-  vehicleHoursMinQuery: string;
-  vehicleHoursMaxQuery: string;
-  vehicleRegistrationQuery: string;
-  vehicleEngineKindQuery: string;
-  vehicleDriveTypeQuery: string;
-  vehicleRoadLegalQuery: string;
-  vehicleAccessoriesQuery: string[];
-  vehicleColorsQuery: string[];
-  vehicleVatDeductibleQuery?: boolean;
-  vehicleTaxFreeQuery?: boolean;
-  trackMatDimensionQuery: string;
-  minPrice: number;
-  maxPrice: number;
-  garageFilterId: string;
-  gearTypeQuery: string[];
-  gearBrandOptionsQuery: string[];
-  gearSizeOptionsQuery: string[];
-  gearBrandQuery: string;
-  gearSizeQuery: string;
-  gearConditionQuery: string;
-  gearTargetQuery: string;
-  sellerType: SellerTypeFilter;
-};
+
 
 type MarketplaceMode = "parts" | "vehicles" | "gear";
 type MarketplaceResultMode = MarketplaceMode | "all";
@@ -1989,10 +1954,14 @@ function BodyPortal({ enabled, children }: { enabled: boolean; children: ReactNo
 export default function Home({
   initialListings = [],
   initialSearchQuery = "",
+  initialCount = null,
+  initialUsesDatabaseFilters = false,
   initialMarketplaceMode
 }: {
   initialListings?: Listing[];
   initialSearchQuery?: string;
+  initialCount?: number | null;
+  initialUsesDatabaseFilters?: boolean;
   initialMarketplaceMode?: MarketplaceMode;
 }) {
   return (
@@ -2000,6 +1969,8 @@ export default function Home({
       <HomeContent
         initialListings={initialListings}
         initialSearchQuery={initialSearchQuery}
+        initialCount={initialCount}
+        initialUsesDatabaseFilters={initialUsesDatabaseFilters}
         initialMarketplaceMode={initialMarketplaceMode}
       />
     </Suspense>
@@ -2009,10 +1980,14 @@ export default function Home({
 function HomeContent({
   initialListings,
   initialSearchQuery,
+  initialCount,
+  initialUsesDatabaseFilters,
   initialMarketplaceMode
 }: {
   initialListings: Listing[];
   initialSearchQuery: string;
+  initialCount: number | null;
+  initialUsesDatabaseFilters: boolean;
   initialMarketplaceMode?: MarketplaceMode;
 }) {
   const router = useRouter();
@@ -2057,13 +2032,14 @@ function HomeContent({
   const resultsRef = useRef<HTMLElement | null>(null);
   const favoritesHydrated = useRef(false);
   const listingsPageFetchRef = useRef(false);
-  const fullSearchCatalogRequestedRef = useRef(false);
+  const listingRequestGeneration = useRef(0);
+  const listingOffset = useRef(0);
   const garageUrlFilterAppliedRef = useRef(false);
   const marketplaceFilterUrlAppliedRef = useRef(false);
 
-  const [activeLocale, setActiveLocale] = useState<SupportedLocale>("fi");
+  const { activeLocale } = useLanguage();
+  function uiText(text: string) { return getStaticTranslation(activeLocale, text) || text; }
   const locale: Locale = activeLocale;
-  const [localeReady, setLocaleReady] = useState(false);
 
   const [listings, setListings] = useState<Listing[]>(
     initialListings.length > 0 ? initialListings : fallbackListings
@@ -2072,12 +2048,14 @@ function HomeContent({
     initialListings.length === 0 && fallbackListings.length === 0
   );
   const [listingsTotalCount, setListingsTotalCount] = useState<number | null>(null);
+  const [listingLoadError, setListingLoadError] = useState(false);
 
   const [favorites, setFavorites] = useState<string[]>([]);
 
   const [query, setQuery] = useState(initialSearchQuery);
   const [searchSuggestionsOpen, setSearchSuggestionsOpen] = useState(false);
   const [compactHeroSearch, setCompactHeroSearch] = useState(false);
+  const [viewportReady, setViewportReady] = useState(false);
   // Keep the server and browser's first render identical. The responsive
   // effect below applies the actual viewport state immediately after mount.
   const [homeSearchPanelOpen, setHomeSearchPanelOpen] = useState(false);
@@ -2105,7 +2083,7 @@ function HomeContent({
   const DESKTOP_INITIAL_LISTINGS_COUNT = 12;
   const DESKTOP_LISTINGS_INCREMENT = 12;
   const RECOMMENDED_PREVIEW_SIZE = 4;
-  const INITIAL_LISTING_FETCH_LIMIT = 240;
+  const INITIAL_LISTING_FETCH_LIMIT = 24;
   const YEAR_FILTER_MIN = MARKETPLACE_YEAR_FILTER_MIN;
   const YEAR_FILTER_MAX = getMarketplaceYearFilterMax();
 
@@ -2412,7 +2390,7 @@ function HomeContent({
     sellerType: ""
   });
 
-  const [sort, setSort] = useState<SortValue>("Osuvimmat ensin");
+  const [sort, setSort] = useState<SortValue>("Uusimmat ensin");
   const [recommendationsMode, setRecommendationsMode] = useState(!initialSearchQuery);
   const [homeSortOpen, setHomeSortOpen] = useState(false);
   const [homeLatestExpanded, setHomeLatestExpanded] = useState(Boolean(initialSearchQuery));
@@ -2802,7 +2780,7 @@ function HomeContent({
   const handleSortChange = useCallback((value: string) => {
     if (value === "recommendations") {
       setRecommendationsMode(true);
-      setSort("Osuvimmat ensin");
+      setSort("Uusimmat ensin");
     } else if (sortValues.includes(value as SortValue)) {
       setRecommendationsMode(false);
       setSort(value as SortValue);
@@ -3008,6 +2986,7 @@ function HomeContent({
     const syncCompactSearch = () => {
       const isMobileSearch = media.matches || window.innerWidth <= 900;
       setCompactHeroSearch(isMobileSearch);
+      setViewportReady(true);
       if (isMobileSearch) closeCompactSearch();
     };
 
@@ -3207,7 +3186,7 @@ function HomeContent({
     setHomeSearchPanelOpen(false);
     setMobileFilterExpanded(false);
     setRecommendationsMode(true);
-    setSort("Osuvimmat ensin");
+    setSort("Uusimmat ensin");
     window.requestAnimationFrame(() => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
@@ -3642,7 +3621,7 @@ function HomeContent({
           seller
         ].filter(Boolean).join(" ");
 
-        if (!textMatchesSearch(searchableText, needle) && !allSearchWordsMatch(searchableText, needle)) {
+        if (!listingMatchesQuery(listing, needle) && !textMatchesSearch(searchableText, needle) && !allSearchWordsMatch(searchableText, needle)) {
           return null;
         }
 
@@ -3730,166 +3709,62 @@ function HomeContent({
      LOAD LISTINGS
   ====================================================== */
 
+  const compileDatabaseFilters = useCallback((filters: AppliedListingFilters, mode: MarketplaceResultMode) => buildDatabaseListingFilters(filters, mode, {
+    category: getUnifiedAllCategoryName(filters.category, filters.subcategory),
+    subcategories: subcategoryGroups[filters.category]?.[filters.subcategory] ?? [],
+    excludedModelVariants: filters.modelQuery ? buildMarketplaceModelOptions({ vehicle: filters.vehicleType, brand: filters.selectedBrand === "Kaikki" ? "" : filters.selectedBrand }).filter(candidate => isMoreSpecificModelVariant(candidate, filters.modelQuery)) : [],
+    garage: garageFilter
+  }), [garageFilter]);
+  const listingRequest = useMemo(() => ({
+    databaseFilters: DATABASE_LISTING_FILTERS_ENABLED ? compileDatabaseFilters(appliedListingFilters, appliedMarketplaceMode) : undefined,
+    filters: {
+      kind: appliedMarketplaceMode,
+      query: appliedListingFilters.query || appliedListingFilters.identifierQuery,
+      brand: appliedListingFilters.selectedBrand === "Kaikki" ? "" : appliedListingFilters.selectedBrand,
+      model: appliedListingFilters.modelQuery,
+      minPrice: appliedListingFilters.minPrice,
+      maxPrice: appliedListingFilters.maxPrice,
+      yearMin: appliedListingFilters.yearMinQuery || appliedListingFilters.yearQuery,
+      yearMax: appliedListingFilters.yearMaxQuery || appliedListingFilters.yearQuery
+    },
+    sort: (sort === "Alhaisin hinta" ? "price-asc" : sort === "Korkein hinta" ? "price-desc" : sort === "Vanhimmat ensin" ? "oldest" : "newest") as "newest" | "oldest" | "price-asc" | "price-desc"
+  }), [appliedListingFilters, appliedMarketplaceMode, sort, compileDatabaseFilters]);
+  const initialFeedUsed = useRef(false);
   useEffect(() => {
-    let mounted = true;
-
-    async function loadListings() {
-      const cachedListings = readCachedListings();
-      const localListings =
-        (
-          cachedListings.length > 0
-            ? cachedListings
-            : initialListings.length > 0
-              ? initialListings
-              : fallbackListings
-        )
-          .filter(isPublicListing);
-
-      if (localListings.length > 0 && mounted) {
-        setListings(localListings);
-        setListingsLoading(false);
-      } else if (mounted) {
-        setListingsLoading(true);
-      }
-
-      let keepLoadingForRetry = false;
-
-      try {
-        const { data, error, count } =
-          await withTimeout(
-            getListings({
-              includeOptionalFields: true,
-              enrichSellerProfiles: true,
-              includeCount: true,
-              limit: INITIAL_LISTING_FETCH_LIMIT,
-              offset: 0
-            }),
-            4500,
-            "Ilmoitusten lataus kesti liian kauan."
-          );
-
-        if (error) {
-          console.warn("Ilmoitusten lataus epäonnistui, käytetään paikallista listaa.", error);
-          return;
-        }
-
-        if (mounted && data) {
-          const publicData = data.filter(isPublicListing);
-          setListings(publicData);
-          if (typeof count === "number") setListingsTotalCount(count);
-          writeCachedListings(publicData);
-        }
-      } catch (error) {
-        console.warn("Nopea ilmoitusten lataus epäonnistui, yritetään pidemmällä aikakatkaisulla.", error);
-        if (mounted) {
-          keepLoadingForRetry = true;
-          try {
-            const { data, error: retryError, count } =
-              await withTimeout(
-                getListings({
-                  includeOptionalFields: true,
-                  enrichSellerProfiles: true,
-                  includeCount: true,
-                  limit: INITIAL_LISTING_FETCH_LIMIT,
-                  offset: 0
-                }),
-                30000,
-                "Ilmoitusten varalataus kesti liian kauan."
-              );
-
-            if (retryError) {
-              console.warn("Ilmoitusten varalataus epäonnistui.", retryError);
-            }
-
-            if (mounted && data) {
-              const publicData = data.filter(isPublicListing);
-              setListings(publicData);
-              if (typeof count === "number") setListingsTotalCount(count);
-              writeCachedListings(publicData);
-            }
-          } catch (retryError) {
-            console.warn("Ilmoitusten varalataus aikakatkaistiin.", retryError);
-          } finally {
-            keepLoadingForRetry = false;
-          }
-        }
-      } finally {
-        if (mounted && !keepLoadingForRetry) {
-          setListingsLoading(false);
-        }
-      }
+    const generation = ++listingRequestGeneration.current;
+    const controller = new AbortController();
+    listingsPageFetchRef.current = false;
+    setListingLoadError(false);
+    const isDefault = !hasAppliedFilters(appliedListingFilters) && listingRequest.sort === "newest";
+    const initialMatchesRequest = !hasAppliedFilters({ ...appliedListingFilters, query: "" }) && (listingRequest.filters.query || "") === initialSearchQuery && appliedMarketplaceMode === (initialMarketplaceMode || "all") && listingRequest.sort === "newest";
+    if ((!DATABASE_LISTING_FILTERS_ENABLED || initialUsesDatabaseFilters) && !initialFeedUsed.current && (initialListings.length > 0 || initialCount === 0) && initialMatchesRequest) {
+      initialFeedUsed.current = true;
+      setListings(initialListings);
+      listingOffset.current = initialListings.length;
+      setListingsTotalCount(initialCount ?? initialListings.length + 1);
+      setListingsLoading(false);
+      return () => controller.abort();
     }
-
-    loadListings();
-
-    return () => {
-      mounted = false;
-    };
-  }, [initialListings, router]);
-
-  useEffect(() => {
-    const urlLocale = new URLSearchParams(window.location.search).get("lang");
-    purgeInvalidLocaleStorage();
-
-    const storedLocale = normalizeLocale(localStorage.getItem("locale"), "fi");
-    const initialLocale = normalizeLocale(urlLocale, storedLocale);
-
-    setActiveLocale(initialLocale);
-    applyLocale(initialLocale);
-
-    setLocaleReady(true);
-  }, []);
-
-  /*
-   * The initial home feed is intentionally capped for a fast first paint.
-   * A search must not use that cap, though: part-number listings are often
-   * older than the newest feed page. Load the complete public catalogue once
-   * the user submits a search and merge it into the already rendered cards.
-   */
-  useEffect(() => {
-    const searchTerm = query.trim() || appliedListingFilters.query.trim();
-    if (searchTerm.length < 2 || fullSearchCatalogRequestedRef.current) return;
-
-    fullSearchCatalogRequestedRef.current = true;
-
-    void getListings({ includeOptionalFields: true, enrichSellerProfiles: true })
-      .then(({ data, error }) => {
-        if (error) {
-          fullSearchCatalogRequestedRef.current = false;
-          console.warn("Koko ilmoitushaun lataus epäonnistui.", error);
-          return;
-        }
-
-        const publicData = (data ?? []).filter(isPublicListing);
-        setListings((current) => {
-          const listingsById = new Map(current.map((listing) => [listing.id, listing]));
-          for (const listing of publicData) listingsById.set(listing.id, listing);
-          return Array.from(listingsById.values());
-        });
-      })
-      .catch((error) => {
-        fullSearchCatalogRequestedRef.current = false;
-        console.warn("Koko ilmoitushaun lataus epäonnistui.", error);
-      });
-  }, [appliedListingFilters.query, query]);
-
-  useEffect(() => {
-    if (!localeReady) return;
-    applyLocale(activeLocale);
-  }, [activeLocale, localeReady]);
-
-  // Listen for locale changes triggered elsewhere (e.g. BottomNav on mobile)
-  // so this page's translations update without a reload.
-  useEffect(() => {
-    function handleLocaleChange(event: Event) {
-      const next = (event as CustomEvent<SupportedLocale>).detail;
-      if (isLocale(next)) {
-        setActiveLocale(next);
-      }
-    }
-    window.addEventListener("localechange", handleLocaleChange);
-    return () => window.removeEventListener("localechange", handleLocaleChange);
-  }, []);
+    initialFeedUsed.current = true;
+    setListingsLoading(true);
+    setListingsTotalCount(null);
+    const timer = setTimeout(() => {
+      void getListings({ ...listingRequest, includeOptionalFields: true, enrichSellerProfiles: true, includeCount: true, limit: INITIAL_LISTING_FETCH_LIMIT, signal: controller.signal })
+        .then(({ data, error, count }) => {
+          if (generation !== listingRequestGeneration.current || controller.signal.aborted) return;
+          if (error) { setListingLoadError(true); return; }
+          const rows = (data || []).filter(isPublicListing);
+          setListings(rows);
+          listingOffset.current = data?.length || 0;
+          setListingsTotalCount(typeof count === "number" ? count : rows.length);
+          if (listingRequest.filters.query) trackAnalyticsEvent("search", { query_length: listingRequest.filters.query.length, result_count: count ?? rows.length });
+          if (isDefault) writeCachedListings(rows);
+        })
+        .catch(() => { if (!controller.signal.aborted) setListingLoadError(true); })
+        .finally(() => { if (!controller.signal.aborted) setListingsLoading(false); });
+    }, 200);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [initialListings, initialCount, initialUsesDatabaseFilters, initialSearchQuery, initialMarketplaceMode, appliedMarketplaceMode, listingRequest, appliedListingFilters]);
 
   /* ======================================================
      AUTH
@@ -4284,7 +4159,8 @@ function HomeContent({
           subcategoryGroupSearchScope.groups.length > 0
             ? matchesSubcategoryGroupQuery &&
               allSearchWordsMatch(search, subcategoryGroupSearchScope.remainingQuery)
-            : textMatchesSearch(search, appliedQuery) ||
+            : listingMatchesQuery({ ...listing, category: "", subcategory: "", location: "" }, appliedQuery) ||
+              textMatchesSearch(search, appliedQuery) ||
               allSearchWordsMatch(listingContentSearch, appliedQuery);
         const matchesCompatibleQuery =
           textMatchesSearch(search, compatibleQuery) ||
@@ -4303,7 +4179,7 @@ function HomeContent({
 
         const matchesPrice =
           listing.price >= appliedMinPrice &&
-          listing.price <= appliedMaxPrice;
+          (appliedMaxPrice === 100000 || listing.price <= appliedMaxPrice);
         const gearSearchText = `${listing.category ?? ""} ${listing.subcategory ?? ""} ${listing.brand ?? ""} ${listing.part_model ?? ""} ${listingText.title} ${listingText.description}`;
         const matchesGearType = appliedGearTypeQuery.length === 0 ||
           appliedGearTypeQuery.some((gearType) => allSearchWordsMatch(gearSearchText, gearType));
@@ -4519,10 +4395,8 @@ function HomeContent({
     vehicleType
   ]);
 
-  const restoreSavedSearch = useCallback((savedSearch: SavedSearchRecord) => {
-    const saved = savedSearch.filters;
+  const setDraftListingFilters = useCallback((saved: AppliedListingFilters) => {
     const savedTrackMatDimension = findTrackMatDimension(saved.trackMatDimensionQuery ?? "");
-    setMarketplaceMode(savedSearch.marketplaceMode);
     setQuery(saved.query ?? "");
     setCategory(saved.category ?? "");
     setSubcategory(saved.subcategory ?? "");
@@ -4567,6 +4441,12 @@ function HomeContent({
     setGearConditionQuery(saved.gearConditionQuery ?? "");
     setGearTargetQuery(saved.gearTargetQuery ?? "");
     setSellerType(saved.sellerType ?? "");
+  }, [garageVehicles]);
+
+  const restoreSavedSearch = useCallback((savedSearch: SavedSearchRecord) => {
+    const saved = savedSearch.filters;
+    setDraftListingFilters(saved);
+    setMarketplaceMode(savedSearch.marketplaceMode);
     setAppliedListingFilters(saved);
     setAppliedMarketplaceMode(savedSearch.marketplaceMode);
     setCurrentPage(1);
@@ -4577,20 +4457,58 @@ function HomeContent({
     window.requestAnimationFrame(() => {
       document.querySelector<HTMLElement>("[data-desktop-full-filter-scroll]")?.scrollTo({ top: 0, behavior: "smooth" });
     });
-  }, [garageVehicles]);
+  }, [setDraftListingFilters]);
+
+  const activeChips = listingFilterChips(appliedListingFilters, locale);
+  function removeAppliedFilter(id: string) {
+    const next = removeListingFilter(appliedListingFilters, id);
+    setDraftListingFilters(next);
+    setAppliedListingFilters(next);
+    updateMarketplaceFilterUrl(next, appliedMarketplaceMode);
+    setCurrentPage(1);
+  }
+
+  function renderActiveFilters() {
+    if (!activeChips.length) return null;
+    const removeLabel = { fi: "Poista rajaus", en: "Remove filter", sv: "Ta bort filter", no: "Fjern filter" }[locale];
+    return <div className="marketplace-filter-chips" aria-label={homeFilterUiCopy.clearFilters}>
+      {activeChips.map(chip => <button key={chip.id} type="button"
+        onClick={() => removeAppliedFilter(chip.id)} aria-label={`${removeLabel}: ${chip.label}${chip.value ? `: ${chip.value}` : ""}`}>
+        <span>{chip.label}{chip.value ? `: ${chip.value}` : ""}</span><X size={15} aria-hidden="true" />
+      </button>)}
+      <button type="button" className="marketplace-filter-reset" onClick={clearListingFilters}>{homeFilterUiCopy.clearFilters}</button>
+    </div>;
+  }
 
   const removeSavedSearch = useCallback((id: string) => {
     persistSavedSearches(savedSearches.filter((item) => item.id !== id));
   }, [persistSavedSearches, savedSearches]);
 
   const filteredListings = useMemo(
-    () => buildFilteredListings(appliedListingFilters, appliedMarketplaceMode),
-    [appliedListingFilters, appliedMarketplaceMode, buildFilteredListings]
+    () => DATABASE_LISTING_FILTERS_ENABLED
+      ? sort === "Lähimpänä sinua" ? [...listings].sort((a, b) => locationMatchScore(b.location, userLocationTerms) - locationMatchScore(a.location, userLocationTerms) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) : listings
+      : buildFilteredListings(appliedListingFilters, appliedMarketplaceMode),
+    [listings, sort, userLocationTerms, appliedListingFilters, appliedMarketplaceMode, buildFilteredListings]
   );
 
+  const [databaseDraftCount, setDatabaseDraftCount] = useState<number | null>(null);
+  const filterPanelVisible = viewportReady && (homeSearchPanelOpen || desktopAllFiltersOpen || (!compactHeroSearch && !catalogOnlyView));
+  useEffect(() => {
+    if (!DATABASE_LISTING_FILTERS_ENABLED || !filterPanelVisible) return;
+    const controller = new AbortController();
+    setDatabaseDraftCount(null);
+    const timer = setTimeout(() => {
+      void getListings({ databaseFilters: compileDatabaseFilters(currentDraftListingFilters, marketplaceMode),
+        filters: { query: currentDraftListingFilters.query || currentDraftListingFilters.identifierQuery }, includeCount: true, limit: 1, signal: controller.signal
+      }).then(result => {
+        if (!controller.signal.aborted && !result.error) setDatabaseDraftCount(result.count ?? 0);
+      }).catch(() => {});
+    }, 350);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [currentDraftListingFilters, marketplaceMode, compileDatabaseFilters, filterPanelVisible]);
   const draftListingResultCount = useMemo(
-    () => buildFilteredListings(currentDraftListingFilters, marketplaceMode).length,
-    [buildFilteredListings, currentDraftListingFilters, marketplaceMode]
+    () => DATABASE_LISTING_FILTERS_ENABLED ? databaseDraftCount : buildFilteredListings(currentDraftListingFilters, marketplaceMode).length,
+    [databaseDraftCount, buildFilteredListings, currentDraftListingFilters, marketplaceMode]
   );
 
   const toggleFavoriteById = useCallback((listingId: string) => {
@@ -4886,9 +4804,7 @@ function HomeContent({
 
   const recommendationsEnabled = false;
 
-  const canUseRemoteListingPages =
-    !hasAppliedListingFilters &&
-    (sort === "Osuvimmat ensin" || sort === "Uusimmat ensin");
+  const canUseRemoteListingPages = true;
 
   const sortMenuOptions = [
     ...(canShowRecommendations
@@ -5022,7 +4938,7 @@ function HomeContent({
 
   const remoteDisplayListings =
     canUseRemoteListingPages &&
-    !hasActiveListingFilters &&
+    (!hasActiveListingFilters || DATABASE_LISTING_FILTERS_ENABLED) &&
     typeof listingsTotalCount === "number"
       ? Math.max(listingsTotalCount, filteredListings.length)
       : filteredListings.length;
@@ -5079,21 +4995,29 @@ function HomeContent({
           ? mobileLatestVisibleCount
           : desktopLatestVisibleCount;
 
-    if (requiredListings <= listings.length) return;
+    if (requiredListings <= filteredListings.length) return;
 
+    if (listingLoadError) return;
     listingsPageFetchRef.current = true;
-    const offset = listings.length;
-    const limit = Math.max(PAGE_SIZE * 3, requiredListings - listings.length);
+    const offset = listingOffset.current;
+    const limit = Math.min(80, Math.max(PAGE_SIZE, requiredListings - listings.length));
+    const generation = listingRequestGeneration.current;
     let cancelled = false;
 
     getListings({
+      ...listingRequest,
       includeOptionalFields: true,
       enrichSellerProfiles: true,
+      includeCount: true,
       limit,
       offset
     })
-      .then(({ data }) => {
-        if (cancelled || !data || data.length === 0) return;
+      .then(({ data, error, count }) => {
+        if (cancelled || generation !== listingRequestGeneration.current) return;
+        if (error) { setListingLoadError(true); return; }
+        listingOffset.current = offset + (data?.length || 0);
+        if (typeof count === "number") setListingsTotalCount(count);
+        if (!data || data.length === 0) { setListingsTotalCount(listings.length); return; }
 
         setListings((current) => {
           const seen = new Set(current.map((listing) => listing.id));
@@ -5112,19 +5036,22 @@ function HomeContent({
         console.warn("Lisäilmoitusten lataus epäonnistui.", error);
       })
       .finally(() => {
-        listingsPageFetchRef.current = false;
+        if (generation === listingRequestGeneration.current) listingsPageFetchRef.current = false;
       });
 
     return () => {
       cancelled = true;
     };
   }, [
+    listingRequest,
+    filteredListings.length,
     canUseRemoteListingPages,
     catalogOnlyView,
     currentPage,
     desktopLatestVisibleCount,
     firstPageListingSlots,
     listings.length,
+    listingLoadError,
     listingsLoading,
     listingsTotalCount,
     mobileLatestVisibleCount,
@@ -5195,6 +5122,9 @@ function HomeContent({
       : listings
           .filter(isPublicListing);
 
+    // The database already sorted the entire matching set before pagination.
+    // Re-sorting a page using JS subtraction mishandles text prices like 80,50.
+    if (DATABASE_LISTING_FILTERS_ENABLED && sort !== "Lähimpänä sinua") return sourceListings;
     return [...sourceListings]
       .sort((a, b) => {
         switch (sort) {
@@ -5240,45 +5170,13 @@ function HomeContent({
   const latestVisibleCount = mobilePagination
     ? mobileLatestVisibleCount
     : desktopLatestVisibleCount;
-  const hasMoreLatestListings = compactLatestListings.length === latestVisibleCount;
+  const hasMoreLatestListings = compactLatestListings.length === latestVisibleCount || (typeof listingsTotalCount === "number" && listingOffset.current < listingsTotalCount);
   const hasNoHomeSearchResults =
     !listingsLoading &&
     homeLatestExpanded &&
     hasAppliedListingFilters &&
     compactLatestListings.length === 0;
 
-  useEffect(() => {
-    if (listingsLoading || locale === "fi") return;
-
-    let cancelled = false;
-    const visibleListings = displayedListings.slice(0, 12);
-
-    async function translateVisibleListings() {
-      for (const listing of visibleListings) {
-        if (cancelled) return;
-
-        const attemptKey = `listing-translation-attempt:${listing.id}:${locale}`;
-        if (sessionStorage.getItem(attemptKey)) continue;
-        sessionStorage.setItem(attemptKey, "1");
-
-        const { data } = await ensureListingTranslations(listing);
-
-        if (!cancelled && data?.translations) {
-          setListings((current) =>
-            current.map((item) =>
-              item.id === data.id ? { ...item, ...data } : item
-            )
-          );
-        }
-      }
-    }
-
-    void translateVisibleListings();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [displayedListings, listingsLoading, locale]);
 
   useEffect(() => {
     const q = query.trim();
@@ -5382,11 +5280,11 @@ function HomeContent({
   const vehicleSubtypeOptions = useMemo(() => sharedFilterOptions.vehicleSubtypes, [sharedFilterOptions.vehicleSubtypes]);
 
   const modelOptions = useMemo(
-    () => sharedFilterOptions.models.filter((option) => {
+    () => selectedBrand === "Kaikki" ? [] : sharedFilterOptions.models.filter((option) => {
       const normalized = option.trim().toLocaleLowerCase("fi-FI");
       return !/^(?:1|-)(?:\s+(?:malli|model))?$/.test(normalized);
     }),
-    [sharedFilterOptions.models]
+    [selectedBrand, sharedFilterOptions.models]
   );
 
   const engineCcOptions = useMemo(() => sharedFilterOptions.engineCcs, [sharedFilterOptions.engineCcs]);
@@ -5756,7 +5654,7 @@ function HomeContent({
     {
       key: "model",
       label: heroFilterCopy.model,
-      value: modelQuery || heroFilterCopy.allModels,
+      value: selectedBrand === "Kaikki" ? ({fi: "Valitse ensin merkki", en: "Choose a brand first", sv: "Välj märke först", no: "Velg merke først"}[locale]) : modelQuery || heroFilterCopy.allModels,
       options: [
         { label: heroFilterCopy.allModels, value: "" },
         ...modelOptions.map((option) => ({ label: option, value: option }))
@@ -6082,14 +5980,14 @@ function HomeContent({
         aria-label="Ajoneuvon lisätiedot"
       >
         <label className={styles.vehicleUsageField} htmlFor={`${filterIdPrefix}-engine-kind`}>
-          <span>Moottorin tyyppi</span>
+          <span><UiText text={"Moottorin tyyppi"} /></span>
           <span className={styles.vehicleUsageSelectShell}>
             <select
               id={`${filterIdPrefix}-engine-kind`}
               value={vehicleEngineKindQuery}
               onChange={(event) => setVehicleEngineKindQuery(event.target.value)}
             >
-              <option value="">Ei väliä</option>
+              <option value=""><UiText text={"Ei väliä"} /></option>
               {VEHICLE_ENGINE_KIND_OPTIONS.map((option) => (
                 <option key={option} value={option}>{option}</option>
               ))}
@@ -6098,14 +5996,14 @@ function HomeContent({
           </span>
         </label>
         <label className={styles.vehicleUsageField} htmlFor={`${filterIdPrefix}-drive-type`}>
-          <span>Vetotapa</span>
+          <span><UiText text={"Vetotapa"} /></span>
           <span className={styles.vehicleUsageSelectShell}>
             <select
               id={`${filterIdPrefix}-drive-type`}
               value={vehicleDriveTypeQuery}
               onChange={(event) => setVehicleDriveTypeQuery(event.target.value)}
             >
-              <option value="">Ei väliä</option>
+              <option value=""><UiText text={"Ei väliä"} /></option>
               {VEHICLE_DRIVE_TYPE_OPTIONS.map((option) => (
                 <option key={option} value={option}>{option}</option>
               ))}
@@ -6114,14 +6012,14 @@ function HomeContent({
           </span>
         </label>
         <label className={styles.vehicleUsageField} htmlFor={`${filterIdPrefix}-road-legal`}>
-          <span>Tieliikennekelpoisuus</span>
+          <span><UiText text={"Tieliikennekelpoisuus"} /></span>
           <span className={styles.vehicleUsageSelectShell}>
             <select
               id={`${filterIdPrefix}-road-legal`}
               value={vehicleRoadLegalQuery}
               onChange={(event) => setVehicleRoadLegalQuery(event.target.value)}
             >
-              <option value="">Ei väliä</option>
+              <option value=""><UiText text={"Ei väliä"} /></option>
               {VEHICLE_ROAD_LEGAL_OPTIONS.map((option) => (
                 <option key={option} value={option}>{option}</option>
               ))}
@@ -6129,16 +6027,16 @@ function HomeContent({
             <ChevronDown size={14} aria-hidden="true" />
           </span>
         </label>
-        <span className={styles.vehicleUsageSectionLabel}>Ajomäärä ja rekisteri</span>
+        <span className={styles.vehicleUsageSectionLabel}><UiText text={"Ajomäärä ja rekisteri"} /></span>
         <label className={styles.vehicleUsageField} htmlFor={`${filterIdPrefix}-mileage-min`}>
-          <span>Ajokilometrit (km)</span>
+          <span><UiText text={"Ajokilometrit (km)"} /></span>
           <div className={styles.vehicleUsageRange}>
             <input
               id={`${filterIdPrefix}-mileage-min`}
               type="text"
               inputMode="numeric"
               value={vehicleMileageMinQuery}
-              placeholder="Minimi"
+              placeholder={uiText("Minimi")}
               onChange={(event) => setVehicleMileageMinQuery(numericValue(event.target.value))}
             />
             <i aria-hidden="true">–</i>
@@ -6147,7 +6045,7 @@ function HomeContent({
               type="text"
               inputMode="numeric"
               value={vehicleMileageMaxQuery}
-              placeholder="Maksimi"
+              placeholder={uiText("Maksimi")}
               onChange={(event) => setVehicleMileageMaxQuery(numericValue(event.target.value))}
             />
           </div>
@@ -6162,14 +6060,14 @@ function HomeContent({
           })}
         </label>
         <label className={styles.vehicleUsageField} htmlFor={`${filterIdPrefix}-hours-min`}>
-          <span>Käyttötunnit (h)</span>
+          <span><UiText text={"Käyttötunnit (h)"} /></span>
           <div className={styles.vehicleUsageRange}>
             <input
               id={`${filterIdPrefix}-hours-min`}
               type="text"
               inputMode="numeric"
               value={vehicleHoursMinQuery}
-              placeholder="Minimi"
+              placeholder={uiText("Minimi")}
               onChange={(event) => setVehicleHoursMinQuery(numericValue(event.target.value))}
             />
             <i aria-hidden="true">–</i>
@@ -6178,7 +6076,7 @@ function HomeContent({
               type="text"
               inputMode="numeric"
               value={vehicleHoursMaxQuery}
-              placeholder="Maksimi"
+              placeholder={uiText("Maksimi")}
               onChange={(event) => setVehicleHoursMaxQuery(numericValue(event.target.value))}
             />
           </div>
@@ -6193,14 +6091,14 @@ function HomeContent({
           })}
         </label>
         <label className={styles.vehicleUsageField} htmlFor={`${filterIdPrefix}-registration`}>
-          <span>Rekisteritunnus</span>
+          <span><UiText text={"Rekisteritunnus"} /></span>
           <input
             id={`${filterIdPrefix}-registration`}
             className={styles.vehicleRegistrationInput}
             type="text"
             autoCapitalize="characters"
             value={vehicleRegistrationQuery}
-            placeholder="Esim. 123-ABC"
+            placeholder={uiText("Esim. 123-ABC")}
             onChange={(event) => setVehicleRegistrationQuery(event.target.value.toUpperCase())}
           />
         </label>
@@ -6356,7 +6254,7 @@ function HomeContent({
             )
           : null}
         <div className={styles.vehicleFilterTaxCard} aria-label="Ajoneuvon verotiedot">
-          <strong>Verotiedot</strong>
+          <strong><UiText text={"Verotiedot"} /></strong>
           <div>
             <label>
               <input
@@ -6367,9 +6265,7 @@ function HomeContent({
                   afterHeroFilterChange();
                 }}
               />
-              <span aria-hidden="true">{vehicleVatDeductibleQuery ? <Check size={14} /> : null}</span>
-              ALV-vähennyskelpoinen
-            </label>
+              <span aria-hidden="true">{vehicleVatDeductibleQuery ? <Check size={14} /> : null}</span><UiText text={"ALV-vähennyskelpoinen"} /></label>
             <label>
               <input
                 type="checkbox"
@@ -6379,9 +6275,7 @@ function HomeContent({
                   afterHeroFilterChange();
                 }}
               />
-              <span aria-hidden="true">{vehicleTaxFreeQuery ? <Check size={14} /> : null}</span>
-              Tax free
-            </label>
+              <span aria-hidden="true">{vehicleTaxFreeQuery ? <Check size={14} /> : null}</span><UiText text={"Tax free"} /></label>
           </div>
         </div>
       </section>
@@ -6465,7 +6359,7 @@ function HomeContent({
               );
             })}
             <label className={styles.gearTypeMultiCustom}>
-              <span>Muu</span>
+              <span><UiText text={"Muu"} /></span>
               <input value={customValue} placeholder={customPlaceholder} onChange={(event) => onCustomChange(event.target.value)} />
             </label>
           </div>
@@ -6485,9 +6379,9 @@ function HomeContent({
         : `${gearTypeQuery.length} valittu`;
     return (
       <section className={`${styles.vehicleUsageFilters} ${styles.ridingGearFilters}`} aria-label="Ajovarusteiden suodattimet">
-        <span className={styles.vehicleUsageSectionLabel}>Ajovarusteen tiedot</span>
+        <span className={styles.vehicleUsageSectionLabel}><UiText text={"Ajovarusteen tiedot"} /></span>
         <div className={`${styles.vehicleUsageField} ${styles.gearTypeMultiField}`}>
-          <span>Varustetyyppi</span>
+          <span><UiText text={"Varustetyyppi"} /></span>
           <button
             id={`${prefix}-type`}
             type="button"
@@ -6502,9 +6396,7 @@ function HomeContent({
           {activeHeroFilter === gearTypeMenuKey ? (
             <div className={styles.gearTypeMultiMenu} aria-label="Valitse ajovarustetyypit">
               <button type="button" role="checkbox" aria-checked={gearTypeQuery.length === 0} onClick={() => setGearTypeQuery([])}>
-                <span aria-hidden="true">{gearTypeQuery.length === 0 ? <Check size={14} /> : null}</span>
-                Kaikki ajovarusteet
-              </button>
+                <span aria-hidden="true">{gearTypeQuery.length === 0 ? <Check size={14} /> : null}</span><UiText text={"Kaikki ajovarusteet"} /></button>
               {RIDING_GEAR_TYPE_OPTIONS.map((option) => {
                 const selected = gearTypeQuery.includes(option);
                 return (
@@ -6542,20 +6434,20 @@ function HomeContent({
           customPlaceholder: "Kirjoita muu koko"
         })}
         <label className={styles.vehicleUsageField} htmlFor={`${prefix}-target`}>
-          <span>Kohderyhmä</span>
+          <span><UiText text={"Kohderyhmä"} /></span>
           <span className={styles.vehicleUsageSelectShell}>
             <select id={`${prefix}-target`} value={gearTargetQuery} onChange={(event) => setGearTargetQuery(event.target.value)}>
-              <option value="">Ei väliä</option>
+              <option value=""><UiText text={"Ei väliä"} /></option>
               {RIDING_GEAR_TARGET_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
             </select>
             <ChevronDown size={14} aria-hidden="true" />
           </span>
         </label>
         <label className={styles.vehicleUsageField} htmlFor={`${prefix}-condition`}>
-          <span>Kunto</span>
+          <span><UiText text={"Kunto"} /></span>
           <span className={styles.vehicleUsageSelectShell}>
             <select id={`${prefix}-condition`} value={gearConditionQuery} onChange={(event) => setGearConditionQuery(event.target.value)}>
-              <option value="">Kaikki kuntoluokat</option>
+              <option value=""><UiText text={"Kaikki kuntoluokat"} /></option>
               {RIDING_GEAR_CONDITION_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
             </select>
             <ChevronDown size={14} aria-hidden="true" />
@@ -6568,20 +6460,20 @@ function HomeContent({
   function renderSellerTypeFilter(layout: "mobile" | "desktop") {
     const fieldId = `${layout}-seller-type`;
     const options: Array<{ value: SellerTypeFilter; label: string }> = [
-      { value: "", label: "Kaikki myyjät" },
-      { value: "company", label: "Yritys" },
-      { value: "private", label: "Yksityinen myyjä" },
-      { value: "verified-company", label: "Vahvistettu yritys" },
+      { value: "", label: uiText("Kaikki myyjät") },
+      { value: "company", label: uiText("Yritys") },
+      { value: "private", label: uiText("Yksityinen myyjä") },
+      { value: "verified-company", label: uiText("Vahvistettu yritys") },
     ];
 
     if (layout === "desktop") {
       const menuKey = "desktopSellerType";
       const selectedLabel = options.find((option) => option.value === sellerType)?.label ?? "Kaikki myyjät";
       return (
-        <section className={styles.vehicleUsageFilters} aria-label="Myyjän suodatin">
-          <span className={styles.vehicleUsageSectionLabel}>Myyjä</span>
+        <section className={styles.vehicleUsageFilters} aria-label={uiText("Myyjän suodatin")}>
+          <span className={styles.vehicleUsageSectionLabel}><UiText text={"Myyjä"} /></span>
           <div className={styles.heroFilterFieldWrap} data-no-auto-translate translate="no">
-            <span className={styles.heroFilterLabel}>Myyjä</span>
+            <span className={styles.heroFilterLabel}><UiText text={"Myyjä"} /></span>
             <button
               type="button"
               className={styles.heroFilterSelect}
@@ -6608,10 +6500,10 @@ function HomeContent({
     }
 
     return (
-      <section className={styles.vehicleUsageFilters} aria-label="Myyjän suodatin">
-        <span className={styles.vehicleUsageSectionLabel}>Myyjä</span>
+      <section className={styles.vehicleUsageFilters} aria-label={uiText("Myyjän suodatin")}>
+        <span className={styles.vehicleUsageSectionLabel}><UiText text={"Myyjä"} /></span>
         <label className={styles.vehicleUsageField} htmlFor={fieldId}>
-          <span>Myyjätyyppi</span>
+          <span><UiText text={"Myyjätyyppi"} /></span>
           <span className={styles.vehicleUsageSelectShell}>
             <select
               id={fieldId}
@@ -6633,36 +6525,30 @@ function HomeContent({
       <section
         className={styles.marketplaceRailSwitch}
         data-marketplace-switch-layout={layout}
-        aria-label="Valitse markkinapaikka"
+        aria-label={uiText("Valitse markkinapaikka")}
       >
-        <div className={`${styles.marketplaceModeTabs} home-marketplace-mode-tabs`} role="tablist" aria-label="Ilmoitustyyppi">
+        <div className={`${styles.marketplaceModeTabs} home-marketplace-mode-tabs`} role="tablist" aria-label={uiText("Ilmoitustyyppi")}>
           <button
             type="button"
             role="tab"
             aria-selected={marketplaceMode === "parts"}
             className={`home-marketplace-mode-tab${marketplaceMode === "parts" ? ` ${styles.marketplaceModeTabActive} is-active` : ""}`}
             onClick={() => selectMarketplaceMode("parts")}
-          >
-            Varaosat
-          </button>
+          ><UiText text={"Varaosat"} /></button>
           <button
             type="button"
             role="tab"
             aria-selected={isVehicleMarketplace}
             className={`home-marketplace-mode-tab${isVehicleMarketplace ? ` ${styles.marketplaceModeTabActive} is-active` : ""}`}
             onClick={() => selectMarketplaceMode("vehicles")}
-          >
-            Ajoneuvot
-          </button>
+          ><UiText text={"Ajoneuvot"} /></button>
           <button
             type="button"
             role="tab"
             aria-selected={isGearMarketplace}
             className={`home-marketplace-mode-tab${isGearMarketplace ? ` ${styles.marketplaceModeTabActive} is-active` : ""}`}
             onClick={() => selectMarketplaceMode("gear")}
-          >
-            Ajovarusteet
-          </button>
+          ><UiText text={"Ajovarusteet"} /></button>
         </div>
       </section>
     );
@@ -6743,7 +6629,7 @@ function HomeContent({
           <input
             inputMode="numeric"
             value={minValue}
-            placeholder="Minimi"
+            placeholder={uiText("Minimi")}
             aria-label={`${label}, minimiarvo`}
             onChange={(event) => onMinChange(event.target.value.replace(/\D/g, ""))}
           />
@@ -6751,7 +6637,7 @@ function HomeContent({
           <input
             inputMode="numeric"
             value={maxValue}
-            placeholder="Maksimi"
+            placeholder={uiText("Maksimi")}
             aria-label={`${label}, maksimiarvo`}
             onChange={(event) => onMaxChange(event.target.value.replace(/\D/g, ""))}
           />
@@ -6860,8 +6746,8 @@ function HomeContent({
       <div className={styles.desktopFullFilterPanel} role="dialog" aria-modal="true" aria-labelledby="desktop-all-filters-title">
         <header className={styles.desktopFullFilterTopbar}>
           <div className={styles.desktopFullHeading}>
-            <strong>Kaikki hakuehdot</strong>
-            <small>{selectedMarketplaceTitle} · rajaa hakua Maskines-tiedoilla</small>
+            <strong><UiText text={"Kaikki hakuehdot"} /></strong>
+            <small>{selectedMarketplaceTitle}<UiText text={" · rajaa hakua Maskines-tiedoilla"} /></small>
           </div>
           <button
             type="button"
@@ -6877,10 +6763,9 @@ function HomeContent({
             onClick={() => {
               if (applyListingFilters()) setDesktopAllFiltersOpen(false);
             }}
-          >
-            Hae ({draftListingResultCount.toLocaleString(locale)})
+          ><UiText text={"Hae ("} />{(draftListingResultCount?.toLocaleString(locale) ?? "…")})
           </button>
-          <button type="button" className={styles.desktopFullClose} aria-label="Sulje kaikki hakuehdot" onClick={() => setDesktopAllFiltersOpen(false)}>
+          <button type="button" className={styles.desktopFullClose} aria-label={uiText("Sulje kaikki hakuehdot")} onClick={() => setDesktopAllFiltersOpen(false)}>
             <X size={25} aria-hidden="true" />
           </button>
         </header>
@@ -6891,19 +6776,18 @@ function HomeContent({
               type="button"
               aria-expanded={savedSearchesOpen}
               onClick={() => setSavedSearchesOpen((current) => !current)}
-            >
-              Tallennetut haut{savedSearches.length > 0 ? ` (${savedSearches.length})` : ""}
+            ><UiText text={"Tallennetut haut"} />{savedSearches.length > 0 ? ` (${savedSearches.length})` : ""}
             </button>
           </div>
-          <button type="button" onClick={clearListingFilters}>Tyhjennä</button>
+          <button type="button" onClick={clearListingFilters}><UiText text={"Tyhjennä"} /></button>
         </div>
 
         {savedSearchesOpen ? (
           <section className={styles.desktopSavedSearchesPanel} aria-label="Tallennetut haut">
             <header>
               <div>
-                <strong>Tallennetut haut</strong>
-                <small>Haut säilyvät tällä laitteella myös selaimen sulkemisen jälkeen.</small>
+                <strong><UiText text={"Tallennetut haut"} /></strong>
+                <small><UiText text={"Haut säilyvät tällä laitteella myös selaimen sulkemisen jälkeen."} /></small>
               </div>
               <button type="button" aria-label="Sulje tallennetut haut" onClick={() => setSavedSearchesOpen(false)}>
                 <X size={18} aria-hidden="true" />
@@ -6917,19 +6801,19 @@ function HomeContent({
                       <strong>{savedSearch.name}</strong>
                       <small>{new Date(savedSearch.createdAt).toLocaleString(locale)}</small>
                     </div>
-                    <button type="button" onClick={() => restoreSavedSearch(savedSearch)}>Käytä hakua</button>
-                    <button type="button" onClick={() => removeSavedSearch(savedSearch.id)}>Poista</button>
+                    <button type="button" onClick={() => restoreSavedSearch(savedSearch)}><UiText text={"Käytä hakua"} /></button>
+                    <button type="button" onClick={() => removeSavedSearch(savedSearch.id)}><UiText text={"Poista"} /></button>
                   </article>
                 ))}
               </div>
             ) : (
-              <p className={styles.desktopSavedSearchEmpty}>Ei tallennettuja hakuja vielä. Tee rajaus ja paina “Tallenna haku”.</p>
+              <p className={styles.desktopSavedSearchEmpty}><UiText text={"Ei tallennettuja hakuja vielä. Tee rajaus ja paina “Tallenna haku”."} /></p>
             )}
           </section>
         ) : null}
 
         <section className={styles.desktopMarketplaceChooser} aria-label="Valitse Maskines-osasto">
-          <span>Mitä etsit?</span>
+          <span><UiText text={"Mitä etsit?"} /></span>
           <div>
             {marketplaceChoices.map((choice) => {
               const active = choice.id === "other-parts"
@@ -6972,18 +6856,17 @@ function HomeContent({
             <header><h2 id="desktop-all-filters-title">{isGearMarketplace ? "Ajovarusteet" : isVehicleMarketplace ? "Ajoneuvon perustiedot" : isOtherPartsFilter ? "Muut ajoneuvon osat" : "Varaosan sopivuus"}</h2><ChevronUp size={20} aria-hidden="true" /></header>
             {isOtherPartsFilter ? (
               <div className={styles.desktopFullBox}>
-                <h3>Tuote ilman tarkkaa osakategoriaa</h3>
-                <p className={styles.desktopOtherPartsCopy}>Käytä tätä hakua sellaisille ajoneuvon osille ja tarvikkeille, joille ei löydy sopivaa tarkkaa Maskines-kategoriaa.</p>
-                <label className={styles.desktopFullField}><span>Hae tuotteen nimellä tai kuvauksella</span><input value={query} placeholder="Esim. yleismallinen kiinnike" onChange={(event) => setQuery(event.target.value)} /></label>
+                <h3><UiText text={"Tuote ilman tarkkaa osakategoriaa"} /></h3>
+                <p className={styles.desktopOtherPartsCopy}><UiText text={"Käytä tätä hakua sellaisille ajoneuvon osille ja tarvikkeille, joille ei löydy sopivaa tarkkaa Maskines-kategoriaa."} /></p>
+                <label className={styles.desktopFullField}><span><UiText text={"Hae tuotteen nimellä tai kuvauksella"} /></span><input value={query} placeholder={uiText("Esim. yleismallinen kiinnike")} onChange={(event) => setQuery(event.target.value)} /></label>
               </div>
             ) : isGearMarketplace ? (
               <div className={styles.desktopFullBox}>
-                <h3>Ajovarusteen tyyppi</h3>
+                <h3><UiText text={"Ajovarusteen tyyppi"} /></h3>
                 <div className={styles.desktopCheckboxGrid}>
                   <label className={styles.desktopAnyOption}>
                     <input type="checkbox" checked={gearTypeQuery.length === 0} onChange={() => setGearTypeQuery([])} />
-                    <span aria-hidden="true">{gearTypeQuery.length === 0 ? <Check size={15} /> : null}</span>Kaikki ajovarusteet
-                  </label>
+                    <span aria-hidden="true">{gearTypeQuery.length === 0 ? <Check size={15} /> : null}</span><UiText text={"Kaikki ajovarusteet"} /></label>
                   {RIDING_GEAR_TYPE_OPTIONS.map((option) => (
                     <label key={option}>
                       <input type="checkbox" checked={gearTypeQuery.includes(option)} onChange={() => toggleGearType(option)} />
@@ -7020,9 +6903,9 @@ function HomeContent({
               <div className={styles.desktopFullFieldGrid}>
                 {isOtherPartsFilter ? (
                   <>
-                    <label className={styles.desktopFullField}><span>Tuotteen merkki tai valmistaja</span><input value={gearBrandQuery} placeholder="Kirjoita jos tiedossa" onChange={(event) => setGearBrandQuery(event.target.value)} /></label>
-                    <label className={styles.desktopFullField}><span>Koko tai mitta</span><input value={gearSizeQuery} placeholder="Esim. 42 mm tai 30 x 20 cm" onChange={(event) => setGearSizeQuery(event.target.value)} /></label>
-                    <label className={styles.desktopFullField}><span>Kunto</span><select value={gearConditionQuery} onChange={(event) => setGearConditionQuery(event.target.value)}><option value="">Ei väliä</option>{RIDING_GEAR_CONDITION_OPTIONS.map((option) => <option key={option}>{option}</option>)}</select></label>
+                    <label className={styles.desktopFullField}><span><UiText text={"Tuotteen merkki tai valmistaja"} /></span><input value={gearBrandQuery} placeholder={uiText("Kirjoita jos tiedossa")} onChange={(event) => setGearBrandQuery(event.target.value)} /></label>
+                    <label className={styles.desktopFullField}><span><UiText text={"Koko tai mitta"} /></span><input value={gearSizeQuery} placeholder={uiText("Esim. 42 mm tai 30 x 20 cm")} onChange={(event) => setGearSizeQuery(event.target.value)} /></label>
+                    <label className={styles.desktopFullField}><span><UiText text={"Kunto"} /></span><select value={gearConditionQuery} onChange={(event) => setGearConditionQuery(event.target.value)}><option value=""><UiText text={"Ei väliä"} /></option>{RIDING_GEAR_CONDITION_OPTIONS.map((option) => <option key={option}>{option}</option>)}</select></label>
                   </>
                 ) : isGearMarketplace ? (
                   <>
@@ -7050,8 +6933,8 @@ function HomeContent({
                       onCustomChange: setGearSizeQuery,
                       customPlaceholder: "Kirjoita muu koko"
                     })}
-                    <label className={styles.desktopFullField}><span>Kohderyhmä</span><select value={gearTargetQuery} onChange={(event) => setGearTargetQuery(event.target.value)}><option value="">Ei väliä</option>{RIDING_GEAR_TARGET_OPTIONS.map((option) => <option key={option}>{option}</option>)}</select></label>
-                    <label className={styles.desktopFullField}><span>Kunto</span><select value={gearConditionQuery} onChange={(event) => setGearConditionQuery(event.target.value)}><option value="">Ei väliä</option>{RIDING_GEAR_CONDITION_OPTIONS.map((option) => <option key={option}>{option}</option>)}</select></label>
+                    <label className={styles.desktopFullField}><span><UiText text={"Kohderyhmä"} /></span><select value={gearTargetQuery} onChange={(event) => setGearTargetQuery(event.target.value)}><option value=""><UiText text={"Ei väliä"} /></option>{RIDING_GEAR_TARGET_OPTIONS.map((option) => <option key={option}>{option}</option>)}</select></label>
+                    <label className={styles.desktopFullField}><span><UiText text={"Kunto"} /></span><select value={gearConditionQuery} onChange={(event) => setGearConditionQuery(event.target.value)}><option value=""><UiText text={"Ei väliä"} /></option>{RIDING_GEAR_CONDITION_OPTIONS.map((option) => <option key={option}>{option}</option>)}</select></label>
                   </>
                 ) : (
                   <>{renderSelect(brandField)}{renderSelect(modelField)}{renderSelect(engineCcField)}{renderSelect(engineModelField)}</>
@@ -7079,29 +6962,29 @@ function HomeContent({
                 }) : null}
                 {isVehicleMarketplace ? <>
                   <label className={styles.desktopFullField}>
-                    <span>Moottorin tyyppi</span>
+                    <span><UiText text={"Moottorin tyyppi"} /></span>
                     <select value={vehicleEngineKindQuery} onChange={(event) => setVehicleEngineKindQuery(event.target.value)}>
-                      <option value="">Ei väliä</option>
+                      <option value=""><UiText text={"Ei väliä"} /></option>
                       {VEHICLE_ENGINE_KIND_OPTIONS.map((option) => <option key={option}>{option}</option>)}
                     </select>
                   </label>
                   <label className={styles.desktopFullField}>
-                    <span>Vetotapa</span>
+                    <span><UiText text={"Vetotapa"} /></span>
                     <select value={vehicleDriveTypeQuery} onChange={(event) => setVehicleDriveTypeQuery(event.target.value)}>
-                      <option value="">Ei väliä</option>
+                      <option value=""><UiText text={"Ei väliä"} /></option>
                       {VEHICLE_DRIVE_TYPE_OPTIONS.map((option) => <option key={option}>{option}</option>)}
                     </select>
                   </label>
                   <label className={styles.desktopFullField}>
-                    <span>Tieliikennekelpoisuus</span>
+                    <span><UiText text={"Tieliikennekelpoisuus"} /></span>
                     <select value={vehicleRoadLegalQuery} onChange={(event) => setVehicleRoadLegalQuery(event.target.value)}>
-                      <option value="">Ei väliä</option>
+                      <option value=""><UiText text={"Ei väliä"} /></option>
                       {VEHICLE_ROAD_LEGAL_OPTIONS.map((option) => <option key={option}>{option}</option>)}
                     </select>
                   </label>
                   <label className={styles.desktopFullField}>
-                    <span>Rekisteritunnus</span>
-                    <input value={vehicleRegistrationQuery} placeholder="Esim. 123-ABC" autoCapitalize="characters" onChange={(event) => setVehicleRegistrationQuery(event.target.value.toUpperCase())} />
+                    <span><UiText text={"Rekisteritunnus"} /></span>
+                    <input value={vehicleRegistrationQuery} placeholder={uiText("Esim. 123-ABC")} autoCapitalize="characters" onChange={(event) => setVehicleRegistrationQuery(event.target.value.toUpperCase())} />
                   </label>
                   {renderDesktopRangeField({
                     label: "Ajokilometrit (km)",
@@ -7146,7 +7029,7 @@ function HomeContent({
             <header><h2>{isVehicleMarketplace ? "Ajoneuvon varusteet" : "Varaosaryhmät"}</h2><ChevronUp size={20} aria-hidden="true" /></header>
             <div className={styles.desktopFullBox}>
               {isOtherPartsFilter ? (
-                <p className={styles.desktopOtherPartsCopy}>Tässä osastossa tarkkaa osaryhmää ei tarvitse valita. Haku käyttää tuotteen nimeä, kuvausta, merkkiä ja muita lisäämiäsi tietoja.</p>
+                <p className={styles.desktopOtherPartsCopy}><UiText text={"Tässä osastossa tarkkaa osaryhmää ei tarvitse valita. Haku käyttää tuotteen nimeä, kuvausta, merkkiä ja muita lisäämiäsi tietoja."} /></p>
               ) : !isGearMarketplace && !isVehicleMarketplace ? (
                 <>
                   <div className={styles.desktopCategoryFlow}>
@@ -7159,8 +7042,8 @@ function HomeContent({
                   {trackMatDimensionFieldVisible ? (
                     <section className={styles.desktopTrackMatCard} data-desktop-track-mat-card aria-labelledby="desktop-track-mat-title">
                       <header>
-                        <strong id="desktop-track-mat-title">Telamaton mitat</strong>
-                        <small>Valitse pituus, leveys ja jako, jotta löydät yhteensopivat telamatot.</small>
+                        <strong id="desktop-track-mat-title"><UiText text={"Telamaton mitat"} /></strong>
+                        <small><UiText text={"Valitse pituus, leveys ja jako, jotta löydät yhteensopivat telamatot."} /></small>
                       </header>
                       <div className={styles.desktopTrackMatFullFields}>
                         {trackMatDimensionFields.map((field) => (
@@ -7171,7 +7054,7 @@ function HomeContent({
                               {field.options.map((option) => (
                                 <option key={`${field.key}-${option.value}`} value={option.value}>{option.label}</option>
                               ))}
-                              <option value={CUSTOM_TRACK_MAT_DIMENSION_VALUE}>Muu mitta</option>
+                              <option value={CUSTOM_TRACK_MAT_DIMENSION_VALUE}><UiText text={"Muu mitta"} /></option>
                             </select>
                             {field.value === CUSTOM_TRACK_MAT_DIMENSION_VALUE ? (
                               <input
@@ -7206,7 +7089,7 @@ function HomeContent({
           </section> : null}
 
           {(isVehicleMarketplace || isGearMarketplace) ? <section id="desktop-full-filter-colors" className={styles.desktopFullSection} style={{ order: 4 }}>
-            <header><h2>Värisävy</h2><ChevronUp size={20} aria-hidden="true" /></header>
+            <header><h2><UiText text={"Värisävy"} /></h2><ChevronUp size={20} aria-hidden="true" /></header>
             <div className={`${styles.desktopFullBox} ${styles.desktopColorOptions}`}>
               {VEHICLE_COLOR_OPTIONS.map((color) => {
                 const selected = vehicleColorsQuery.includes(color.label);
@@ -7216,14 +7099,14 @@ function HomeContent({
           </section> : null}
 
           <section id="desktop-full-filter-other" className={styles.desktopFullSection} style={{ order: 5 }}>
-            <header><h2>Sijainti, myyjä ja hinta</h2><ChevronUp size={20} aria-hidden="true" /></header>
+            <header><h2><UiText text={"Sijainti, myyjä ja hinta"} /></h2><ChevronUp size={20} aria-hidden="true" /></header>
             <div className={`${styles.desktopFullBox} ${styles.desktopLocationBox} ${activeHeroFilter === "desktopFullLocation" ? styles.desktopLocationBoxOpen : ""}`}>
               <div className={styles.desktopLocationIntro}>
                 <div>
-                  <strong>Rajaa alue tarkasti</strong>
-                  <small>Valitse maa, lääni tai kunta. Voit valita useita sijainteja samaan hakuun.</small>
+                  <strong><UiText text={"Rajaa alue tarkasti"} /></strong>
+                  <small><UiText text={"Valitse maa, lääni tai kunta. Voit valita useita sijainteja samaan hakuun."} /></small>
                 </div>
-                {desktopLocationSelectionCount > 0 ? <span>{desktopLocationSelectionCount} valittu</span> : null}
+                {desktopLocationSelectionCount > 0 ? <span>{desktopLocationSelectionCount}<UiText text={" valittu"} /></span> : null}
               </div>
               <div className={styles.desktopLocationSecondaryGrid}>
                 <div className={styles.desktopFullLocationField}>
@@ -7251,16 +7134,16 @@ function HomeContent({
                   />
                 </div>
                 <label className={styles.desktopFullField} htmlFor="desktop-full-seller-type">
-                  <span>Myyjä</span>
+                  <span><UiText text={"Myyjä"} /></span>
                   <select
                     id="desktop-full-seller-type"
                     value={sellerType}
                     onChange={(event) => setSellerType(event.target.value as SellerTypeFilter)}
                   >
-                    <option value="">Kaikki myyjät</option>
-                    <option value="company">Yritys</option>
-                    <option value="private">Yksityinen myyjä</option>
-                    <option value="verified-company">Vahvistettu yritys</option>
+                    <option value=""><UiText text={"Kaikki myyjät"} /></option>
+                    <option value="company"><UiText text={"Yritys"} /></option>
+                    <option value="private"><UiText text={"Yksityinen myyjä"} /></option>
+                    <option value="verified-company"><UiText text={"Vahvistettu yritys"} /></option>
                   </select>
                 </label>
                 {renderDesktopRangeField({
@@ -7327,6 +7210,7 @@ function HomeContent({
       data-home-filtered-results={homeLatestExpanded && hasAppliedListingFilters ? "true" : "false"}
       className={styles.shell}
     >
+      <h1 className="marketplace-page-title">{marketplaceCopy[locale].homeTitle}</h1>
       {!catalogOnlyView ? (
       <>
       <div data-home-background-region className={styles.heroWrap}>
@@ -7383,19 +7267,21 @@ function HomeContent({
                 data-home-results-list
                 className={styles.heroDesktopLatest}
               >
+                {renderActiveFilters()}
                 {!hasNoHomeSearchResults ? (
                 <div data-home-latest-head className={styles.heroDesktopLatestHead}>
-                  <strong className="home-latest-heading">
+                  <h2 className="home-latest-heading">
                     {!homeLatestExpanded
                       ? homeResultsText.latest
-                      : homeResultsText.results(filteredListings.length)}
-                  </strong>
+                      : homeResultsText.results(remoteDisplayListings)}
+                  </h2>
                   <div data-home-latest-actions className={styles.heroDesktopLatestActions}>
                     {renderSortControl(styles.heroDesktopLatestSort)}
                   </div>
                 </div>
                 ) : null}
-                {hasNoHomeSearchResults ? (
+                {listingLoadError ? <p role="alert">{({fi:"Ilmoituksia ei saatu ladattua. Yritä hakua uudelleen.",en:"Listings could not be loaded. Please retry your search.",sv:"Annonserna kunde inte laddas. Försök igen.",no:"Annonsene kunne ikke lastes. Prøv igjen."}[locale])}</p> : null}
+                {hasNoHomeSearchResults && !listingLoadError ? (
                   <div className={styles.heroNoResults} role="status">
                     <span className={styles.heroNoResultsIcon} aria-hidden="true"><Search /></span>
                     <strong>{homeResultsText.noResults}</strong>
@@ -7412,7 +7298,7 @@ function HomeContent({
                     homeLatestExpanded ? styles.heroDesktopLatestGridExpanded : ""
                   }`}
                 >
-                  {compactLatestListings.map((listing) => {
+                  {compactLatestListings.map((listing, listingIndex) => {
                     const listingText = getListingText(listing);
                     const isFavorite = favorites.includes(listing.id);
                     const countryFlag = getCountryFlagFromLocation(listing.location, t.country);
@@ -7438,7 +7324,7 @@ function HomeContent({
                       >
                         <div className={`${styles.cardImage} ${styles.listingCardImage} ${styles.heroDesktopLatestImage}`} data-listing-card-image="true">
                           <span className={styles.cardImageBlur} aria-hidden="true">
-                            <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative />
+                            <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative sizes="(max-width: 720px) calc(50vw - 18px), (max-width: 1100px) 30vw, 300px" />
                           </span>
                           <Link
                             href={listingPath(listing, locale)}
@@ -7449,6 +7335,8 @@ function HomeContent({
                             <OptimizedListingImage
                               src={listingImageSrc(listing)}
                               alt={getListingImageAlt(listing, listingText.title)}
+                              sizes="(max-width: 720px) calc(50vw - 18px), (max-width: 1100px) 30vw, 300px"
+                              priority={listingIndex < 2}
                             />
                           </Link>
                           <HomeListingSaleBadge listing={listing} />
@@ -7543,7 +7431,7 @@ function HomeContent({
                 type="button"
                 className={styles.mobileFilterBackdrop}
                 data-mobile-filter-backdrop="true"
-                aria-label="Sulje suodatus"
+                aria-label={uiText("Sulje suodatus")}
                 onClick={() => {
                   setHomeSearchPanelOpen(false);
                   setMobileFilterExpanded(false);
@@ -7555,12 +7443,12 @@ function HomeContent({
               <button
                 type="button"
                 className={styles.desktopFilterBackdrop}
-                aria-label="Sulje kaikki hakuehdot"
+                aria-label={uiText("Sulje kaikki hakuehdot")}
                 onClick={() => setDesktopAllFiltersOpen(false)}
               />
             ) : null}
 
-            {(!compactHeroSearch || homeSearchPanelOpen) ? (
+            {(viewportReady && (!compactHeroSearch || homeSearchPanelOpen)) ? (
 <aside
   id={
     homeLatestExpanded && hasAppliedListingFilters
@@ -7580,15 +7468,15 @@ function HomeContent({
               }
             >
               {!compactHeroSearch && desktopAllFiltersOpen ? renderDesktopAllFilters() : null}
-              {(!compactHeroSearch || homeSearchPanelOpen) ? (
+              {(viewportReady && (!compactHeroSearch || homeSearchPanelOpen)) ? (
                 <>
                   {!compactHeroSearch && desktopAllFiltersOpen ? (
                     <header className={styles.desktopFilterModalHeader}>
                       <div>
-                        <strong>Kaikki hakuehdot</strong>
-                        <span>Rajaa hakua tarkasti Maskines-markkinapaikalla</span>
+                        <strong><UiText text={"Kaikki hakuehdot"} /></strong>
+                        <span><UiText text={"Rajaa hakua tarkasti Maskines-markkinapaikalla"} /></span>
                       </div>
-                      <button type="button" aria-label="Sulje kaikki hakuehdot" onClick={() => setDesktopAllFiltersOpen(false)}>
+                      <button type="button" aria-label={uiText("Sulje kaikki hakuehdot")} onClick={() => setDesktopAllFiltersOpen(false)}>
                         <X size={22} aria-hidden="true" />
                       </button>
                     </header>
@@ -7605,14 +7493,14 @@ function HomeContent({
                         <span aria-hidden="true" />
                       </div>
                       <div className={styles.mobileFilterSheetHeader}>
-                        <strong>Suodata hakua</strong>
+                        <strong><UiText text={"Suodata hakua"} /></strong>
           <button
                           type="button"
                           data-location-close="true"
                           aria-label={
                             activeHeroFilter === "mobileLocation"
-                              ? "Sulje sijaintivalikko"
-                              : "Sulje suodatus"
+                              ? uiText("Sulje sijaintivalikko")
+                              : uiText("Sulje suodatus")
                           }
                           onClick={() => {
                             if (activeHeroFilter === "mobileLocation") {
@@ -7636,7 +7524,7 @@ function HomeContent({
                         {renderMarketplaceModeSwitch("mobile")}
                         {renderSellerTypeFilter("mobile")}
 
-                        <section className={styles.heroLocationSection} aria-label="Sijaintisuodatin">
+                        <section className={styles.heroLocationSection} aria-label={uiText("Sijaintisuodatin")}>
                           <LocationMultiSelectField
                             label={locationFilterCopy.location}
                             placeholder={locationFilterCopy.allLocations}
@@ -7670,7 +7558,7 @@ function HomeContent({
                         </section>
 
                         {isVehicleMarketplace ? (
-                          <span className={styles.vehicleUsageSectionLabel}>Ajoneuvon perustiedot</span>
+                          <span className={styles.vehicleUsageSectionLabel}><UiText text={"Ajoneuvon perustiedot"} /></span>
                         ) : null}
 
                         {marketplaceHeroFilterFields.slice(0, 2).map((field) => (
@@ -7714,7 +7602,7 @@ function HomeContent({
                                   >
                                     {option.label}
                                   </button>
-                                )) : <span>Ei valintoja</span>}
+                                )) : <span><UiText text={"Ei valintoja"} /></span>}
                               </div>
                             ) : null}
                           </div>
@@ -7759,7 +7647,7 @@ function HomeContent({
                                   >
                                     {option.label}
                                   </button>
-                                )) : <span>Ei valintoja</span>}
+                                )) : <span><UiText text={"Ei valintoja"} /></span>}
                               </div>
                             ) : null}
                           </div>
@@ -7773,7 +7661,7 @@ function HomeContent({
                               type="text"
                               inputMode="numeric"
                               value={yearMinQuery}
-                              placeholder="Minimi"
+                              placeholder={uiText("Minimi")}
                               aria-label={homeFilterUiCopy.yearMin}
                               onChange={(event) => {
                                 setYearMinQuery(event.target.value.replace(/\D/g, "").slice(0, 4));
@@ -7787,7 +7675,7 @@ function HomeContent({
                               type="text"
                               inputMode="numeric"
                               value={yearMaxQuery}
-                              placeholder="Maksimi"
+                              placeholder={uiText("Maksimi")}
                               aria-label={homeFilterUiCopy.yearMax}
                               onChange={(event) => {
                                 setYearMaxQuery(event.target.value.replace(/\D/g, "").slice(0, 4));
@@ -7855,7 +7743,7 @@ function HomeContent({
                         </div>
 
                         {isVehicleMarketplace ? (
-                          <span className={styles.vehicleUsageSectionLabel}>Moottori ja tekniikka</span>
+                          <span className={styles.vehicleUsageSectionLabel}><UiText text={"Moottori ja tekniikka"} /></span>
                         ) : null}
 
                         {marketplaceHeroFilterFields.slice(4).map((field) => (
@@ -7903,7 +7791,7 @@ function HomeContent({
                                   >
                                     {option.label}
                                   </button>
-                                )) : <span>Ei valintoja</span>}
+                                )) : <span><UiText text={"Ei valintoja"} /></span>}
                               </div>
                             ) : null}
                           </div>
@@ -7914,7 +7802,7 @@ function HomeContent({
 
                         {trackMatDimensionFieldVisible ? (
                           <div id="mobile-track-mat-dimension" className={styles.trackMatDimensionGroup}>
-                            <span className={styles.trackMatDimensionGroupLabel}>Telamaton mitat *</span>
+                            <span className={styles.trackMatDimensionGroupLabel}><UiText text={"Telamaton mitat *"} /></span>
                             <div className={styles.mobileTrackMatFields}>
                               {trackMatDimensionFields.map((field, index) => (
                                 <Fragment key={`mobile-${field.key}`}>
@@ -8004,14 +7892,12 @@ function HomeContent({
                                               document.getElementById(`mobile-${field.key}-custom`)?.focus();
                                             });
                                           }}
-                                        >
-                                          Muu
-                                        </button>
+                                        ><UiText text={"Muu"} /></button>
                                       </div>
                                     ) : null}
                                   </div>
                                   {index < trackMatDimensionFields.length - 1 ? (
-                                    <span className={styles.trackMatDimensionSeparator} aria-hidden="true">x</span>
+                                    <span className={styles.trackMatDimensionSeparator} aria-hidden="true"><UiText text={"x"} /></span>
                                   ) : null}
                                 </Fragment>
                               ))}
@@ -8028,7 +7914,7 @@ function HomeContent({
                               setMobileFilterExpanded(false);
                             }}
                           >
-                            {homeFilterUiCopy.showResults} ({draftListingResultCount.toLocaleString(locale)})
+                            {homeFilterUiCopy.showResults} ({(draftListingResultCount?.toLocaleString(locale) ?? "…")})
                           </button>
                           <button type="button" onClick={clearListingFilters}>{homeFilterUiCopy.clearFilters}</button>
                         </div>
@@ -8037,10 +7923,10 @@ function HomeContent({
                   ) : null}
                   {!compactHeroSearch ? (
                     <div className={styles.desktopCompactFilterHeader} data-compact-filter-header>
-                      <strong>Suodata ilmoituksia</strong>
+                      <strong><UiText text={"Suodata ilmoituksia"} /></strong>
                       <button type="button" onClick={clearListingFilters}>
                         <RotateCcw size={13} aria-hidden="true" />
-                        <span>Tyhjennä</span>
+                        <span><UiText text={"Tyhjennä"} /></span>
                       </button>
                     </div>
                   ) : null}
@@ -8098,11 +7984,9 @@ function HomeContent({
                           onMouseDown={(event) => event.preventDefault()}
                         >
                           <div className={styles.marketplaceSuggestionGroups}>
-                            <button type="button" className={styles.marketplaceSearchAll} onClick={() => applySuggestedSearch(query.trim())}>
-                              Hae <strong>”{query.trim()}”</strong> kaikista ilmoituksista
-                            </button>
-                            {searchSuggestions.categories.length > 0 ? <section><h3>Kategorioista</h3>{searchSuggestions.categories.map((item) => <button type="button" key={item} onClick={() => applySuggestedSearch(item)}>{translateCategoryLabel(item)}</button>)}</section> : null}
-                            {searchSuggestions.sellers.length > 0 ? <section><h3>Yrityksistä ja myyjistä</h3>{searchSuggestions.sellers.map((item) => <button type="button" key={item} onClick={() => applySuggestedSearch(item)}>{item}</button>)}</section> : null}
+                            <button type="button" className={styles.marketplaceSearchAll} onClick={() => applySuggestedSearch(query.trim())}><UiText text={"Hae "} /><strong>”{query.trim()}”</strong><UiText text={" kaikista ilmoituksista"} /></button>
+                            {searchSuggestions.categories.length > 0 ? <section><h3><UiText text={"Kategorioista"} /></h3>{searchSuggestions.categories.map((item) => <button type="button" key={item} onClick={() => applySuggestedSearch(item)}>{translateCategoryLabel(item)}</button>)}</section> : null}
+                            {searchSuggestions.sellers.length > 0 ? <section><h3><UiText text={"Yrityksistä ja myyjistä"} /></h3>{searchSuggestions.sellers.map((item) => <button type="button" key={item} onClick={() => applySuggestedSearch(item)}>{item}</button>)}</section> : null}
                           </div>
                           <div className={styles.marketplaceSuggestionProducts}>
                             {searchSuggestions.listings.length > 0 ? searchSuggestions.listings.map((listing) => {
@@ -8116,14 +8000,14 @@ function HomeContent({
                                 <span><strong>{suggestionText.title}</strong><small>{[listing.company_name || listing.seller_name, listing.brand, listing.model, listing.part_number].filter(Boolean).join(" · ")}</small></span>
                                 <b>{formatPrice(listing.price)}</b>
                               </Link>;
-                            }) : <div className={styles.marketplaceSuggestionEmpty}><Search size={22} /><span>Ei ehdotuksia vielä. Hae kaikista ilmoituksista.</span></div>}
+                            }) : <div className={styles.marketplaceSuggestionEmpty}><Search size={22} /><span><UiText text={"Ei ehdotuksia vielä. Hae kaikista ilmoituksista."} /></span></div>}
                           </div>
                         </div>
                       ) : null}
                     </div>
 
                     <div className={styles.heroFilterStack} aria-label={t.filters}>
-                      <section className={styles.heroLocationSection} aria-label="Sijaintisuodatin">
+                      <section className={styles.heroLocationSection} aria-label={uiText("Sijaintisuodatin")}>
                         <LocationMultiSelectField
                           label={locationFilterCopy.location}
                           placeholder={locationFilterCopy.allLocations}
@@ -8154,7 +8038,7 @@ function HomeContent({
                         />
                       </section>
                       {isVehicleMarketplace ? (
-                        <span className={styles.vehicleUsageSectionLabel}>Ajoneuvon perustiedot</span>
+                        <span className={styles.vehicleUsageSectionLabel}><UiText text={"Ajoneuvon perustiedot"} /></span>
                       ) : null}
                       {heroRailFilterFields.slice(0, 2).map((field) => (
                         <div key={field.key} className={styles.heroFilterFieldWrap} data-no-auto-translate translate="no">
@@ -8182,7 +8066,7 @@ function HomeContent({
                                   {option.label}
                                 </button>
                               )) : (
-                                <span className={styles.heroFilterMenuEmpty}>Ei valintoja</span>
+                                <span className={styles.heroFilterMenuEmpty}><UiText text={"Ei valintoja"} /></span>
                               )}
                             </div>
                           ) : null}
@@ -8214,7 +8098,7 @@ function HomeContent({
                                   {option.label}
                                 </button>
                               )) : (
-                                <span className={styles.heroFilterMenuEmpty}>Ei valintoja</span>
+                                <span className={styles.heroFilterMenuEmpty}><UiText text={"Ei valintoja"} /></span>
                               )}
                             </div>
                           ) : null}
@@ -8229,7 +8113,7 @@ function HomeContent({
                             type="text"
                             inputMode="numeric"
                             value={yearMinQuery}
-                            placeholder="Minimi"
+                            placeholder={uiText("Minimi")}
                             aria-label={homeFilterUiCopy.yearMin}
                             onChange={(event) => {
                               setYearMinQuery(event.target.value.replace(/\D/g, "").slice(0, 4));
@@ -8243,7 +8127,7 @@ function HomeContent({
                             type="text"
                             inputMode="numeric"
                             value={yearMaxQuery}
-                            placeholder="Maksimi"
+                            placeholder={uiText("Maksimi")}
                             aria-label={homeFilterUiCopy.yearMax}
                             onChange={(event) => {
                               setYearMaxQuery(event.target.value.replace(/\D/g, "").slice(0, 4));
@@ -8310,7 +8194,7 @@ function HomeContent({
                         </div>
                       </div>
                       {isVehicleMarketplace ? (
-                        <span className={styles.vehicleUsageSectionLabel}>Moottori ja tekniikka</span>
+                        <span className={styles.vehicleUsageSectionLabel}><UiText text={"Moottori ja tekniikka"} /></span>
                       ) : null}
                       {heroRailEngineFields.map((field) => (
                         <div
@@ -8347,7 +8231,7 @@ function HomeContent({
                                   {option.label}
                                 </button>
                               )) : (
-                                <span className={styles.heroFilterMenuEmpty}>Ei valintoja</span>
+                                <span className={styles.heroFilterMenuEmpty}><UiText text={"Ei valintoja"} /></span>
                               )}
                             </div>
                           ) : null}
@@ -8398,7 +8282,7 @@ function HomeContent({
                                   {option.label}
                                 </button>
                               )) : (
-                                <span className={styles.heroFilterMenuEmpty}>Ei valintoja</span>
+                                <span className={styles.heroFilterMenuEmpty}><UiText text={"Ei valintoja"} /></span>
                               )}
                             </div>
                           ) : null}
@@ -8406,7 +8290,7 @@ function HomeContent({
                       ))}
                       {trackMatDimensionFieldVisible ? (
                         <div className={styles.trackMatDimensionGroup}>
-                          <span className={styles.trackMatDimensionGroupLabel}>Telamaton mitat *</span>
+                          <span className={styles.trackMatDimensionGroupLabel}><UiText text={"Telamaton mitat *"} /></span>
                           <div className={styles.desktopTrackMatFields}>
                             {trackMatDimensionFields.map((field, index) => (
                               <Fragment key={field.key}>
@@ -8497,14 +8381,12 @@ function HomeContent({
                                             document.getElementById(`desktop-${field.key}-custom`)?.focus();
                                           });
                                         }}
-                                      >
-                                        Muu
-                                      </button>
+                                      ><UiText text={"Muu"} /></button>
                                     </div>
                                   ) : null}
                                 </div>
                                 {index < trackMatDimensionFields.length - 1 ? (
-                                  <span className={styles.trackMatDimensionSeparator} aria-hidden="true">x</span>
+                                  <span className={styles.trackMatDimensionSeparator} aria-hidden="true"><UiText text={"x"} /></span>
                                 ) : null}
                               </Fragment>
                             ))}
@@ -8525,15 +8407,13 @@ function HomeContent({
                           onClick={() => setDesktopAllFiltersOpen(true)}
                         >
                           <SlidersHorizontal size={16} aria-hidden="true" />
-                          <span>Lisää suodattimia</span>
+                          <span><UiText text={"Lisää suodattimia"} /></span>
                           <ChevronRight size={16} aria-hidden="true" />
                         </button>
                       ) : null}
                       {!compactHeroSearch && !desktopAllFiltersOpen ? (
                         <button type="button" className={styles.desktopAllFiltersButton} onClick={() => setDesktopAllFiltersOpen(true)}>
-                          <SlidersHorizontal size={17} aria-hidden="true" />
-                          Kaikki hakuehdot
-                        </button>
+                          <SlidersHorizontal size={17} aria-hidden="true" /><UiText text={"Kaikki hakuehdot"} /></button>
                       ) : null}
                       <button
                         type="button"
@@ -8547,7 +8427,7 @@ function HomeContent({
                           if (desktopAllFiltersOpen) setDesktopAllFiltersOpen(false);
                         }}
                       >
-                        {homeFilterUiCopy.showResults} ({draftListingResultCount.toLocaleString(locale)})
+                        {homeFilterUiCopy.showResults} ({(draftListingResultCount?.toLocaleString(locale) ?? "…")})
                       </button>
                       <button type="button" className={styles.heroRailClear} onClick={clearListingFilters}>
                         {homeFilterUiCopy.clearFilters}
@@ -8556,7 +8436,7 @@ function HomeContent({
 
                   <div className={styles.heroLatestPanel}>
                     <div className={styles.heroLatestHeader}>
-                      <strong>Uusimmat ilmoitukset</strong>
+                      <strong><UiText text={"Uusimmat ilmoitukset"} /></strong>
                     </div>
                     <div className={styles.heroLatestGrid}>
                       {heroLatestListings.map((listing) => {
@@ -8684,7 +8564,7 @@ function HomeContent({
                           <VehicleTaxBadges listing={listing} />
                           {listing.vehicle_subtype ? (
                           <div className={styles.badgeRow}>
-                            <span className={styles.badge}>Tyyppi {listing.vehicle_subtype}</span>
+                            <span className={styles.badge}><UiText text={"Tyyppi "} />{listing.vehicle_subtype}</span>
                           </div>
                           ) : null}
                           <h3 className={styles.cardTitle}>{listingText.title}</h3>
@@ -8742,12 +8622,13 @@ function HomeContent({
             className={styles.listingsPlainContainer}
             style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
           >
+            {renderActiveFilters()}
             <div className={styles.sectionHead}>
               <span className={styles.resultsCount}>
                 {listingsLoading
                   ? ""
                   : listingsExpanded
-                  ? homeResultsText.results(filteredListings.length)
+                  ? homeResultsText.results(remoteDisplayListings)
                   : "Uusimmat varaosat"}
               </span>
               <div className={styles.listingToolbar}>
@@ -8865,7 +8746,7 @@ function HomeContent({
                       <VehicleTaxBadges listing={listing} />
                       {listing.vehicle_subtype ? (
                       <div className={styles.badgeRow}>
-                        <span className={styles.badge}>Tyyppi {listing.vehicle_subtype}</span>
+                        <span className={styles.badge}><UiText text={"Tyyppi "} />{listing.vehicle_subtype}</span>
                       </div>
                       ) : null}
 
@@ -8961,7 +8842,7 @@ function HomeContent({
                               submitPageJump();
                             }}
                           >
-                            <span className={styles.pageJumpLabel}>Sivu</span>
+                            <span className={styles.pageJumpLabel}><UiText text={"Sivu"} /></span>
                             <input
                               className={styles.pageJumpInput}
                               type="number"
@@ -9009,9 +8890,7 @@ function HomeContent({
                             className={`${styles.pageBtn} ${styles.pageGap}`}
                             aria-label="Avaa sivulle siirtyminen"
                             onClick={() => setPageJumpOpen(true)}
-                          >
-                            &hellip;
-                          </button>
+                          ><UiText text={"…"} /></button>
                         )
                       ) : (
                         <button
@@ -9258,7 +9137,7 @@ function HomeContent({
           <button
             type="button"
             className={styles.desktopFilterBackdrop}
-            aria-label="Sulje kaikki hakuehdot"
+            aria-label={uiText("Sulje kaikki hakuehdot")}
             onClick={() => setDesktopAllFiltersOpen(false)}
           />
           <aside className={`${styles.desktopFilterModal} ${styles.resultsFilterModal}`}>
@@ -9279,9 +9158,7 @@ function HomeContent({
             >
               <span className={styles.mobileSortRadio}>
                 {recommendationsMode && sort === "Osuvimmat ensin" && <span className={styles.mobileSortRadioDot} />}
-              </span>
-              Palaa suosituksiin
-            </button>
+              </span><UiText text={"Palaa suosituksiin"} /></button>
             {sortValues
               .map((value) => {
               const label = sortLabel(value);
