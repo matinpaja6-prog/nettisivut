@@ -4,7 +4,7 @@ import { buildSeoCollectionCatalog, findSeoCollection, parseSeoCollectionRoute }
 import { seoLocalizedCollectionRoot, seoLocalizedCollectionDescriptorPath, type SeoCollectionKind, type SeoSearchLocale } from "./seo-search";
 import { getListings } from "./supabase";
 
-const getCatalog = cache(async () => {
+export const getSeoCollectionCatalog = cache(async () => {
   const { data, error } = await getListings({ includeOptionalFields: true, enrichSellerProfiles: false });
   if (error) throw new Error("Collection inventory is temporarily unavailable");
   return buildSeoCollectionCatalog(data);
@@ -15,7 +15,7 @@ export async function collectionData(segments: string[], kind: SeoCollectionKind
   try {
     path = `${seoLocalizedCollectionRoot(kind, locale)}/${segments.map(segment => decodeURIComponent(segment)).join("/")}`;
   } catch { notFound(); }
-  const catalog = await getCatalog();
+  const catalog = await getSeoCollectionCatalog();
   const entry = findSeoCollection(catalog, path, locale);
   if (!entry || entry.kind !== kind || !entry.matches.length) notFound();
   return { catalog, entry, path };

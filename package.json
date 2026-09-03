@@ -7,6 +7,7 @@
     "css:build": "node scripts/build-feature-css.mjs",
     "test:css-seo": "node scripts/verify-legacy-css.mjs && node scripts/test-feature-css.mjs && node scripts/test-seo-collections.mjs && node scripts/test-visit-consent.mjs",
     "test:local-seo": "node scripts/test-local-seo-collections.mjs",
+    "test:seo-discovery": "node scripts/test-seo-collections.mjs && node scripts/test-home-brand-seo.mjs",
     "predev": "node scripts/build-feature-css.mjs",
     "prebuild": "node scripts/build-feature-css.mjs",
     "dev": "next dev",

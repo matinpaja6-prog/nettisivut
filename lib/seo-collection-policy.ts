@@ -1,6 +1,7 @@
 import type { Listing } from "./listings";
+import { isVehicleListing } from "./listings";
 import {
-  listingMatchesSeoCollection, seoCollectionLanguagePaths, seoCollectionPath,
+  normalizeSeoSearchText, seoListingSearchWords, seoCollectionLanguagePaths, seoCollectionPath,
   seoLocalizedCollectionDescriptorPath, seoPartCollectionDescriptors, seoVehicleSearchQueries,
   type SeoCollectionDescriptor, type SeoCollectionKind, type SeoSearchLocale
 } from "./seo-search";
@@ -50,9 +51,14 @@ export function buildSeoCollectionCatalog(input: Listing[]): SeoCollectionEntry[
     }
   }
   const owners = new Map<string, string>();
+  // Normalize each listing once, rather than once per generated combination.
+  const searchIndex = listings.map(listing => ({ listing, words: seoListingSearchWords(listing),
+    kind: isVehicleListing(listing) ? "vehicles" : "parts" }));
   return [...descriptors.values()].sort(preferredCollection).map(descriptor => {
     // Count actual unique matches, not how often a descriptor was generated.
-    const matches = listings.filter(listing => listingMatchesSeoCollection(listing, descriptor.query, descriptor.kind));
+    const words = normalizeSeoSearchText(descriptor.query).split(" ");
+    const matches = searchIndex.filter(row => row.kind === descriptor.kind && words.every(word => row.words.has(word)))
+      .map(row => row.listing);
     const signature = JSON.stringify([descriptor.kind, matches.map(row => row.id).sort()]);
     const canonicalPath = owners.get(signature) || descriptor.path;
     if (matches.length) owners.set(signature, canonicalPath);

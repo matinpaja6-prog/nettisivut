@@ -74,14 +74,20 @@ function buildTitle(
   const missingVehicleDetails = [
     listing.brand,
     listing.model,
-    listing.year,
+    listing.year
+  ]
+    .map((item) => cleanMetaText(item))
+    .filter((item) => item && !normalizedTitle.includes(item.toLocaleLowerCase("fi")));
+  const missingPartDetails = [
     partType,
     !isVehicleListing(listing) ? listing.part_model : "",
     !isVehicleListing(listing) ? listing.part_number : ""
   ]
     .map((item) => cleanMetaText(item))
     .filter((item) => item && !normalizedTitle.includes(item.toLocaleLowerCase("fi")));
-  const searchableTitle = [...missingVehicleDetails, listingTitle].join(" ");
+  // Keep the seller's product/manufacturer name near the start of the title,
+  // ahead of long category labels and OEM numbers that Google may truncate.
+  const searchableTitle = [...missingVehicleDetails, listingTitle, ...missingPartDetails].join(" ");
 
   return `${searchableTitle} - ${formatPrice(getListingSalePricing(listing).currentPrice)}`;
 }

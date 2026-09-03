@@ -16,6 +16,12 @@
 .location { margin-top: auto; font-size: 13px; overflow-wrap: anywhere; }
 .related { margin-top: 32px; }
 .related ul { display: flex; flex-wrap: wrap; gap: 8px 24px; padding: 0; list-style: none; }
+.directory { max-width: 1200px; margin: 24px auto; padding: 20px 20px 88px; color: var(--text); }
+.directory h2 { font-size: 20px; line-height: 1.4; }
+.directory ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 8px 20px; list-style: none; padding: 0; }
+.directory a { display: flex; align-items: center; gap: 6px; min-height: 44px; color: inherit; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.directory a:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+.directory a span { color: var(--muted); white-space: nowrap; }
 @media (max-width: 960px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 640px) {
   .page { padding: 20px 10px 32px; }

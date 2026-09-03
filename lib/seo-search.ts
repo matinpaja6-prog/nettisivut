@@ -1,4 +1,5 @@
 import { isVehicleListing, type Listing } from "@/lib/listings";
+import { partGlossary } from "@/lib/part-glossary";
 
 export type SeoCollectionKind = "parts" | "vehicles";
 export type SeoSearchLocale = "fi" | "en" | "sv" | "no";
@@ -72,6 +73,9 @@ export function seoLocalizedCollectionRoot(
 }
 
 const localizedSeoTerms: Record<string, Record<Exclude<SeoSearchLocale, "fi">, string>> = {
+  ...Object.fromEntries(partGlossary.flatMap(([variants, en, sv, no]) =>
+    variants.split("|").map(term => [normalizeSeoSearchText(term), { en, sv, no }])
+  )),
   "alusta telasto": { en: "chassis track system", sv: "chassi boggi", no: "ramme understell" },
   anturit: { en: "sensors", sv: "sensorer", no: "sensorer" },
   "ecu ohjainyksikot": { en: "ecu control units", sv: "ecu styrenheter", no: "ecu styreenheter" },
@@ -144,7 +148,11 @@ const knownPartProductTerms = [
   "stage 6",
   "stage6",
   "tpr",
-  "voca"
+  "voca",
+  "akrapovic", "arrow", "athena", "brembo", "dellorto", "domino",
+  "doppler", "fmf", "giannelli", "hebo", "leovince", "mikuni", "motoforce",
+  "naraku", "ngk", "ohlins", "pro circuit", "scr corse", "tecnigas",
+  "top performances", "vertex", "wiseco", "yasuni"
 ];
 
 export function localizeSeoSearchQuery(query: string, locale: SeoSearchLocale) {
@@ -232,7 +240,7 @@ export function seoListingSearchQueries(
   return [...baseQueries];
 }
 
-function seoPartTerms(listing: Pick<Listing, "category" | "subcategory">) {
+function seoPartTerms(listing: Pick<Listing, "category" | "subcategory">, includeAliases = false) {
   const terms = new Set<string>();
   const category = normalizeSeoSearchText(listing.category);
   const subcategory = normalizeSeoSearchText(
@@ -241,6 +249,17 @@ function seoPartTerms(listing: Pick<Listing, "category" | "subcategory">) {
 
   if (subcategory) terms.add(subcategory);
   if (category && category !== "ajoneuvot" && category !== subcategory) terms.add(category);
+
+  // Expand only the specific part name, not its broad parent department:
+  // an exhaust gasket must not become an exhaust-pipe result. Reuse the
+  // reviewed glossary for singular/plural and everyday names across makes.
+  const specificPart = ` ${subcategory || category} `;
+  for (const [variants] of includeAliases ? partGlossary : []) {
+    const aliases = variants.split("|").map(normalizeSeoSearchText);
+    if (aliases.some(alias => specificPart.includes(` ${alias} `))) {
+      for (const alias of aliases) terms.add(alias);
+    }
+  }
 
   // Common searches often use only the final noun from a compound category,
   // for example "tangot" instead of the stored "raidetangot".
@@ -284,9 +303,7 @@ function seoPartTerms(listing: Pick<Listing, "category" | "subcategory">) {
   // terms "putki" or "pakoputki". Publish those useful model-specific
   // collection URLs alongside the taxonomy term "pakoputkisto", for example
   // /varaosat/yamaha-dt-putki.
-  if ([category, subcategory].some((value) =>
-    value.includes("pakoputk") || value.includes("tehoputk")
-  )) {
+  if (/\b(?:pakoputkisto|pakoputki|pakoputket|tehoputki|tehoputket|resonanssiputket)\b/.test(specificPart)) {
     terms.add("putki");
     terms.add("pakoputki");
   }
@@ -299,8 +316,7 @@ function seoPartProductTerms(
 ) {
   const productText = normalizeSeoSearchText([
     listing.part_model,
-    listing.title,
-    listing.description
+    listing.title
   ].filter(Boolean).join(" "));
   const paddedText = ` ${productText} `;
   const terms = new Set<string>();
@@ -310,8 +326,8 @@ function seoPartProductTerms(
     if (paddedText.includes(` ${normalizedTerm} `)) terms.add(normalizedTerm);
   }
 
-  // A dedicated part-model field is controlled catalogue data and can safely
-  // become a search term even when the manufacturer is not yet in the list.
+  // The explicit part-model field supports manufacturers outside the curated
+  // list. Do not infer a manufacturer from incidental description mentions.
   const partModel = normalizeSeoSearchText(listing.part_model);
   if (partModel && partModel.length <= 48) {
     terms.add(partModel);
@@ -433,6 +449,23 @@ export function seoPartCollectionDescriptors(listing: Listing): SeoCollectionDes
       } else {
         add(`${vehicleQuery} ${productTerm}`, seoSearchPath(`${vehicleQuery} ${productTerm}`));
       }
+      for (const partTerm of partTerms) {
+        // One word order/path per real product + part combination. Synonym
+        // result sets are consolidated by the collection publication policy.
+        add(`${vehicleQuery} ${productTerm} ${partTerm}`,
+          variantModel
+            ? seoPathFromSegments("parts", brand, variantModel, productTerm, partTerm)
+            : seoSearchPath(`${vehicleQuery} ${productTerm} ${partTerm}`));
+      }
+    }
+  }
+
+  for (const productTerm of productTerms) {
+    add(productTerm, seoPathFromSegments("parts", productTerm));
+    for (const partTerm of partTerms) {
+      add(`${productTerm} ${partTerm}`, seoPathFromSegments("parts", productTerm, partTerm));
+      if (brand) add(`${brand} ${productTerm} ${partTerm}`,
+        seoPathFromSegments("parts", brand, productTerm, partTerm));
     }
   }
 
@@ -560,9 +593,15 @@ export function listingMatchesSeoQuery(listing: Listing, query: string) {
   const words = normalizeSeoSearchText(query).split(" ").filter(Boolean);
   if (words.length === 0) return false;
 
+  const haystackWords = seoListingSearchWords(listing);
+  return words.every((word) => haystackWords.has(word));
+}
+
+export function seoListingSearchWords(listing: Listing) {
+  // Collection membership uses the advertised item, not incidental wording
+  // such as "does not fit Yamaha" or "Voca exhaust not included" in free text.
   const haystack = normalizeSeoSearchText([
     listing.title,
-    listing.description,
     listing.vehicle_type,
     listing.brand,
     listing.model,
@@ -572,14 +611,14 @@ export function listingMatchesSeoQuery(listing: Listing, query: string) {
     listing.category,
     listing.subcategory,
     listing.engine_model,
-    ...seoPartTerms(listing)
+    ...seoPartTerms(listing, true)
   ].join(" "));
   const haystackWords = new Set(haystack.split(" ").filter(Boolean));
 
   // Generated collection terms are normalized catalogue words. A substring
   // match made "moottori" (engine) match "moottorikelkka" (snowmobile), so
   // an engine landing page incorrectly contained nearly every spare part.
-  return words.every((word) => haystackWords.has(word));
+  return haystackWords;
 }
 
 export function formatSeoSearchLabel(query: string) {

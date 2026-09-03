@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import HomeClient from "@/app/HomeClient";
+import SeoCollectionDirectory from "@/app/components/SeoCollectionDirectory";
 import { isVehicleListing } from "@/lib/listings";
 import { listingPath, languagePaths, pagePath } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
@@ -60,6 +61,7 @@ export default async function VehiclesPage() {
         initialListings={vehicles}
         initialMarketplaceMode="vehicles"
       />
+      <SeoCollectionDirectory kind="vehicles" locale={locale} />
     </>
   );
 }

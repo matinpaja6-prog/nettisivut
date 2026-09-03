@@ -8,10 +8,18 @@ const require = createRequire(import.meta.url);
 createRequire(require.resolve('next/package.json'))('@next/env').loadEnvConfig(process.cwd());
 const load = createTestLoader({ 'lucide-react': require('lucide-react') });
 const { buildSeoCollectionCatalog, MIN_INDEXABLE_COLLECTION_LISTINGS } = load('lib/seo-collection-policy.ts');
-const params = new URLSearchParams({ select:'id,title,description,brand,model,year,vehicle_type,category,subcategory,part_number,engine_model,is_hidden,is_sold', is_hidden:'eq.false', is_sold:'eq.false', limit:'501', order:'id.asc' });
-const response = await fetch(process.env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/listings?'+params, {
+const params = new URLSearchParams({ select:'id,title,description,brand,model,year,vehicle_type,category,subcategory,part_model,part_number,engine_model,is_hidden,is_sold', is_hidden:'eq.false', is_sold:'eq.false', limit:'501', order:'id.asc' });
+const request = () => fetch(process.env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/listings?'+params, {
   headers: { apikey:process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY }, signal:AbortSignal.timeout(20000)
 });
+let response = await request();
+if (response.status === 400) {
+  const error = await response.clone().json();
+  if (error.code === '42703' && String(error.message).includes('part_model')) {
+    params.set('select',params.get('select').split(',').filter(column=>column!=='part_model').join(','));
+    response = await request();
+  }
+}
 if (!response.ok) throw new Error('Public inventory HTTP '+response.status);
 const listings = await response.json();
 if (listings.length > 500) throw new Error('Snapshot exceeds 500; use a paginated full audit before drawing conclusions');

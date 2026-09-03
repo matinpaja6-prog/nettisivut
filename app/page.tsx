@@ -4,13 +4,14 @@ import HomeClient from "./HomeClient";
 import { getListings } from "@/lib/supabase";
 import { listingPath, languagePaths, translateLocalizedPath } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
+import { siteBrandImage } from "@/lib/site-brand-image";
 
 export const revalidate = 300;
 
 import { getServerLocale } from "@/lib/server-locale";
 
 const homeCopy = {
- fi: ["Maskines – Osta ja myy varaosia ja ajoneuvoja", "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille."],
+ fi: ["Maskines – Osta ja myy varaosia ja ajoneuvoja", "Osta ja myy mopojen, moottorikelkkojen, mönkijöiden ja motocross-pyörien varaosia ja ajoneuvoja. Selaa ilmoituksia merkin, mallin ja osan mukaan."],
  en: ["Maskines – Buy and sell parts and vehicles", "The Nordic marketplace for small vehicles and spare parts."],
  sv: ["Maskines – Köp och sälj reservdelar och fordon", "Den nordiska marknadsplatsen för småfordon och reservdelar."],
  no: ["Maskines – Kjøp og selg reservedeler og kjøretøy", "Den nordiske markedsplassen for små kjøretøy og reservedeler."]
@@ -20,7 +21,9 @@ export async function generateMetadata(): Promise<Metadata> {
  const locale = await getServerLocale();
  const [title, description] = homeCopy[locale];
  const url = absoluteSiteUrl(translateLocalizedPath("/", locale));
- return { title: { absolute: title }, description, alternates: { canonical: url, languages: { ...languagePaths("/"), "x-default": "/" } }, openGraph: { title, description, url, locale: {fi:"fi_FI",en:"en_GB",sv:"sv_SE",no:"nb_NO"}[locale] }, twitter: { title, description } };
+ return { title: { absolute: title }, description, alternates: { canonical: url, languages: { ...languagePaths("/"), "x-default": "/" } },
+   openGraph: { type: "website", siteName: "Maskines", title, description, url, images: [siteBrandImage], locale: {fi:"fi_FI",en:"en_GB",sv:"sv_SE",no:"nb_NO"}[locale] },
+   twitter: { card: "summary_large_image", title, description, images: [siteBrandImage.url] } };
 }
 
 
@@ -56,6 +59,10 @@ export default async function HomePage({
   const publicListings = initialResult.data.filter(
     (listing) => !listing.is_hidden && !listing.is_sold
   );
+  const homeUrl = absoluteSiteUrl(translateLocalizedPath("/", locale));
+  const logo = { "@type": "ImageObject", "@id": `${PUBLIC_SITE_URL}/#brand-logo`,
+    url: absoluteSiteUrl(siteBrandImage.url), contentUrl: absoluteSiteUrl(siteBrandImage.url),
+    width: siteBrandImage.width, height: siteBrandImage.height, caption: siteBrandImage.alt };
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -64,10 +71,19 @@ export default async function HomePage({
         "@id": `${PUBLIC_SITE_URL}/#organization`,
         name: "Maskines",
         url: PUBLIC_SITE_URL,
-        logo: {
-          "@type": "ImageObject",
-          url: absoluteSiteUrl("/maskines-favicon-v6.png")
-        }
+        logo,
+        image: logo
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${homeUrl}#webpage`,
+        url: homeUrl,
+        name: homeCopy[locale][0],
+        description: homeCopy[locale][1],
+        inLanguage: locale === "no" ? "nb" : locale,
+        isPartOf: { "@id": `${PUBLIC_SITE_URL}/#website` },
+        about: { "@id": `${PUBLIC_SITE_URL}/#organization` },
+        primaryImageOfPage: logo
       },
       {
         "@type": "WebSite",

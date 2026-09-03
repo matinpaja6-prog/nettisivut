@@ -43,4 +43,34 @@ for(const entry of collisions) for(const [language,path] of Object.entries(polic
   assert.equal(policy.findSeoCollection(collisions,path,locale).path,entry.path,'Metadata and sitemap agree on locale owner');
 }
 assert.deepEqual(policy.buildSeoCollectionCatalog([]),[]);
+// Model + aftermarket manufacturer + actual part type, on arbitrary makes.
+for (const [brand, model, manufacturer] of [['Yamaha','DT','Voca'], ['Derbi','Senda','Yasuni'], ['Honda','CRF','FMF'], ['Testimerkki','Malli X','OmaValmistaja']]) {
+  const exhaust = {...base, id:'pipe', brand, model, vehicle_type:'Mopo', category:'Pakoputkisto',
+    subcategory:'Pakoputkisto / Pakoputket', title:`${manufacturer} pakoputki`, part_model:manufacturer, description:''};
+  const slug=seo.seoSearchSlug;
+  const path=`/varaosat/${slug(brand)}/${slug(model)}/${slug(manufacturer)}/putki`;
+  const descriptor=seo.seoPartCollectionDescriptors(exhaust).find(row=>row.path===path);
+  assert.ok(descriptor, path);
+  assert.equal(seo.listingMatchesSeoCollection(exhaust, `${brand} ${model} ${manufacturer} putki`, 'parts'),true);
+  assert.equal(seo.listingMatchesSeoCollection(exhaust, `${manufacturer} putki ${brand} ${model}`, 'parts'),true,'Word order does not create different inventory');
+  assert.equal(seo.listingMatchesSeoCollection({...exhaust,subcategory:'Pakoputkisto / Pakoputken tiivisteet',title:'Tiiviste'},`${brand} ${model} putki`,'parts'),false,'An exhaust gasket is not a pipe');
+  assert.equal(seo.listingMatchesSeoCollection({...exhaust,brand:'Muu',model:'Eri'},descriptor.query,'parts'),false);
+  assert.equal(seo.listingMatchesSeoCollection({...exhaust,brand:'Muu',model:'Eri',description:`Ei sovi ${brand} ${model}`},descriptor.query,'parts'),false,'Do not infer compatibility from free text');
+  const sparse=policy.buildSeoCollectionCatalog([exhaust]);
+  assert.equal(sparse.find(row=>row.path===path).indexable,false,'One item is indexed through its listing, not dozens of thin pages');
+  const stock=policy.buildSeoCollectionCatalog([0,1,2].map(i=>({...exhaust,id:'pipe-'+i})));
+  const combined=stock.find(row=>row.path===path);
+  assert.equal(combined.matches.length,3);
+  assert.ok(stock.find(row=>row.path===combined.canonicalPath).indexable,'Duplicate aliases resolve to one indexable owner');
+  for(const locale of ['fi','en','sv','no']) {
+    const localized=seo.seoLocalizedCollectionDescriptorPath('parts',path,locale);
+    assert.ok(policy.findSeoCollection(stock,localized,locale));
+  }
+  assert.equal(policy.findSeoCollection(stock,path.replace('/putki','/olematon-osa')),undefined,'No arbitrary keyword landing pages');
+}
+const carb={...base,id:'carb',brand:'Yamaha',model:'DT',category:'Moottori',subcategory:'Kaasuttimet',title:'Kaasutin',description:''};
+assert.equal(seo.listingMatchesSeoCollection(carb,'yamaha dt kaasutin','parts'),true);
+assert.equal(seo.listingMatchesSeoCollection(carb,'yamaha dt kaasuttimet','parts'),true);
+assert.ok(!seo.seoPartCollectionDescriptors({...carb,description:'Ei Voca putki'}).some(row=>row.query.includes('voca')),'Do not infer a manufacturer from description mentions');
+console.log('PASS make/model/manufacturer/part combinations, synonyms, word order, exact part intent and thin/duplicate guards');
 console.log('PASS collection SEO: exact word matching, real counts, hidden/sold, thin pages, stable canonical sets, all locales and translated slug collisions');

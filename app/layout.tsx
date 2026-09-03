@@ -23,6 +23,7 @@ import GoogleMeasurement from "./components/GoogleMeasurement";
 import CurrencyProvider from "./components/CurrencyProvider";
 import { languagePaths } from "@/lib/routes";
 import { PUBLIC_SITE_URL } from "@/lib/site-url";
+import { siteBrandImage, siteFavicon } from "@/lib/site-brand-image";
 import { googleVerification } from "@/lib/measurement-config";
 import { validateSeoCollectionRoute } from "@/lib/server-seo-collections";
 
@@ -55,11 +56,11 @@ const baseMetadata: Metadata = {
   ],
   icons: {
     icon: [
-      { url: "/maskines-favicon-v6.png", sizes: "192x192", type: "image/png" },
+      { url: siteFavicon, sizes: "192x192", type: "image/png" },
       { url: "/favicon.ico", sizes: "48x48 256x256", type: "image/x-icon" }
     ],
-    shortcut: "/maskines-favicon-v6.png",
-    apple: [{ url: "/maskines-favicon-v6.png", sizes: "192x192", type: "image/png" }]
+    shortcut: siteFavicon,
+    apple: [{ url: siteFavicon, sizes: "192x192", type: "image/png" }]
   },
   ...(searchConsoleVerification
     ? { verification: { google: searchConsoleVerification } }
@@ -73,21 +74,14 @@ const baseMetadata: Metadata = {
     description:
       "Pohjoismainen markkinapaikka moottorikelkoille, mönkijöille, motocross-pyörille, mopoille ja niiden varaosille.",
     url: "/",
-    images: [
-      {
-        url: "/maskines-brand-share-v2.png",
-        width: 1200,
-        height: 1200,
-        alt: "Maskines-logo"
-      }
-    ]
+    images: [siteBrandImage]
   },
   twitter: {
     card: "summary_large_image",
     title: "Maskines | Pienkoneiden ajoneuvot ja varaosat",
     description:
       "Osta ja myy pienkoneiden ajoneuvoja ja varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin.",
-    images: ["/maskines-brand-share-v2.png"]
+    images: [siteBrandImage.url]
   }
 };
 

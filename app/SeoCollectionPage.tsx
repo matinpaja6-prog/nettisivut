@@ -10,6 +10,7 @@ import { formatSeoSearchLabel, localizeSeoSearchQuery, seoLocalizedCollectionDes
 import { listingPath } from "@/lib/routes";
 import { getLocalizedListingText } from "@/lib/listing-translations";
 import { absoluteSiteUrl } from "@/lib/site-url";
+import { glossaryTitle } from "@/lib/part-glossary";
 
 const copy = {
   fi: { home: "Etusivu", parts: "Varaosat", vehicles: "Ajoneuvot", sale: "myynnissä", count: "ilmoitusta", intro: "Vertaa ilmoitusten kuvia, hintoja ja sijainteja. Tarkista sopivuus ja kunto ilmoituksesta tai myyjältä ennen ostamista.", refine: "Rajaa hakua", all: "Näytä koko osasto", related: "Samankaltaiset haut" },
@@ -74,6 +75,10 @@ export default async function SeoCollectionPage({ segments, kind, locale }: { se
         return <li key={listing.id}><Link href={listingPath(listing,locale)} className={styles.card}>
           <OptimizedListingImage src={listing.image_url} alt={text.title} className={styles.image} priority={index < 2} sizes="(max-width: 640px) 47vw, (max-width: 960px) 31vw, 280px" />
           <div className={styles.body}><span className={styles.meta}>{[listing.brand,listing.model,listing.year].filter(Boolean).join(" · ")}</span><h2 className={styles.title}>{text.title}</h2>
+            {kind === "parts" && <span className={styles.meta}>{[
+              glossaryTitle(listing.subcategory?.split("/").at(-1)?.trim() || listing.category || "", locale),
+              listing.part_model
+            ].filter(Boolean).join(" · ")}</span>}
             <CollectionPrice listing={{ price:listing.price, translations:listing.translations }} />
             <span className={styles.location}>{listing.location}</span>
           </div>
