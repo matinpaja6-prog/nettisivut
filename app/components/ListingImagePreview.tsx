@@ -72,7 +72,7 @@ export default function ListingImagePreview({ src, alt, locale, imageNumber, ima
         <button ref={closeRef} type="button" className={styles.close} onClick={onClose} aria-label={t.close}><X size={24} /></button>
       </div>
       <div className={styles.frame}>
-        <OptimizedListingImage src={src} alt={alt} className={styles.photo} priority sizes="(max-width: 720px) 94vw, 90vw" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} />
+        <OptimizedListingImage src={src} alt={alt} className={styles.photo} priority sizes="(max-width: 960px) 100vw, 90vw" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} />
         {imageCount > 1 && <>
           <button type="button" className={`${styles.arrow} ${styles.previous}`} onClick={() => onNavigate(-1)} aria-label={t.previous}><ChevronLeft size={26} /></button>
           <button type="button" className={`${styles.arrow} ${styles.next}`} onClick={() => onNavigate(1)} aria-label={t.next}><ChevronRight size={26} /></button>

@@ -32,12 +32,47 @@
 .next { right: 10px; }
 :global(html[data-theme="light"]) .dialog { --preview-surface: #fff; --preview-text: #172b38; --preview-line: #c8d3da; box-shadow: 0 20px 70px rgb(28 46 58 / 20%); }
 :global(html[data-theme="light"]) .dialog::backdrop { background: rgb(231 237 241 / 97%); }
-@media (max-width: 720px) {
-  .dialog { --preview-image-height: calc(100dvh - 116px); padding: 8px; max-width: calc(100vw - 16px); min-width: min(300px, calc(100vw - 16px)); border-radius: 12px; }
-  .toolbar { gap: 8px; padding-bottom: 8px; }
+/* Use the full phone viewport, including when rotated. The toolbar has its
+   own row so it never covers the photo or falls below the browser controls. */
+@media (max-width: 720px), (max-width: 960px) and (max-height: 500px) {
+  .dialog {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .dialog[open] { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+  .toolbar {
+    gap: 8px;
+    padding: calc(8px + env(safe-area-inset-top, 0px))
+      calc(8px + env(safe-area-inset-right, 0px)) 8px
+      calc(8px + env(safe-area-inset-left, 0px));
+  }
   .caption { font-size: 12px; }
   .counter { font-size: 12px; }
-  .frame .photo { max-width: calc(100vw - 34px); }
-  .previous { left: 6px; }
-  .next { right: 6px; }
+  .frame {
+    min-height: 0;
+    border-radius: 0;
+    padding: 0 env(safe-area-inset-right, 0px)
+      env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  }
+  .frame .photo {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 0;
+  }
+  .previous { left: calc(8px + env(safe-area-inset-left, 0px)); }
+  .next { right: calc(8px + env(safe-area-inset-right, 0px)); }
 }

@@ -35,7 +35,17 @@ async function checkLayout(theme) {
   for (const rect of [result.rect, result.image, result.close]) {
     assert.ok(rect.left >= 0 && rect.top >= 0 && rect.right <= result.viewport[0] && rect.bottom <= result.viewport[1], 'Preview, image and close button must fit viewport');
   }
-  assert.ok(Math.abs(result.image.width / result.image.height - result.natural[0] / result.natural[1]) < 0.005, 'Do not stretch or crop photo');
+  const mobile = result.viewport[0] <= 720 || (result.viewport[0] <= 960 && result.viewport[1] <= 500);
+  if (mobile) {
+    assert.equal(result.rect.width, result.viewport[0], 'Phone preview must fill viewport width');
+    assert.equal(result.rect.height, result.viewport[1], 'Phone preview must fill dynamic viewport height');
+    assert.equal(result.rect.left, 0);
+    assert.equal(result.rect.top, 0);
+    assert.ok(result.image.top >= result.close.bottom, 'Toolbar must not cover the photo');
+    assert.ok(result.image.height >= result.viewport[1] - 70, 'Photo uses the space below the toolbar');
+  } else {
+    assert.ok(Math.abs(result.image.width / result.image.height - result.natural[0] / result.natural[1]) < 0.005, 'Do not stretch or crop photo');
+  }
   assert.ok(result.close.width >= 44 && result.close.height >= 44, 'Accessible close target');
   assert.equal(result.background, theme === 'light' ? 'rgb(255, 255, 255)' : 'rgb(16, 29, 41)');
   console.log(`PASS ${theme} ${result.viewport.join('x')}: top layer, image ratio, viewport bounds, visible close and scroll lock`);
